@@ -65,6 +65,7 @@ class Survey:
     context: str
     questions: List[Question]
     demographics: List[str] = field(default_factory=list)
+    personas: List[str] = field(default_factory=list)
     sample_size: int = 100
 
     @classmethod
@@ -115,6 +116,7 @@ class Survey:
             context=survey_config['context'],
             questions=questions,
             demographics=survey_config.get('demographics', []),
+            personas=survey_config.get('personas', []),
             sample_size=survey_config.get('sample_size', 100)
         )
 

@@ -199,11 +199,12 @@ def generate_llm_style_response(target_statement: str, rating: int, max_rating: 
     return f"{hedge} {target_statement.lower()}{qualifier}."
 
 
-def main(persona_config=None):
+def main(persona_config=None, ground_truth_path=None):
     """Run the ground truth comparison pipeline.
 
     Args:
         persona_config: Optional dict with persona configuration
+        ground_truth_path: Optional path to uploaded ground truth CSV file
     """
     # Generate timestamp for this run
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -232,23 +233,50 @@ def main(persona_config=None):
     for q in survey.questions:
         print(f"      - {q.id} ({q.type})")
 
+    # Load personas from survey config
+    if survey.personas:
+        print(f"    ✓ Loaded {len(survey.personas)} personas from config")
+
     # 2. Generate respondent profiles
     print("\n[2/8] Generating respondent profiles...")
     n_respondents = survey.sample_size
+
+    # Use personas from survey config if available
+    if survey.personas:
+        if not persona_config:
+            persona_config = {}
+        persona_config['mode'] = 'descriptions'
+        persona_config['descriptions'] = survey.personas
+
     profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
     print(f"    ✓ Generated {len(profiles)} profiles")
-    if persona_config and persona_config.get('custom_fields'):
-        custom_fields = persona_config['custom_fields']
-        print(f"    ✓ Using {len(custom_fields)} custom persona fields: {', '.join(custom_fields.keys())}")
 
-    # 3. Generate ground truth ratings
-    print("\n[3/8] Generating ground truth ratings...")
-    ground_truth_df = generate_ground_truth_ratings(survey, profiles)
+    # 3. Load or generate ground truth ratings
+    if ground_truth_path and Path(ground_truth_path).exists():
+        print("\n[3/8] Loading uploaded ground truth data...")
+        ground_truth_df = pd.read_csv(ground_truth_path)
+        print(f"    ✓ Loaded {len(ground_truth_df)} ground truth ratings from file")
+        print(f"    ✓ File: {ground_truth_path}")
+
+        # Validate ground truth has required columns
+        required_cols = ['respondent_id', 'question_id', 'ground_truth']
+        if not all(col in ground_truth_df.columns for col in required_cols):
+            raise ValueError(f"Ground truth CSV must have columns: {required_cols}")
+
+        # Validate matches survey questions
+        gt_questions = set(ground_truth_df['question_id'].unique())
+        survey_questions = set(q.id for q in survey.questions)
+        if not gt_questions.issubset(survey_questions):
+            missing = gt_questions - survey_questions
+            print(f"    ⚠ Warning: Ground truth contains questions not in survey: {missing}")
+    else:
+        print("\n[3/8] Generating artificial ground truth ratings...")
+        ground_truth_df = generate_ground_truth_ratings(survey, profiles)
+        print(f"    ✓ Generated {len(ground_truth_df)} ground truth ratings")
 
     # Save to experiment folder
     gt_path = experiment_dir / 'ground_truth.csv'
     ground_truth_df.to_csv(gt_path, index=False)
-    print(f"    ✓ Generated {len(ground_truth_df)} ground truth ratings")
     print(f"    ✓ Saved to {gt_path}")
 
     # 4. Generate "human" responses aligned with ground truth

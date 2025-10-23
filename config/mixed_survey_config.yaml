@@ -76,4 +76,13 @@ survey:
     - lottery_playing_frequency
     - gambling_attitude
 
+  # Persona descriptions for generating LLM responses
+  # These match the personas used in human ground truth collection
+  personas:
+    - "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, plays lottery occasionally for fun."
+    - "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about online payments. Never played lottery online before."
+    - "A 28-year-old graduate student. Very budget-conscious. Plays lottery weekly at convenience store. Interested in mobile apps."
+    - "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Plays lottery when jackpot is high."
+    - "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Likes convenience of automated services."
+
   sample_size: 50

@@ -137,40 +137,103 @@ if not test_human and not test_llm:
 st.header(" Persona Configuration")
 
 st.markdown("""
-Configure the personas for generating synthetic respondents.
-The system will randomly select from your persona pool to create diverse respondents.
+Personas are defined in the survey YAML config file.
+These personas are used to generate LLM responses and should match the personas
+used in human ground truth data collection.
 """)
 
-# Get persona descriptions from session state or use defaults
-if 'persona_descriptions' not in st.session_state:
-    st.session_state.persona_descriptions = [
-        "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, environmentally conscious.",
-        "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about change. Prefers traditional methods. Not very tech-savvy.",
-        "A 28-year-old graduate student in environmental science. Very passionate about climate change. Low income but highly educated. Socially progressive.",
-        "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Pragmatic about environmental issues. Politically independent.",
-        "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Concerned about healthcare costs. Values work-life balance."
-    ]
+# Load personas from survey config (if survey was loaded)
+if selected_survey and survey_config and 'survey' in survey_config:
+    survey_personas = survey_config['survey'].get('personas', [])
 
-# Show persona pool
-with st.expander(f" Persona Pool ({len(st.session_state.persona_descriptions)} personas)", expanded=False):
-    st.markdown("**Current personas:**")
-    for i, persona in enumerate(st.session_state.persona_descriptions, 1):
-        st.markdown(f"{i}. {persona}")
+    if survey_personas:
+        # Show persona pool from config
+        with st.expander(f" Persona Pool from Config ({len(survey_personas)} personas)", expanded=False):
+            st.markdown("**Personas defined in survey config:**")
+            for i, persona in enumerate(survey_personas, 1):
+                st.markdown(f"{i}. {persona}")
 
-    st.info("Go to Settings to modify the persona pool")
+            st.info(f"Edit {selected_survey} to modify personas")
 
-# Show current configuration summary
-st.markdown("**Current Configuration:**")
-col1, col2 = st.columns(2)
+        # Show current configuration summary
+        st.markdown("**Current Configuration:**")
+        col1, col2 = st.columns(2)
 
-with col1:
-    st.metric("Persona Pool Size", len(st.session_state.persona_descriptions))
+        with col1:
+            st.metric("Persona Pool Size", len(survey_personas))
 
-with col2:
-    st.metric("Selection Method", "Random")
+        with col2:
+            st.metric("Selection Method", "Random")
+    else:
+        warning_message("No personas defined in survey config. Using default personas.")
 
 # ======================
-# Section D: SSR Configuration
+# Section D: Ground Truth Data
+# ======================
+st.header(" Ground Truth Data")
+
+st.markdown("""
+You can either upload real human ground truth data or generate artificial ground truth.
+""")
+
+# Ground truth option
+ground_truth_option = st.radio(
+    "Ground Truth Source",
+    ["Generate Artificial Ground Truth", "Upload Real Human Data"],
+    help="Choose whether to generate random ground truth or upload real human survey responses"
+)
+
+uploaded_ground_truth = None
+
+if ground_truth_option == "Upload Real Human Data":
+    st.markdown("**Upload CSV File:**")
+    st.markdown("CSV must have columns: `respondent_id`, `question_id`, `ground_truth`")
+
+    uploaded_file = st.file_uploader(
+        "Choose ground truth CSV file",
+        type=['csv'],
+        help="Upload a CSV with ground truth ratings from human respondents"
+    )
+
+    if uploaded_file:
+        # Preview uploaded file
+        import pandas as pd
+        import tempfile
+        import shutil
+
+        # Read and validate
+        try:
+            df = pd.read_csv(uploaded_file)
+
+            # Check required columns
+            required_cols = ['respondent_id', 'question_id', 'ground_truth']
+            if all(col in df.columns for col in required_cols):
+                success_message(f"Valid ground truth file uploaded: {len(df)} ratings")
+
+                # Show preview
+                with st.expander("Preview Ground Truth Data"):
+                    st.dataframe(df.head(10))
+                    st.markdown(f"**Total rows:** {len(df)}")
+                    st.markdown(f"**Unique respondents:** {df['respondent_id'].nunique()}")
+                    st.markdown(f"**Questions:** {', '.join(df['question_id'].unique())}")
+
+                # Save to temp file for pipeline
+                temp_dir = Path("temp")
+                temp_dir.mkdir(exist_ok=True)
+                temp_path = temp_dir / f"ground_truth_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                df.to_csv(temp_path, index=False)
+                uploaded_ground_truth = str(temp_path)
+
+            else:
+                error_message(f"CSV must have columns: {required_cols}. Found: {list(df.columns)}")
+
+        except Exception as e:
+            error_message(f"Error reading CSV: {str(e)}")
+else:
+    st.info("Artificial ground truth will be generated based on persona descriptions")
+
+# ======================
+# Section E: SSR Configuration
 # ======================
 st.header(" SSR Configuration")
 
@@ -197,7 +260,7 @@ with col3:
     st.caption("Subtract min + proportional")
 
 # ======================
-# Section E: Run Experiment
+# Section F: Run Experiment
 # ======================
 st.markdown("---")
 st.header(" Execute Pipeline")
@@ -215,8 +278,13 @@ with st.expander(" Experiment Summary", expanded=True):
     - LLM-style: {'' if test_llm else ''}
 
     **Persona Pool:**
-    - Pool Size: {len(st.session_state.persona_descriptions)} unique personas
+    - Pool Size: {len(survey_personas) if survey_personas else 0} unique personas
     - Selection: Random sampling with replacement
+    - Source: Survey YAML config
+
+    **Ground Truth:**
+    - Source: {"Uploaded Human Data" if uploaded_ground_truth else "Artificial Generation"}
+    {"- File: " + uploaded_ground_truth if uploaded_ground_truth else ""}
 
     **SSR Settings:**
     - Model: text-embedding-3-small
@@ -265,19 +333,20 @@ if run_button:
             status_text.text("Step 2/8: Initializing pipeline...")
             progress_bar.progress(20)
 
-            # Build persona configuration
-            persona_config = {
-                'mode': 'descriptions',
-                'descriptions': st.session_state.persona_descriptions
-            }
+            # Build persona configuration (empty, will use survey config)
+            persona_config = {}
 
-            # Build command with persona config
+            # Build command with persona config and optional ground truth
             persona_config_json = json.dumps(persona_config)
             cmd = [
                 sys.executable,
                 "run_pipeline_with_config.py",
                 persona_config_json
             ]
+
+            # Add ground truth path if uploaded
+            if uploaded_ground_truth:
+                cmd.append(uploaded_ground_truth)
 
             # Run the pipeline as subprocess
             status_text.text("Step 3/8: Loading survey...")
