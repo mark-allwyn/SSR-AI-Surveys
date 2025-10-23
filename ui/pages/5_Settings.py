@@ -12,15 +12,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from ui.utils.data_loader import get_all_experiments, get_experiment_info, delete_experiment
 from ui.components.metrics_cards import success_message, warning_message, error_message
 
-st.set_page_config(page_title="Settings", page_icon="⚙️", layout="wide")
+st.set_page_config(page_title="Settings", page_icon="", layout="wide")
 
-st.title("⚙️ Settings & Configuration")
+st.title(" Settings & Configuration")
 
 # Load environment variables
 load_dotenv()
 
 # Tabs for different settings
-tab1, tab2, tab3, tab4 = st.tabs(["🔑 API Configuration", "👤 Persona Defaults", "🗂️ Experiment Management", "ℹ️ About"])
+tab1, tab2, tab3, tab4 = st.tabs([" API Configuration", " Persona Defaults", "🗂 Experiment Management", " About"])
 
 # ======================
 # Tab 1: API Configuration
@@ -37,7 +37,7 @@ with tab1:
     current_key = os.getenv("OPENAI_API_KEY") or st.session_state.get('api_key')
 
     if current_key:
-        st.success("✓ API Key is configured")
+        st.success(" API Key is configured")
         masked_key = current_key[:8] + "..." + current_key[-4:] if len(current_key) > 12 else "***"
         st.code(f"Current Key: {masked_key}")
     else:
@@ -64,7 +64,7 @@ with tab1:
             help="Save the API key to .env file for persistence"
         )
 
-    if st.button("💾 Save API Key", type="primary"):
+    if st.button(" Save API Key", type="primary"):
         if api_key_input.startswith("sk-"):
             # Save to session state
             st.session_state.api_key = api_key_input
@@ -89,7 +89,7 @@ with tab1:
         st.markdown("---")
         st.subheader("Test API Connection")
 
-        if st.button("🧪 Test Connection"):
+        if st.button(" Test Connection"):
             with st.spinner("Testing API connection..."):
                 try:
                     from openai import OpenAI
@@ -102,14 +102,14 @@ with tab1:
                     )
 
                     if response.data:
-                        success_message("✓ API connection successful! Embedding model is accessible.")
+                        success_message(" API connection successful! Embedding model is accessible.")
                 except Exception as e:
                     error_message(f"API connection failed: {str(e)}")
 
     # Clear API key
     if current_key:
         st.markdown("---")
-        if st.button("🗑️ Clear API Key", type="secondary"):
+        if st.button(" Clear API Key", type="secondary"):
             st.session_state.api_key = None
             warning_message("API key cleared from session. Reload page to use .env key if available.")
             st.rerun()
@@ -169,7 +169,7 @@ with tab2:
     )
 
     # Save button
-    if st.button("💾 Save Persona Configuration", type="primary"):
+    if st.button(" Save Persona Configuration", type="primary"):
         # Parse inputs
         age_groups = [line.strip() for line in age_groups_input.split('\n') if line.strip()]
         income_brackets = [line.strip() for line in income_brackets_input.split('\n') if line.strip()]
@@ -188,7 +188,7 @@ with tab2:
             st.rerun()
 
     # Reset to defaults
-    if st.button("🔄 Reset to Defaults"):
+    if st.button(" Reset to Defaults"):
         st.session_state.persona_config = {
             'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
             'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
@@ -234,7 +234,7 @@ with tab3:
 
         # Delete experiments
         st.subheader("Delete Experiments")
-        warning_message("⚠️ Deletion is permanent and cannot be undone!")
+        warning_message(" Deletion is permanent and cannot be undone!")
 
         # Select experiment to delete
         experiment_options = {info['timestamp']: path for path, info in
@@ -266,7 +266,7 @@ with tab3:
                 confirm = st.checkbox("I understand this action cannot be undone")
 
             with col2:
-                if st.button("🗑️ Delete Experiment", type="primary", disabled=not confirm):
+                if st.button(" Delete Experiment", type="primary", disabled=not confirm):
                     if delete_experiment(exp_path):
                         success_message(f"Experiment {exp_info['folder']} deleted successfully")
                         st.rerun()
@@ -297,7 +297,7 @@ with tab3:
                     bulk_confirm = st.checkbox("I confirm bulk deletion")
 
                 with col2:
-                    if st.button("🗑️ Delete Old Experiments", type="primary", disabled=not bulk_confirm):
+                    if st.button(" Delete Old Experiments", type="primary", disabled=not bulk_confirm):
                         deleted_count = 0
                         for exp in experiments_to_delete:
                             if delete_experiment(exp):
@@ -319,7 +319,7 @@ with tab4:
 
     **"LLMs Reproduce Human Purchase Intent via Semantic Similarity Elicitation"**
 
-    📄 [arXiv:2510.08338v2](https://arxiv.org/abs/2510.08338v2)
+     [arXiv:2510.08338v2](https://arxiv.org/abs/2510.08338v2)
 
     ### Features
 
@@ -367,5 +367,5 @@ with tab4:
 
     ---
 
-    Made with ❤️ using Streamlit
+    Made with  using Streamlit
     """)

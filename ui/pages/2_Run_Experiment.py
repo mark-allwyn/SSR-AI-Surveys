@@ -13,23 +13,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from ui.utils.data_loader import load_survey_config, get_available_surveys
 from ui.components.metrics_cards import success_message, warning_message, error_message
 
-st.set_page_config(page_title="Run Experiment", page_icon="▶️", layout="wide")
+st.set_page_config(page_title="Run Experiment", page_icon="", layout="wide")
 
-st.title("▶️ Run Experiment")
+st.title(" Run Experiment")
 
 # Check API key
 api_key = os.getenv("OPENAI_API_KEY") or st.session_state.get('api_key')
 
 if not api_key:
-    error_message("⚠️ OpenAI API key not configured. Please go to Settings to add your API key.")
+    error_message(" OpenAI API key not configured. Please go to Settings to add your API key.")
     if st.button("Go to Settings"):
-        st.switch_page("pages/5_⚙️_Settings.py")
+        st.switch_page("pages/5__Settings.py")
     st.stop()
 
 # ======================
 # Section A: Survey Configuration
 # ======================
-st.header("📋 Survey Configuration")
+st.header(" Survey Configuration")
 
 available_surveys = get_available_surveys()
 
@@ -65,7 +65,7 @@ if selected_survey:
             st.metric("Default Sample Size", sample_size)
 
         # Survey questions preview
-        with st.expander("📝 View Survey Questions", expanded=False):
+        with st.expander(" View Survey Questions", expanded=False):
             questions = survey_data.get('questions', [])
 
             for i, q in enumerate(questions, 1):
@@ -85,7 +85,7 @@ if selected_survey:
 # ======================
 # Section B: Experiment Settings
 # ======================
-st.header("⚙️ Experiment Settings")
+st.header(" Experiment Settings")
 
 col1, col2 = st.columns(2)
 
@@ -115,14 +115,14 @@ col1, col2 = st.columns(2)
 
 with col1:
     test_human = st.checkbox(
-        "✓ Human-style responses",
+        " Human-style responses",
         value=True,
         help="Direct, opinionated responses (e.g., 'Definitely yes!')"
     )
 
 with col2:
     test_llm = st.checkbox(
-        "✓ LLM-style responses",
+        " LLM-style responses",
         value=True,
         help="Hedged, nuanced responses (e.g., 'I would say that...')"
     )
@@ -133,7 +133,7 @@ if not test_human and not test_llm:
 # ======================
 # Section C: Persona Configuration
 # ======================
-st.header("👤 Persona Configuration")
+st.header(" Persona Configuration")
 
 st.markdown("""
 Configure the persona parameters for generating synthetic respondents.
@@ -150,7 +150,7 @@ if 'persona_config' not in st.session_state:
     }
 
 # Use expanders for persona configuration
-with st.expander("🎂 Age Groups", expanded=False):
+with st.expander(" Age Groups", expanded=False):
     age_groups_text = st.text_area(
         "Age Groups (one per line)",
         value="\n".join(st.session_state.persona_config['age_groups']),
@@ -158,7 +158,7 @@ with st.expander("🎂 Age Groups", expanded=False):
         key="age_groups_input"
     )
 
-with st.expander("💰 Income Brackets", expanded=False):
+with st.expander(" Income Brackets", expanded=False):
     income_brackets_text = st.text_area(
         "Income Brackets (one per line)",
         value="\n".join(st.session_state.persona_config['income_brackets']),
@@ -166,7 +166,7 @@ with st.expander("💰 Income Brackets", expanded=False):
         key="income_brackets_input"
     )
 
-with st.expander("🌍 Environmental Consciousness", expanded=False):
+with st.expander(" Environmental Consciousness", expanded=False):
     env_consciousness_text = st.text_area(
         "Environmental Consciousness Levels (one per line)",
         value="\n".join(st.session_state.persona_config['env_consciousness']),
@@ -196,7 +196,7 @@ with col3:
 # ======================
 # Section D: SSR Configuration
 # ======================
-st.header("🔬 SSR Configuration")
+st.header(" SSR Configuration")
 
 st.markdown("**Paper-exact settings** (following arXiv:2510.08338v2)")
 
@@ -224,10 +224,10 @@ with col3:
 # Section E: Run Experiment
 # ======================
 st.markdown("---")
-st.header("🚀 Execute Pipeline")
+st.header(" Execute Pipeline")
 
 # Preview experiment configuration
-with st.expander("📊 Experiment Summary", expanded=True):
+with st.expander(" Experiment Summary", expanded=True):
     st.markdown(f"""
     **Survey:** {survey_data.get('name', 'Unknown')}
     - Questions: {len(survey_data.get('questions', []))}
@@ -235,8 +235,8 @@ with st.expander("📊 Experiment Summary", expanded=True):
     - Random Seed: {random_seed}
 
     **Response Styles:**
-    - Human-style: {'✓' if test_human else '✗'}
-    - LLM-style: {'✓' if test_llm else '✗'}
+    - Human-style: {'' if test_human else ''}
+    - LLM-style: {'' if test_llm else ''}
 
     **Persona Diversity:**
     - Age Groups: {len(age_groups)} categories
@@ -257,7 +257,7 @@ with st.expander("📊 Experiment Summary", expanded=True):
 
 # Run button
 run_button = st.button(
-    "▶️ Run Experiment",
+    " Run Experiment",
     type="primary",
     use_container_width=True,
     disabled=not (test_human or test_llm)
@@ -268,7 +268,7 @@ if run_button:
     progress_container = st.container()
 
     with progress_container:
-        st.markdown("### 🔄 Running Experiment...")
+        st.markdown("###  Running Experiment...")
 
         progress_bar = st.progress(0)
         status_text = st.empty()
@@ -337,12 +337,12 @@ if run_button:
                         latest_experiment = experiment_folders[0]
 
                         progress_bar.progress(100)
-                        status_text.text("✓ Experiment completed successfully!")
+                        status_text.text(" Experiment completed successfully!")
 
                         success_message(f"Experiment completed! Results saved to: {latest_experiment.name}")
 
                         # Show quick results
-                        st.markdown("### 📊 Quick Results")
+                        st.markdown("###  Quick Results")
 
                         # Load ground truth
                         gt_file = latest_experiment / "ground_truth.csv"
@@ -367,12 +367,12 @@ if run_button:
                         col1, col2 = st.columns(2)
 
                         with col1:
-                            if st.button("📊 View Results", use_container_width=True, type="primary"):
+                            if st.button(" View Results", use_container_width=True, type="primary"):
                                 st.session_state.selected_experiment = latest_experiment
-                                st.switch_page("pages/3_📊_View_Results.py")
+                                st.switch_page("pages/3__View_Results.py")
 
                         with col2:
-                            if st.button("▶️ Run Another", use_container_width=True):
+                            if st.button(" Run Another", use_container_width=True):
                                 st.rerun()
 
                     else:
@@ -403,7 +403,7 @@ if run_button:
 # Tips Section
 # ======================
 st.markdown("---")
-st.markdown("### 💡 Tips")
+st.markdown("###  Tips")
 
 with st.expander("How to choose parameters"):
     st.markdown("""

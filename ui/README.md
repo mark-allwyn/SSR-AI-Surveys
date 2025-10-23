@@ -4,11 +4,11 @@ A user-friendly web interface for the Semantic Similarity Rating (SSR) Pipeline.
 
 ## Features
 
-- 🏠 **Dashboard**: Overview of experiments and quick access
-- ▶️ **Run Experiment**: Configure and execute SSR pipeline with customizable personas
-- 📊 **View Results**: Explore experiment results with visualizations
-- 🎮 **Live Demo**: Test SSR on individual responses in real-time
-- ⚙️ **Settings**: API configuration, persona defaults, and experiment management
+-  **Dashboard**: Overview of experiments and quick access
+-  **Run Experiment**: Configure and execute SSR pipeline with customizable personas
+-  **View Results**: Explore experiment results with visualizations
+-  **Live Demo**: Test SSR on individual responses in real-time
+-  **Settings**: API configuration, persona defaults, and experiment management
 
 ## Quick Start
 
@@ -45,10 +45,10 @@ The UI uses Streamlit's multi-page app structure:
 ui/
 ├── app.py                          # Main entry point (Dashboard)
 ├── pages/
-│   ├── 2_▶️_Run_Experiment.py     # Configure and run experiments
-│   ├── 3_📊_View_Results.py       # View experiment results
-│   ├── 4_🎮_Live_Demo.py          # Interactive SSR testing
-│   └── 5_⚙️_Settings.py           # Configuration and management
+│   ├── 2__Run_Experiment.py     # Configure and run experiments
+│   ├── 3__View_Results.py       # View experiment results
+│   ├── 4__Live_Demo.py          # Interactive SSR testing
+│   └── 5__Settings.py           # Configuration and management
 ├── components/
 │   └── metrics_cards.py            # Reusable UI components
 └── utils/
@@ -272,10 +272,10 @@ ui/
 ├── app.py                      # Main app (Dashboard)
 │
 ├── pages/                      # Multi-page app pages
-│   ├── 2_▶️_Run_Experiment.py
-│   ├── 3_📊_View_Results.py
-│   ├── 4_🎮_Live_Demo.py
-│   └── 5_⚙️_Settings.py
+│   ├── 2__Run_Experiment.py
+│   ├── 3__View_Results.py
+│   ├── 4__Live_Demo.py
+│   └── 5__Settings.py
 │
 ├── components/                 # Reusable components
 │   ├── __init__.py
@@ -344,4 +344,4 @@ my_component(data)
 
 ---
 
-Made with ❤️ using Streamlit 🎈
+Made with  using Streamlit 

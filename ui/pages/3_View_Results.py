@@ -21,9 +21,9 @@ from ui.utils.data_loader import (
 )
 from ui.components.metrics_cards import comparison_metrics, warning_message, error_message
 
-st.set_page_config(page_title="View Results", page_icon="📊", layout="wide")
+st.set_page_config(page_title="View Results", page_icon="", layout="wide")
 
-st.title("📊 View Results")
+st.title(" View Results")
 
 # ======================
 # Section A: Experiment Selector
@@ -33,7 +33,7 @@ experiments = get_all_experiments()
 if not experiments:
     warning_message("No experiments found. Run an experiment first!")
     if st.button("Go to Run Experiment"):
-        st.switch_page("pages/2_▶️_Run_Experiment.py")
+        st.switch_page("pages/2__Run_Experiment.py")
     st.stop()
 
 # Create experiment options
@@ -101,11 +101,11 @@ if metrics:
         # Calculate winner
         diff = human_acc - llm_acc
         if abs(diff) < 0.1:
-            winner_text = "🤝 **Result:** Tie (difference < 0.1%)"
+            winner_text = " **Result:** Tie (difference < 0.1%)"
         elif diff > 0:
-            winner_text = f"🏆 **Winner:** Human (+{diff:.1f}%)"
+            winner_text = f" **Winner:** Human (+{diff:.1f}%)"
         else:
-            winner_text = f"🏆 **Winner:** LLM (+{abs(diff):.1f}%)"
+            winner_text = f" **Winner:** LLM (+{abs(diff):.1f}%)"
 
         st.markdown(winner_text)
 else:
@@ -116,7 +116,7 @@ st.markdown("---")
 # ======================
 # Section D: Visual Report
 # ======================
-st.header("🖼️ Visual Report")
+st.header(" Visual Report")
 
 report_png = selected_exp_path / "report.png"
 if report_png.exists():
@@ -127,7 +127,7 @@ if report_png.exists():
         # Download button
         with open(report_png, "rb") as file:
             st.download_button(
-                label="⬇️ Download Report Image",
+                label=" Download Report Image",
                 data=file,
                 file_name=f"report_{exp_info['folder']}.png",
                 mime="image/png"
@@ -142,7 +142,7 @@ st.markdown("---")
 # ======================
 # Section E: Question-by-Question Analysis
 # ======================
-st.header("📝 Question-by-Question Analysis")
+st.header(" Question-by-Question Analysis")
 
 # Extract question metrics from parsed report
 question_metrics = {k: v for k, v in metrics.items() if k not in ['overall_human_accuracy', 'overall_llm_accuracy']}
@@ -213,7 +213,7 @@ st.markdown("---")
 # ======================
 # Section F: Ground Truth Data
 # ======================
-st.header("📋 Ground Truth Data")
+st.header(" Ground Truth Data")
 
 ground_truth_df = load_ground_truth(selected_exp_path)
 
@@ -252,14 +252,14 @@ if ground_truth_df is not None:
     # Download button
     csv = filtered_df.to_csv(index=False)
     st.download_button(
-        label="⬇️ Download Ground Truth CSV",
+        label=" Download Ground Truth CSV",
         data=csv,
         file_name=f"ground_truth_{exp_info['folder']}.csv",
         mime="text/csv"
     )
 
     # Statistics
-    st.markdown("### 📊 Statistics")
+    st.markdown("###  Statistics")
 
     col1, col2, col3 = st.columns(3)
 
@@ -296,9 +296,9 @@ st.markdown("---")
 # ======================
 # Section G: Reports
 # ======================
-st.header("📄 Detailed Reports")
+st.header(" Detailed Reports")
 
-tab1, tab2 = st.tabs(["📝 Text Report", "📖 Markdown Report"])
+tab1, tab2 = st.tabs([" Text Report", " Markdown Report"])
 
 # Text Report
 with tab1:
@@ -311,7 +311,7 @@ with tab1:
         )
 
         st.download_button(
-            label="⬇️ Download Text Report",
+            label=" Download Text Report",
             data=text_report,
             file_name=f"report_{exp_info['folder']}.txt",
             mime="text/plain"
@@ -327,7 +327,7 @@ with tab2:
         st.markdown(md_report)
 
         st.download_button(
-            label="⬇️ Download Markdown Report",
+            label=" Download Markdown Report",
             data=md_report,
             file_name=f"report_{exp_info['folder']}.md",
             mime="text/markdown"
@@ -344,13 +344,13 @@ st.header("⚡ Actions")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    if st.button("▶️ Run New Experiment", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_▶️_Run_Experiment.py")
+    if st.button(" Run New Experiment", use_container_width=True, type="primary"):
+        st.switch_page("pages/2__Run_Experiment.py")
 
 with col2:
-    if st.button("🎮 Try Live Demo", use_container_width=True):
-        st.switch_page("pages/4_🎮_Live_Demo.py")
+    if st.button(" Try Live Demo", use_container_width=True):
+        st.switch_page("pages/4__Live_Demo.py")
 
 with col3:
-    if st.button("⚙️ Settings", use_container_width=True):
-        st.switch_page("pages/5_⚙️_Settings.py")
+    if st.button(" Settings", use_container_width=True):
+        st.switch_page("pages/5__Settings.py")

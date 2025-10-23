@@ -68,7 +68,7 @@ def success_message(message: str):
     """Display a success message box."""
     st.markdown(f"""
     <div class="success-box">
-        ✓ {message}
+        [OK] {message}
     </div>
     """, unsafe_allow_html=True)
 
@@ -77,7 +77,7 @@ def warning_message(message: str):
     """Display a warning message box."""
     st.markdown(f"""
     <div class="warning-box">
-        ⚠ {message}
+        [WARNING] {message}
     </div>
     """, unsafe_allow_html=True)
 
@@ -86,6 +86,6 @@ def error_message(message: str):
     """Display an error message box."""
     st.markdown(f"""
     <div class="error-box">
-        ✗ {message}
+        [ERROR] {message}
     </div>
     """, unsafe_allow_html=True)

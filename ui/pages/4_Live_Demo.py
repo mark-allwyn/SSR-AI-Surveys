@@ -15,9 +15,9 @@ from src.survey import Question
 from src.llm_client import Response
 from ui.components.metrics_cards import success_message, warning_message, error_message
 
-st.set_page_config(page_title="Live Demo", page_icon="🎮", layout="wide")
+st.set_page_config(page_title="Live Demo", page_icon="", layout="wide")
 
-st.title("🎮 Live Demo - Interactive SSR Playground")
+st.title(" Live Demo - Interactive SSR Playground")
 
 st.markdown("""
 Test Semantic Similarity Rating on individual text responses in real-time.
@@ -28,15 +28,15 @@ Enter any text and see how SSR converts it to a probability distribution.
 api_key = os.getenv("OPENAI_API_KEY") or st.session_state.get('api_key')
 
 if not api_key:
-    error_message("⚠️ OpenAI API key not configured. Please go to Settings to add your API key.")
+    error_message(" OpenAI API key not configured. Please go to Settings to add your API key.")
     if st.button("Go to Settings"):
-        st.switch_page("pages/5_⚙️_Settings.py")
+        st.switch_page("pages/5__Settings.py")
     st.stop()
 
 # ======================
 # Section A: Question Setup
 # ======================
-st.header("📋 Question Configuration")
+st.header(" Question Configuration")
 
 # Question type selector
 question_types = {
@@ -95,7 +95,7 @@ else:  # custom
         scale_labels[i] = st.text_input(f"Label {i}", value=f"Option {i}")
 
 # Display scale preview
-with st.expander("📊 Scale Preview"):
+with st.expander(" Scale Preview"):
     for point, label in scale_labels.items():
         st.markdown(f"**{point}.** {label}")
 
@@ -104,7 +104,7 @@ st.markdown("---")
 # ======================
 # Section B: Text Input
 # ======================
-st.header("💬 Enter Response")
+st.header(" Enter Response")
 
 # Example responses
 examples = {
@@ -136,14 +136,14 @@ with col2:
 
 # Character counter
 if text_response:
-    st.caption(f"📝 {len(text_response)} characters")
+    st.caption(f" {len(text_response)} characters")
 
 st.markdown("---")
 
 # ======================
 # Section C: SSR Configuration
 # ======================
-st.header("⚙️ SSR Settings")
+st.header(" SSR Settings")
 
 col1, col2 = st.columns(2)
 
@@ -162,7 +162,7 @@ with col2:
     st.caption("OpenAI embedding model")
 
 # Temperature explanation
-with st.expander("ℹ️ What does temperature do?"):
+with st.expander(" What does temperature do?"):
     st.markdown("""
     **Temperature** controls how spread out the probability distribution is:
 
@@ -181,10 +181,10 @@ st.markdown("---")
 # ======================
 # Section D: Process & Results
 # ======================
-st.header("🔬 Apply SSR")
+st.header(" Apply SSR")
 
 process_button = st.button(
-    "▶️ Process Response",
+    " Process Response",
     type="primary",
     use_container_width=True,
     disabled=not text_response
@@ -220,14 +220,14 @@ if process_button and text_response:
             # Apply SSR
             distribution = rater.rate_response(response, question)
 
-            success_message("✓ SSR processing complete!")
+            success_message(" SSR processing complete!")
 
             st.markdown("---")
 
             # ======================
             # Results Display
             # ======================
-            st.header("📊 Results")
+            st.header(" Results")
 
             # Metrics
             col1, col2, col3, col4 = st.columns(4)
@@ -278,7 +278,7 @@ if process_button and text_response:
             st.plotly_chart(fig, use_container_width=True)
 
             # Detailed probability table
-            with st.expander("📋 Detailed Probabilities"):
+            with st.expander(" Detailed Probabilities"):
                 prob_data = []
                 for i, (point, label) in enumerate(sorted(scale_labels.items()), start=0):
                     prob = probabilities[i]
@@ -289,7 +289,7 @@ if process_button and text_response:
                         "Label": label,
                         "Probability": f"{prob:.4f}",
                         "Percentage": f"{prob:.2%}",
-                        "Mode": "✓" if is_mode else ""
+                        "Mode": "" if is_mode else ""
                     })
 
                 import pandas as pd
@@ -298,7 +298,7 @@ if process_button and text_response:
 
             # Interpretation
             st.markdown("---")
-            st.subheader("💡 Interpretation")
+            st.subheader(" Interpretation")
 
             max_prob = probabilities.max()
 
@@ -325,7 +325,7 @@ if process_button and text_response:
             """, unsafe_allow_html=True)
 
             # Raw similarities (advanced)
-            with st.expander("🔬 Advanced: Raw Similarity Scores"):
+            with st.expander(" Advanced: Raw Similarity Scores"):
                 st.markdown("""
                 These are the raw cosine similarity scores **before** normalization.
                 They show how semantically similar your response is to each scale label.
@@ -366,7 +366,7 @@ if process_button and text_response:
 # Section E: Batch Test
 # ======================
 st.markdown("---")
-st.header("📦 Batch Test")
+st.header(" Batch Test")
 
 st.markdown("""
 Test multiple responses at once. Enter one response per line.
@@ -379,7 +379,7 @@ batch_input = st.text_area(
     help="Enter multiple text responses, one per line"
 )
 
-if st.button("▶️ Process Batch", type="secondary"):
+if st.button(" Process Batch", type="secondary"):
     if batch_input:
         responses = [line.strip() for line in batch_input.split('\n') if line.strip()]
 
@@ -433,7 +433,7 @@ if st.button("▶️ Process Batch", type="secondary"):
                 # Download button
                 csv = results_df.to_csv(index=False)
                 st.download_button(
-                    label="⬇️ Download Batch Results",
+                    label=" Download Batch Results",
                     data=csv,
                     file_name="batch_ssr_results.csv",
                     mime="text/csv"
@@ -448,7 +448,7 @@ if st.button("▶️ Process Batch", type="secondary"):
 # Tips
 # ======================
 st.markdown("---")
-st.markdown("### 💡 Tips for Using Live Demo")
+st.markdown("###  Tips for Using Live Demo")
 
 with st.expander("How to interpret results"):
     st.markdown("""

@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 # Page configuration
 st.set_page_config(
     page_title="SSR Pipeline",
-    page_icon="📊",
+    page_icon="chart_with_upwards_trend",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -84,24 +84,24 @@ with st.sidebar:
     st.markdown("---")
 
     # Navigation
-    st.markdown("### 🧭 Navigation")
+    st.markdown("### Navigation")
     st.markdown("Use the pages in the sidebar to navigate through the app.")
 
     st.markdown("---")
 
     # API Status
-    st.markdown("### 🔑 API Status")
+    st.markdown("### API Status")
     if st.session_state.api_key:
-        st.success("✓ API Key Configured")
+        st.success("API Key Configured")
     else:
-        st.warning("⚠ API Key Not Set")
+        st.warning("API Key Not Set")
         if st.button("Configure API Key", use_container_width=True):
-            st.switch_page("pages/5_⚙️_Settings.py")
+            st.switch_page("pages/5_Settings.py")
 
     st.markdown("---")
 
     # Quick Info
-    st.markdown("### ℹ️ About")
+    st.markdown("### About")
     st.markdown("""
     **SSR Pipeline** implements Semantic Similarity Rating from
     [arXiv:2510.08338v2](https://arxiv.org/abs/2510.08338v2)
@@ -110,10 +110,10 @@ with st.sidebar:
     """)
 
     st.markdown("---")
-    st.markdown("Made with Streamlit 🎈")
+    st.markdown("Made with Streamlit")
 
 # Main content
-st.markdown('<div class="main-header">📊 SSR Pipeline</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">SSR Pipeline</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Semantic Similarity Rating for Survey Analysis</div>', unsafe_allow_html=True)
 
 # Welcome section
@@ -123,14 +123,14 @@ st.markdown("""
 This tool helps you analyze survey responses using Semantic Similarity Rating (SSR),
 a methodology that converts textual responses into probability distributions over Likert scales.
 
-### 🚀 Getting Started
+### Getting Started
 
 1. **Configure API Key**: Go to Settings to add your OpenAI API key
 2. **Run an Experiment**: Use the Run Experiment page to process survey data
 3. **View Results**: Analyze the results and compare human vs LLM responses
 4. **Try Live Demo**: Test SSR on individual text responses
 
-### 📖 What is SSR?
+### What is SSR?
 
 SSR uses semantic similarity to convert text like *"I'm very interested!"* into probability
 distributions like `[0.05, 0.10, 0.20, 0.30, 0.35]` across Likert scale options.
@@ -151,7 +151,7 @@ if experiments_dir.exists():
 
     if experiment_folders:
         st.markdown("---")
-        st.markdown("### 📊 Recent Activity")
+        st.markdown("### Recent Activity")
 
         col1, col2, col3 = st.columns(3)
 
@@ -200,26 +200,26 @@ if experiments_dir.exists():
             recent_df = pd.DataFrame(recent_data)
             st.dataframe(recent_df, use_container_width=True, hide_index=True)
     else:
-        st.info("👋 No experiments yet! Head to the Run Experiment page to get started.")
+        st.info("No experiments yet! Head to the Run Experiment page to get started.")
 else:
-    st.info("👋 No experiments yet! Head to the Run Experiment page to get started.")
+    st.info("No experiments yet! Head to the Run Experiment page to get started.")
 
 # Call to action
 st.markdown("---")
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    if st.button("▶️ Run Experiment", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_▶️_Run_Experiment.py")
+    if st.button("Run Experiment", use_container_width=True, type="primary"):
+        st.switch_page("pages/2_Run_Experiment.py")
 
 with col2:
-    if st.button("📊 View Results", use_container_width=True):
-        st.switch_page("pages/3_📊_View_Results.py")
+    if st.button("View Results", use_container_width=True):
+        st.switch_page("pages/3_View_Results.py")
 
 with col3:
-    if st.button("🎮 Live Demo", use_container_width=True):
-        st.switch_page("pages/4_🎮_Live_Demo.py")
+    if st.button("Live Demo", use_container_width=True):
+        st.switch_page("pages/4_Live_Demo.py")
 
 with col4:
-    if st.button("⚙️ Settings", use_container_width=True):
-        st.switch_page("pages/5_⚙️_Settings.py")
+    if st.button("Settings", use_container_width=True):
+        st.switch_page("pages/5_Settings.py")
