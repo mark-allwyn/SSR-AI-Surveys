@@ -1,0 +1,79 @@
+# Mixed Question Type Survey Configuration
+
+survey:
+  name: "Online Lottery Gaming Platform Evaluation"
+  description: "Comprehensive evaluation of online lottery gaming products and services"
+
+  context: |
+    We are evaluating a new online lottery gaming platform with the following features:
+    - Multiple lottery games (Powerball, Mega Millions, state lotteries)
+    - Mobile app and web access
+    - Automated ticket purchasing and number selection
+    - Instant win notifications and prize alerts
+    - Secure payment processing and winnings withdrawal
+    - Subscription plans: $9.99/month or $99/year
+
+  questions:
+    # Yes/No Question
+    - id: "q1_would_subscribe"
+      text: "Would you subscribe to this online lottery platform?"
+      type: "yes_no"
+
+    # Likert 5-point scale
+    - id: "q2_subscription_likelihood"
+      text: "How likely are you to subscribe to this online lottery platform?"
+      type: "likert_5"
+      scale:
+        1: "Very unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very likely"
+
+    # Likert 7-point scale
+    - id: "q3_platform_trust"
+      text: "How much would you trust this platform with your payment information and lottery tickets?"
+      type: "likert_7"
+      scale:
+        1: "Not at all trustworthy"
+        2: "Very untrustworthy"
+        3: "Somewhat untrustworthy"
+        4: "Neutral"
+        5: "Somewhat trustworthy"
+        6: "Very trustworthy"
+        7: "Completely trustworthy"
+
+    # Multiple choice - Price range
+    - id: "q4_price_preference"
+      text: "What monthly subscription price would you consider reasonable for this service?"
+      type: "multiple_choice"
+      options:
+        - "Under $5/month"
+        - "$5-$10/month"
+        - "$10-$15/month"
+        - "$15-$20/month"
+        - "Over $20/month"
+
+    # Yes/No Question
+    - id: "q5_recommend"
+      text: "Would you recommend this lottery platform to a friend or family member?"
+      type: "yes_no"
+
+    # Likert 5-point scale
+    - id: "q6_feature_importance"
+      text: "How important is the automated ticket purchasing feature in your decision?"
+      type: "likert_5"
+      scale:
+        1: "Not important at all"
+        2: "Slightly important"
+        3: "Moderately important"
+        4: "Very important"
+        5: "Extremely important"
+
+  demographics:
+    - age_group
+    - income_bracket
+    - lottery_playing_frequency
+    - gambling_attitude
+
+  sample_size: 50
