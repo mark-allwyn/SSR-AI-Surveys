@@ -80,47 +80,62 @@ def parse_text_report(report_text: str) -> Dict:
 
     lines = report_text.split('\n')
     current_question = None
+    in_overall_section = False
 
-    for line in lines:
+    for i, line in enumerate(lines):
         # Parse overall metrics
         if "Average Mode Accuracy:" in line:
-            parts = line.split('|')
-            if len(parts) >= 2:
-                human_part = parts[0].split(':')[1].strip()
-                llm_part = parts[1].split(':')[1].strip()
+            in_overall_section = True
 
-                # Extract percentages
-                human_acc = float(human_part.replace('%', '').strip())
-                llm_acc = float(llm_part.replace('%', '').strip())
-
-                metrics['overall_human_accuracy'] = human_acc
-                metrics['overall_llm_accuracy'] = llm_acc
+        if in_overall_section:
+            if "Human:" in line and '%' in line:
+                # Extract Human percentage
+                human_part = line.split('Human:')[1].strip().replace('%', '').strip()
+                try:
+                    metrics['overall_human_accuracy'] = float(human_part)
+                except ValueError:
+                    pass
+            elif "LLM:" in line and '%' in line:
+                # Extract LLM percentage
+                llm_part = line.split('LLM:')[1].strip().replace('%', '').strip()
+                try:
+                    metrics['overall_llm_accuracy'] = float(llm_part)
+                    in_overall_section = False  # Done with overall section
+                except ValueError:
+                    pass
 
         # Parse question-level metrics
         if line.startswith("QUESTION:"):
             current_question = line.split(':')[1].strip()
             metrics[current_question] = {}
 
-        if current_question and "Mode Accuracy:" in line:
+        if current_question and "Mode Accuracy:" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
-                human_part = parts[0].split(':')[1].strip()
-                llm_part = parts[1].split(':')[1].strip()
+                # Extract human accuracy
+                human_part = parts[0].split('Human:')[1].strip().replace('%', '').strip()
+                # Extract LLM accuracy
+                llm_part = parts[1].split('LLM:')[1].strip().replace('%', '').strip()
 
-                human_acc = float(human_part.replace('%', '').strip())
-                llm_acc = float(llm_part.replace('%', '').strip())
+                try:
+                    metrics[current_question]['human_accuracy'] = float(human_part)
+                    metrics[current_question]['llm_accuracy'] = float(llm_part)
+                except ValueError:
+                    pass
 
-                metrics[current_question]['human_accuracy'] = human_acc
-                metrics[current_question]['llm_accuracy'] = llm_acc
-
-        if current_question and "MAE:" in line:
+        if current_question and "MAE:" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
-                human_part = parts[0].split(':')[1].strip()
-                llm_part = parts[1].split(':')[1].strip()
+                # Extract human MAE
+                human_part = parts[0].split('Human:')[1].strip()
+                # Extract LLM MAE
+                llm_part = parts[1].split('LLM:')[1].strip()
 
-                metrics[current_question]['human_mae'] = float(human_part)
-                metrics[current_question]['llm_mae'] = float(llm_part)
+                try:
+                    metrics[current_question]['human_mae'] = float(human_part)
+                    metrics[current_question]['llm_mae'] = float(llm_part)
+                except ValueError:
+                    pass
 
     return metrics
 
