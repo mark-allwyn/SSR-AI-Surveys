@@ -7,12 +7,40 @@ The `sample_ground_truth.csv` file shows the required format for uploading human
 ### Required Columns
 
 - `respondent_id`: Unique identifier for each respondent (e.g., "R001", "R002", etc.)
-- `question_id`: Must match question IDs in your survey YAML config
+- `question_id`: **MUST EXACTLY MATCH** question IDs in your survey YAML config
+  - ⚠️ **CRITICAL**: If your config has `q1_would_subscribe`, your CSV must use `q1_would_subscribe` (exact match, case-sensitive)
+  - System will reject CSV if question IDs don't match
 - `ground_truth`: The human's rating/answer
   - For Yes/No questions: 1=No, 2=Yes
   - For Likert-5: 1-5 (1=lowest, 5=highest)
   - For Likert-7: 1-7 (1=lowest, 7=highest)
   - For multiple choice: 1, 2, 3, etc. (matches option order in config)
+
+### Question ID Matching
+
+**Example Survey Config:**
+```yaml
+questions:
+  - id: "q1_would_subscribe"
+  - id: "q2_subscription_likelihood"
+  - id: "q3_platform_trust"
+```
+
+**Your CSV MUST use these exact IDs:**
+```csv
+respondent_id,question_id,ground_truth
+R001,q1_would_subscribe,2
+R001,q2_subscription_likelihood,4
+R001,q3_platform_trust,5
+```
+
+**WRONG (will be rejected):**
+```csv
+respondent_id,question_id,ground_truth
+R001,q1,2                           ❌ Wrong ID
+R001,Q2_Subscription_Likelihood,4   ❌ Wrong case
+R001,platform_trust,5               ❌ Missing prefix
+```
 
 ### How It Works
 

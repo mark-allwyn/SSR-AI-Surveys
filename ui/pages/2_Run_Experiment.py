@@ -187,7 +187,15 @@ uploaded_ground_truth = None
 
 if ground_truth_option == "Upload Real Human Data":
     st.markdown("**Upload CSV File:**")
-    st.markdown("CSV must have columns: `respondent_id`, `question_id`, `ground_truth`")
+    st.markdown("**Required format:**")
+    st.markdown("- Columns: `respondent_id`, `question_id`, `ground_truth`")
+    st.markdown(f"- `question_id` **must exactly match** question IDs from survey config:")
+
+    if survey_config and 'survey' in survey_config:
+        survey_questions = [q['id'] for q in survey_config['survey'].get('questions', [])]
+        st.code(", ".join(survey_questions))
+
+    st.warning("IMPORTANT: question_id values in your CSV must exactly match the question IDs shown above.")
 
     uploaded_file = st.file_uploader(
         "Choose ground truth CSV file",
@@ -208,21 +216,42 @@ if ground_truth_option == "Upload Real Human Data":
             # Check required columns
             required_cols = ['respondent_id', 'question_id', 'ground_truth']
             if all(col in df.columns for col in required_cols):
-                success_message(f"Valid ground truth file uploaded: {len(df)} ratings")
+                # Validate question IDs match survey config
+                csv_questions = set(df['question_id'].unique())
+                survey_questions = set([q['id'] for q in survey_config['survey'].get('questions', [])])
 
-                # Show preview
+                # Check for mismatches
+                extra_questions = csv_questions - survey_questions
+                missing_questions = survey_questions - csv_questions
+
+                if extra_questions:
+                    error_message(f"CSV contains question IDs not in survey config: {', '.join(extra_questions)}")
+                elif missing_questions:
+                    warning_message(f"CSV is missing some questions from survey: {', '.join(missing_questions)}")
+                else:
+                    success_message(f"Valid ground truth file uploaded: {len(df)} ratings")
+
+                # Show preview regardless (allow partial data)
                 with st.expander("Preview Ground Truth Data"):
                     st.dataframe(df.head(10))
                     st.markdown(f"**Total rows:** {len(df)}")
                     st.markdown(f"**Unique respondents:** {df['respondent_id'].nunique()}")
-                    st.markdown(f"**Questions:** {', '.join(df['question_id'].unique())}")
+                    st.markdown(f"**Questions in CSV:** {', '.join(sorted(df['question_id'].unique()))}")
+                    st.markdown(f"**Questions in Config:** {', '.join(sorted(survey_questions))}")
 
-                # Save to temp file for pipeline
-                temp_dir = Path("temp")
-                temp_dir.mkdir(exist_ok=True)
-                temp_path = temp_dir / f"ground_truth_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-                df.to_csv(temp_path, index=False)
-                uploaded_ground_truth = str(temp_path)
+                    if extra_questions or missing_questions:
+                        if extra_questions:
+                            st.error(f"Extra questions: {', '.join(extra_questions)}")
+                        if missing_questions:
+                            st.warning(f"Missing questions: {', '.join(missing_questions)}")
+
+                # Save to temp file for pipeline (even if warning)
+                if not extra_questions:  # Only proceed if no invalid question IDs
+                    temp_dir = Path("temp")
+                    temp_dir.mkdir(exist_ok=True)
+                    temp_path = temp_dir / f"ground_truth_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                    df.to_csv(temp_path, index=False)
+                    uploaded_ground_truth = str(temp_path)
 
             else:
                 error_message(f"CSV must have columns: {required_cols}. Found: {list(df.columns)}")
