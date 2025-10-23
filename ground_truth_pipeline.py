@@ -15,6 +15,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from datetime import datetime
+import json
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
@@ -193,8 +194,12 @@ def generate_llm_style_response(target_statement: str, rating: int, max_rating: 
     return f"{hedge} {target_statement.lower()}{qualifier}."
 
 
-def main():
-    """Run the ground truth comparison pipeline."""
+def main(persona_config=None):
+    """Run the ground truth comparison pipeline.
+
+    Args:
+        persona_config: Optional dict with persona configuration
+    """
     # Generate timestamp for this run
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -207,6 +212,13 @@ def main():
     print("=" * 80)
     print(f"\nExperiment Folder: {experiment_dir}")
 
+    # Save persona configuration if provided
+    if persona_config:
+        persona_config_path = experiment_dir / 'persona_config.json'
+        with open(persona_config_path, 'w') as f:
+            json.dump(persona_config, f, indent=2)
+        print(f"    ✓ Saved persona configuration to {persona_config_path}")
+
     # 1. Load survey
     print("\n[1/8] Loading survey configuration...")
     survey = Survey.from_config('config/mixed_survey_config.yaml')
@@ -218,8 +230,11 @@ def main():
     # 2. Generate respondent profiles
     print("\n[2/8] Generating respondent profiles...")
     n_respondents = survey.sample_size
-    profiles = generate_diverse_profiles(n_respondents)
+    profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
     print(f"    ✓ Generated {len(profiles)} profiles")
+    if persona_config and persona_config.get('custom_fields'):
+        custom_fields = persona_config['custom_fields']
+        print(f"    ✓ Using {len(custom_fields)} custom persona fields: {', '.join(custom_fields.keys())}")
 
     # 3. Generate ground truth ratings
     print("\n[3/8] Generating ground truth ratings...")

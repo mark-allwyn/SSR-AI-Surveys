@@ -136,7 +136,8 @@ with tab2:
             'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
             'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
             'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                                 "Very concerned", "Extremely concerned"]
+                                 "Very concerned", "Extremely concerned"],
+            'custom_fields': {}
         }
 
     age_groups_input = st.text_area(
@@ -168,6 +169,79 @@ with tab2:
         help="Enter environmental consciousness levels, one per line"
     )
 
+    st.markdown("---")
+
+    # Custom Fields
+    st.subheader("Custom Persona Fields")
+    st.markdown("""
+    Add custom attributes to personas beyond the standard fields above.
+    Useful for domain-specific research (e.g., tech_savviness, brand_loyalty, health_literacy).
+    """)
+
+    # Initialize custom_fields if not present
+    if 'custom_fields' not in st.session_state.persona_config:
+        st.session_state.persona_config['custom_fields'] = {}
+
+    # Display existing custom fields
+    custom_fields = st.session_state.persona_config.get('custom_fields', {})
+
+    if custom_fields:
+        st.markdown("**Current Custom Fields:**")
+        for field_name, field_values in custom_fields.items():
+            with st.expander(f"{field_name}", expanded=False):
+                st.code(", ".join(field_values))
+
+    # Add new custom field
+    with st.expander("Add Custom Field", expanded=True if not custom_fields else False):
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            new_field_name = st.text_input(
+                "Field Name",
+                placeholder="e.g., education, tech_savviness",
+                key="new_custom_field_name"
+            )
+
+        with col2:
+            new_field_values = st.text_area(
+                "Field Values (one per line)",
+                placeholder="e.g.,\nHigh School\nBachelor's\nMaster's\nPhD",
+                height=100,
+                key="new_custom_field_values"
+            )
+
+        if st.button("Add Field", type="secondary"):
+            if not new_field_name:
+                error_message("Field name cannot be empty")
+            elif not new_field_values.strip():
+                error_message("Field values cannot be empty")
+            elif new_field_name in custom_fields:
+                error_message(f"Field '{new_field_name}' already exists")
+            else:
+                values = [line.strip() for line in new_field_values.split('\n') if line.strip()]
+                if not values:
+                    error_message("Must provide at least one value")
+                else:
+                    st.session_state.persona_config['custom_fields'][new_field_name] = values
+                    success_message(f"Added custom field: {new_field_name}")
+                    st.rerun()
+
+    # Remove custom field
+    if custom_fields:
+        with st.expander("Remove Custom Field"):
+            field_to_remove = st.selectbox(
+                "Select field to remove",
+                options=list(custom_fields.keys()),
+                key="field_to_remove"
+            )
+
+            if st.button("Remove Field", type="secondary"):
+                del st.session_state.persona_config['custom_fields'][field_to_remove]
+                success_message(f"Removed custom field: {field_to_remove}")
+                st.rerun()
+
+    st.markdown("---")
+
     # Save button
     if st.button(" Save Persona Configuration", type="primary"):
         # Parse inputs
@@ -179,10 +253,14 @@ with tab2:
         if not age_groups or not income_brackets or not env_consciousness:
             error_message("All fields must have at least one entry")
         else:
+            # Preserve custom fields
+            current_custom_fields = st.session_state.persona_config.get('custom_fields', {})
+
             st.session_state.persona_config = {
                 'age_groups': age_groups,
                 'income_brackets': income_brackets,
-                'env_consciousness': env_consciousness
+                'env_consciousness': env_consciousness,
+                'custom_fields': current_custom_fields
             }
             success_message("Persona configuration saved for this session")
             st.rerun()
@@ -193,7 +271,8 @@ with tab2:
             'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
             'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
             'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                                 "Very concerned", "Extremely concerned"]
+                                 "Very concerned", "Extremely concerned"],
+            'custom_fields': {}
         }
         success_message("Reset to default persona configuration")
         st.rerun()

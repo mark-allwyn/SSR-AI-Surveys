@@ -171,29 +171,59 @@ class LLMClient:
         return responses
 
 
-def generate_diverse_profiles(n_profiles: int = 100) -> List[RespondentProfile]:
+def generate_diverse_profiles(
+    n_profiles: int = 100,
+    persona_config: Optional[Dict] = None
+) -> List[RespondentProfile]:
     """
     Generate diverse respondent profiles for survey simulation.
 
     Args:
         n_profiles: Number of profiles to generate
+        persona_config: Optional configuration dict with custom persona fields
+                       Format: {
+                           'age_groups': [...],
+                           'income_brackets': [...],
+                           'env_consciousness': [...],
+                           'custom_fields': {
+                               'field_name': ['value1', 'value2', ...]
+                           }
+                       }
 
     Returns:
         List of RespondentProfile objects
     """
     import random
 
-    age_groups = ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"]
-    income_brackets = ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"]
-    env_consciousness = ["Not concerned", "Slightly concerned", "Moderately concerned",
-                        "Very concerned", "Extremely concerned"]
+    # Default values
+    if persona_config is None:
+        persona_config = {}
+
+    age_groups = persona_config.get('age_groups',
+                                     ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"])
+    income_brackets = persona_config.get('income_brackets',
+                                         ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k",
+                                          "$100k-$150k", ">$150k"])
+    env_consciousness = persona_config.get('env_consciousness',
+                                           ["Not concerned", "Slightly concerned",
+                                            "Moderately concerned", "Very concerned",
+                                            "Extremely concerned"])
+
+    custom_fields = persona_config.get('custom_fields', {})
 
     profiles = []
     for i in range(n_profiles):
+        # Generate custom attributes if any
+        other_attrs = {}
+        for field_name, field_values in custom_fields.items():
+            if field_values:  # Only add if field has values
+                other_attrs[field_name] = random.choice(field_values)
+
         profile = RespondentProfile(
             age_group=random.choice(age_groups),
             income_bracket=random.choice(income_brackets),
-            environmental_consciousness=random.choice(env_consciousness)
+            environmental_consciousness=random.choice(env_consciousness),
+            other_attributes=other_attrs if other_attrs else None
         )
         profiles.append(profile)
 

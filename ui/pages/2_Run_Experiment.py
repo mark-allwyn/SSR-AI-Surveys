@@ -6,6 +6,7 @@ import sys
 import os
 import subprocess
 from datetime import datetime
+import json
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -146,7 +147,8 @@ if 'persona_config' not in st.session_state:
         'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
         'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
         'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                             "Very concerned", "Extremely concerned"]
+                             "Very concerned", "Extremely concerned"],
+        'custom_fields': {}
     }
 
 # Use expanders for persona configuration
@@ -175,6 +177,15 @@ with st.expander(" Environmental Consciousness", expanded=False):
         help="These levels influence ground truth generation"
     )
 
+# Custom fields
+custom_fields_config = st.session_state.persona_config.get('custom_fields', {})
+if custom_fields_config:
+    with st.expander(f" Custom Fields ({len(custom_fields_config)} configured)", expanded=False):
+        st.markdown("**Additional persona attributes from Settings:**")
+        for field_name, field_values in custom_fields_config.items():
+            st.markdown(f"- **{field_name}**: {len(field_values)} categories")
+            st.caption(", ".join(field_values))
+
 # Parse persona inputs for experiment
 age_groups = [line.strip() for line in age_groups_text.split('\n') if line.strip()]
 income_brackets = [line.strip() for line in income_brackets_text.split('\n') if line.strip()]
@@ -182,7 +193,11 @@ env_consciousness = [line.strip() for line in env_consciousness_text.split('\n')
 
 # Show current configuration summary
 st.markdown("**Current Configuration:**")
-col1, col2, col3 = st.columns(3)
+if custom_fields_config:
+    col1, col2, col3, col4 = st.columns(4)
+else:
+    col1, col2, col3 = st.columns(3)
+    col4 = None
 
 with col1:
     st.metric("Age Groups", len(age_groups))
@@ -192,6 +207,10 @@ with col2:
 
 with col3:
     st.metric("Consciousness Levels", len(env_consciousness))
+
+if col4 and custom_fields_config:
+    with col4:
+        st.metric("Custom Fields", len(custom_fields_config))
 
 # ======================
 # Section D: SSR Configuration
@@ -242,6 +261,7 @@ with st.expander(" Experiment Summary", expanded=True):
     - Age Groups: {len(age_groups)} categories
     - Income Brackets: {len(income_brackets)} categories
     - Environmental Consciousness: {len(env_consciousness)} levels
+    {"- Custom Fields: " + ", ".join(custom_fields_config.keys()) if custom_fields_config else ""}
 
     **SSR Settings:**
     - Model: text-embedding-3-small
@@ -290,10 +310,20 @@ if run_button:
             status_text.text("Step 2/8: Initializing pipeline...")
             progress_bar.progress(20)
 
-            # Build command
+            # Build persona configuration
+            persona_config = {
+                'age_groups': age_groups,
+                'income_brackets': income_brackets,
+                'env_consciousness': env_consciousness,
+                'custom_fields': custom_fields_config
+            }
+
+            # Build command with persona config
+            persona_config_json = json.dumps(persona_config)
             cmd = [
                 sys.executable,
-                "ground_truth_pipeline.py"
+                "run_pipeline_with_config.py",
+                persona_config_json
             ]
 
             # Run the pipeline as subprocess
