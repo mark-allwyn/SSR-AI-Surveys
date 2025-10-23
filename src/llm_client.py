@@ -22,20 +22,14 @@ from .survey import Survey, Question
 @dataclass
 class RespondentProfile:
     """Profile for a simulated survey respondent."""
-    age_group: str
-    income_bracket: str
-    environmental_consciousness: str
-    other_attributes: Dict = None
+    description: str
+    respondent_id: str = None
 
     def to_dict(self) -> Dict:
-        profile = {
-            'age_group': self.age_group,
-            'income_bracket': self.income_bracket,
-            'environmental_consciousness': self.environmental_consciousness
+        return {
+            'description': self.description,
+            'respondent_id': self.respondent_id
         }
-        if self.other_attributes:
-            profile.update(self.other_attributes)
-        return profile
 
 
 @dataclass
@@ -180,14 +174,10 @@ def generate_diverse_profiles(
 
     Args:
         n_profiles: Number of profiles to generate
-        persona_config: Optional configuration dict with custom persona fields
+        persona_config: Optional configuration dict
                        Format: {
-                           'age_groups': [...],
-                           'income_brackets': [...],
-                           'env_consciousness': [...],
-                           'custom_fields': {
-                               'field_name': ['value1', 'value2', ...]
-                           }
+                           'mode': 'descriptions',
+                           'descriptions': ['persona 1 description', 'persona 2 description', ...]
                        }
 
     Returns:
@@ -195,36 +185,46 @@ def generate_diverse_profiles(
     """
     import random
 
-    # Default values
-    if persona_config is None:
-        persona_config = {}
-
-    age_groups = persona_config.get('age_groups',
-                                     ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"])
-    income_brackets = persona_config.get('income_brackets',
-                                         ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k",
-                                          "$100k-$150k", ">$150k"])
-    env_consciousness = persona_config.get('env_consciousness',
-                                           ["Not concerned", "Slightly concerned",
-                                            "Moderately concerned", "Very concerned",
-                                            "Extremely concerned"])
-
-    custom_fields = persona_config.get('custom_fields', {})
-
     profiles = []
-    for i in range(n_profiles):
-        # Generate custom attributes if any
-        other_attrs = {}
-        for field_name, field_values in custom_fields.items():
-            if field_values:  # Only add if field has values
-                other_attrs[field_name] = random.choice(field_values)
 
-        profile = RespondentProfile(
-            age_group=random.choice(age_groups),
-            income_bracket=random.choice(income_brackets),
-            environmental_consciousness=random.choice(env_consciousness),
-            other_attributes=other_attrs if other_attrs else None
-        )
-        profiles.append(profile)
+    # Use description-based personas
+    if persona_config and persona_config.get('mode') == 'descriptions':
+        descriptions = persona_config.get('descriptions', [])
+
+        if not descriptions:
+            # Fallback to default descriptions
+            descriptions = [
+                "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, environmentally conscious.",
+                "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about change. Prefers traditional methods. Not very tech-savvy.",
+                "A 28-year-old graduate student in environmental science. Very passionate about climate change. Low income but highly educated. Socially progressive.",
+                "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Pragmatic about environmental issues. Politically independent.",
+                "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Concerned about healthcare costs. Values work-life balance."
+            ]
+
+        # Generate profiles by randomly selecting from descriptions
+        for i in range(n_profiles):
+            description = random.choice(descriptions)
+            profile = RespondentProfile(
+                description=description,
+                respondent_id=f"R{i+1:03d}"
+            )
+            profiles.append(profile)
+    else:
+        # Fallback: use default descriptions
+        descriptions = [
+            "A 35-year-old tech entrepreneur. High income, environmentally conscious.",
+            "A retired teacher on fixed income. Cautious about change.",
+            "A graduate student. Passionate about environmental issues.",
+            "A small business owner. Pragmatic and family-oriented.",
+            "A healthcare worker. Middle income, values work-life balance."
+        ]
+
+        for i in range(n_profiles):
+            description = random.choice(descriptions)
+            profile = RespondentProfile(
+                description=description,
+                respondent_id=f"R{i+1:03d}"
+            )
+            profiles.append(profile)
 
     return profiles

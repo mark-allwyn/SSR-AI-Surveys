@@ -35,6 +35,8 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
     """
     Generate ground truth ratings based on respondent profiles.
 
+    For description-based personas, generates realistic varied distributions.
+
     Returns DataFrame with columns: respondent_id, question_id, ground_truth
     """
     np.random.seed(seed)
@@ -43,15 +45,18 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
 
     for i, profile in enumerate(profiles):
         respondent_id = f"R{i+1:03d}"
-        env_level = profile.environmental_consciousness
 
-        # Determine base tendency based on environmental consciousness
-        if env_level in ["Extremely concerned", "Very concerned"]:
-            tendency = "positive"  # More likely to rate highly
-        elif env_level in ["Moderately concerned"]:
-            tendency = "neutral"
+        # For description-based personas, use hash of description to determine tendency
+        # This ensures same persona gets consistent tendency across runs
+        description = profile.description if hasattr(profile, 'description') else str(profile)
+        description_hash = hash(description) % 3
+
+        if description_hash == 0:
+            tendency = "positive"
+        elif description_hash == 1:
+            tendency = "negative"
         else:
-            tendency = "negative"  # More likely to rate lowly
+            tendency = "neutral"
 
         for question in survey.questions:
             ref_statements = question.get_reference_statements()

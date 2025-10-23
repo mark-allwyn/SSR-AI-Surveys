@@ -121,161 +121,88 @@ with tab2:
     st.header("Persona Configuration")
 
     st.markdown("""
-    Configure the default persona parameters used when generating synthetic respondents.
-    These values can be customized per experiment in the Run Experiment page.
+    Define persona descriptions for synthetic respondents.
+    Enter each persona as a natural language description, one per line.
+    These will be used to generate survey responses just like human surveys.
     """)
 
     st.markdown("---")
 
-    # Age Groups
-    st.subheader("Age Groups")
-    st.markdown("Define the age group categories for respondent profiles.")
+    # Initialize persona descriptions if not present
+    if 'persona_descriptions' not in st.session_state:
+        st.session_state.persona_descriptions = [
+            "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, environmentally conscious.",
+            "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about change. Prefers traditional methods. Not very tech-savvy.",
+            "A 28-year-old graduate student in environmental science. Very passionate about climate change. Low income but highly educated. Socially progressive.",
+            "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Pragmatic about environmental issues. Politically independent.",
+            "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Concerned about healthcare costs. Values work-life balance."
+        ]
 
-    if 'persona_config' not in st.session_state:
-        st.session_state.persona_config = {
-            'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
-            'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
-            'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                                 "Very concerned", "Extremely concerned"],
-            'custom_fields': {}
-        }
+    # Persona descriptions input
+    st.subheader("Persona Descriptions")
+    st.markdown("Enter persona descriptions, one per line. The system will randomly select from these when generating respondents.")
 
-    age_groups_input = st.text_area(
-        "Age Groups (one per line)",
-        value="\n".join(st.session_state.persona_config['age_groups']),
-        height=150,
-        help="Enter age group categories, one per line"
+    persona_text = st.text_area(
+        "Persona Descriptions (one per line)",
+        value="\n".join(st.session_state.persona_descriptions),
+        height=300,
+        help="Each line is one persona description. Be as detailed or brief as you like.",
+        placeholder="Example:\nA 35-year-old tech entrepreneur. High income, environmentally conscious.\nA retired teacher on fixed income. Cautious about change."
     )
 
-    # Income Brackets
-    st.subheader("Income Brackets")
-    st.markdown("Define income bracket categories for respondent profiles.")
-
-    income_brackets_input = st.text_area(
-        "Income Brackets (one per line)",
-        value="\n".join(st.session_state.persona_config['income_brackets']),
-        height=150,
-        help="Enter income brackets, one per line"
-    )
-
-    # Environmental Consciousness
-    st.subheader("Environmental Consciousness Levels")
-    st.markdown("Define environmental consciousness levels (used for ground truth generation).")
-
-    env_consciousness_input = st.text_area(
-        "Environmental Consciousness Levels (one per line)",
-        value="\n".join(st.session_state.persona_config['env_consciousness']),
-        height=150,
-        help="Enter environmental consciousness levels, one per line"
-    )
-
-    st.markdown("---")
-
-    # Custom Fields
-    st.subheader("Custom Persona Fields")
-    st.markdown("""
-    Add custom attributes to personas beyond the standard fields above.
-    Useful for domain-specific research (e.g., tech_savviness, brand_loyalty, health_literacy).
-    """)
-
-    # Initialize custom_fields if not present
-    if 'custom_fields' not in st.session_state.persona_config:
-        st.session_state.persona_config['custom_fields'] = {}
-
-    # Display existing custom fields
-    custom_fields = st.session_state.persona_config.get('custom_fields', {})
-
-    if custom_fields:
-        st.markdown("**Current Custom Fields:**")
-        for field_name, field_values in custom_fields.items():
-            with st.expander(f"{field_name}", expanded=False):
-                st.code(", ".join(field_values))
-
-    # Add new custom field
-    with st.expander("Add Custom Field", expanded=True if not custom_fields else False):
-        col1, col2 = st.columns([1, 2])
-
-        with col1:
-            new_field_name = st.text_input(
-                "Field Name",
-                placeholder="e.g., education, tech_savviness",
-                key="new_custom_field_name"
-            )
-
-        with col2:
-            new_field_values = st.text_area(
-                "Field Values (one per line)",
-                placeholder="e.g.,\nHigh School\nBachelor's\nMaster's\nPhD",
-                height=100,
-                key="new_custom_field_values"
-            )
-
-        if st.button("Add Field", type="secondary"):
-            if not new_field_name:
-                error_message("Field name cannot be empty")
-            elif not new_field_values.strip():
-                error_message("Field values cannot be empty")
-            elif new_field_name in custom_fields:
-                error_message(f"Field '{new_field_name}' already exists")
-            else:
-                values = [line.strip() for line in new_field_values.split('\n') if line.strip()]
-                if not values:
-                    error_message("Must provide at least one value")
-                else:
-                    st.session_state.persona_config['custom_fields'][new_field_name] = values
-                    success_message(f"Added custom field: {new_field_name}")
-                    st.rerun()
-
-    # Remove custom field
-    if custom_fields:
-        with st.expander("Remove Custom Field"):
-            field_to_remove = st.selectbox(
-                "Select field to remove",
-                options=list(custom_fields.keys()),
-                key="field_to_remove"
-            )
-
-            if st.button("Remove Field", type="secondary"):
-                del st.session_state.persona_config['custom_fields'][field_to_remove]
-                success_message(f"Removed custom field: {field_to_remove}")
-                st.rerun()
+    # Show current count
+    current_personas = [line.strip() for line in persona_text.split('\n') if line.strip()]
+    st.info(f"Current persona pool: {len(current_personas)} persona(s)")
 
     st.markdown("---")
 
     # Save button
     if st.button(" Save Persona Configuration", type="primary"):
-        # Parse inputs
-        age_groups = [line.strip() for line in age_groups_input.split('\n') if line.strip()]
-        income_brackets = [line.strip() for line in income_brackets_input.split('\n') if line.strip()]
-        env_consciousness = [line.strip() for line in env_consciousness_input.split('\n') if line.strip()]
+        personas = [line.strip() for line in persona_text.split('\n') if line.strip()]
 
-        # Validate
-        if not age_groups or not income_brackets or not env_consciousness:
-            error_message("All fields must have at least one entry")
+        if not personas:
+            error_message("You must provide at least one persona description")
         else:
-            # Preserve custom fields
-            current_custom_fields = st.session_state.persona_config.get('custom_fields', {})
-
-            st.session_state.persona_config = {
-                'age_groups': age_groups,
-                'income_brackets': income_brackets,
-                'env_consciousness': env_consciousness,
-                'custom_fields': current_custom_fields
-            }
-            success_message("Persona configuration saved for this session")
+            st.session_state.persona_descriptions = personas
+            success_message(f"Saved {len(personas)} persona description(s) for this session")
             st.rerun()
 
     # Reset to defaults
-    if st.button(" Reset to Defaults"):
-        st.session_state.persona_config = {
-            'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
-            'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
-            'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                                 "Very concerned", "Extremely concerned"],
-            'custom_fields': {}
-        }
-        success_message("Reset to default persona configuration")
+    if st.button(" Reset to Default Personas"):
+        st.session_state.persona_descriptions = [
+            "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, environmentally conscious.",
+            "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about change. Prefers traditional methods. Not very tech-savvy.",
+            "A 28-year-old graduate student in environmental science. Very passionate about climate change. Low income but highly educated. Socially progressive.",
+            "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Pragmatic about environmental issues. Politically independent.",
+            "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Concerned about healthcare costs. Values work-life balance."
+        ]
+        success_message("Reset to default persona descriptions")
         st.rerun()
+
+    st.markdown("---")
+
+    # Tips
+    with st.expander("Tips for Writing Personas"):
+        st.markdown("""
+        **Good persona descriptions include:**
+        - Age and location
+        - Occupation and income level
+        - Values and priorities
+        - Attitudes relevant to your survey topic
+        - Lifestyle or behavioral traits
+
+        **Examples:**
+
+        **For a healthcare survey:**
+        - "A 30-year-old software engineer with employer health insurance. Generally healthy, rarely visits doctors. Prefers telemedicine."
+        - "A 65-year-old retiree with multiple chronic conditions. On Medicare. Visits specialists regularly. Concerned about medication costs."
+
+        **For a product survey:**
+        - "A budget-conscious college student. Shops at discount stores. Values price over brand. Active on social media."
+        - "A wealthy executive who values quality and convenience. Willing to pay premium for best products. Shops online frequently."
+
+        **Keep it natural - write them as you would describe real people in your target audience.**
+        """)
 
 # ======================
 # Tab 3: Experiment Management

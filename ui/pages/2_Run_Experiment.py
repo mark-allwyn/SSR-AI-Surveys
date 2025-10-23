@@ -137,80 +137,37 @@ if not test_human and not test_llm:
 st.header(" Persona Configuration")
 
 st.markdown("""
-Configure the persona parameters for generating synthetic respondents.
-These determine the diversity of your simulated survey respondents.
+Configure the personas for generating synthetic respondents.
+The system will randomly select from your persona pool to create diverse respondents.
 """)
 
-# Get persona config from session state or use defaults
-if 'persona_config' not in st.session_state:
-    st.session_state.persona_config = {
-        'age_groups': ["18-25", "26-35", "36-45", "46-55", "56-65", "65+"],
-        'income_brackets': ["<$30k", "$30k-$50k", "$50k-$75k", "$75k-$100k", "$100k-$150k", ">$150k"],
-        'env_consciousness': ["Not concerned", "Slightly concerned", "Moderately concerned",
-                             "Very concerned", "Extremely concerned"],
-        'custom_fields': {}
-    }
+# Get persona descriptions from session state or use defaults
+if 'persona_descriptions' not in st.session_state:
+    st.session_state.persona_descriptions = [
+        "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, environmentally conscious.",
+        "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about change. Prefers traditional methods. Not very tech-savvy.",
+        "A 28-year-old graduate student in environmental science. Very passionate about climate change. Low income but highly educated. Socially progressive.",
+        "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Pragmatic about environmental issues. Politically independent.",
+        "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Concerned about healthcare costs. Values work-life balance."
+    ]
 
-# Use expanders for persona configuration
-with st.expander(" Age Groups", expanded=False):
-    age_groups_text = st.text_area(
-        "Age Groups (one per line)",
-        value="\n".join(st.session_state.persona_config['age_groups']),
-        height=150,
-        key="age_groups_input"
-    )
+# Show persona pool
+with st.expander(f" Persona Pool ({len(st.session_state.persona_descriptions)} personas)", expanded=False):
+    st.markdown("**Current personas:**")
+    for i, persona in enumerate(st.session_state.persona_descriptions, 1):
+        st.markdown(f"{i}. {persona}")
 
-with st.expander(" Income Brackets", expanded=False):
-    income_brackets_text = st.text_area(
-        "Income Brackets (one per line)",
-        value="\n".join(st.session_state.persona_config['income_brackets']),
-        height=150,
-        key="income_brackets_input"
-    )
-
-with st.expander(" Environmental Consciousness", expanded=False):
-    env_consciousness_text = st.text_area(
-        "Environmental Consciousness Levels (one per line)",
-        value="\n".join(st.session_state.persona_config['env_consciousness']),
-        height=150,
-        key="env_consciousness_input",
-        help="These levels influence ground truth generation"
-    )
-
-# Custom fields
-custom_fields_config = st.session_state.persona_config.get('custom_fields', {})
-if custom_fields_config:
-    with st.expander(f" Custom Fields ({len(custom_fields_config)} configured)", expanded=False):
-        st.markdown("**Additional persona attributes from Settings:**")
-        for field_name, field_values in custom_fields_config.items():
-            st.markdown(f"- **{field_name}**: {len(field_values)} categories")
-            st.caption(", ".join(field_values))
-
-# Parse persona inputs for experiment
-age_groups = [line.strip() for line in age_groups_text.split('\n') if line.strip()]
-income_brackets = [line.strip() for line in income_brackets_text.split('\n') if line.strip()]
-env_consciousness = [line.strip() for line in env_consciousness_text.split('\n') if line.strip()]
+    st.info("Go to Settings to modify the persona pool")
 
 # Show current configuration summary
 st.markdown("**Current Configuration:**")
-if custom_fields_config:
-    col1, col2, col3, col4 = st.columns(4)
-else:
-    col1, col2, col3 = st.columns(3)
-    col4 = None
+col1, col2 = st.columns(2)
 
 with col1:
-    st.metric("Age Groups", len(age_groups))
+    st.metric("Persona Pool Size", len(st.session_state.persona_descriptions))
 
 with col2:
-    st.metric("Income Brackets", len(income_brackets))
-
-with col3:
-    st.metric("Consciousness Levels", len(env_consciousness))
-
-if col4 and custom_fields_config:
-    with col4:
-        st.metric("Custom Fields", len(custom_fields_config))
+    st.metric("Selection Method", "Random")
 
 # ======================
 # Section D: SSR Configuration
@@ -257,11 +214,9 @@ with st.expander(" Experiment Summary", expanded=True):
     - Human-style: {'' if test_human else ''}
     - LLM-style: {'' if test_llm else ''}
 
-    **Persona Diversity:**
-    - Age Groups: {len(age_groups)} categories
-    - Income Brackets: {len(income_brackets)} categories
-    - Environmental Consciousness: {len(env_consciousness)} levels
-    {"- Custom Fields: " + ", ".join(custom_fields_config.keys()) if custom_fields_config else ""}
+    **Persona Pool:**
+    - Pool Size: {len(st.session_state.persona_descriptions)} unique personas
+    - Selection: Random sampling with replacement
 
     **SSR Settings:**
     - Model: text-embedding-3-small
@@ -312,10 +267,8 @@ if run_button:
 
             # Build persona configuration
             persona_config = {
-                'age_groups': age_groups,
-                'income_brackets': income_brackets,
-                'env_consciousness': env_consciousness,
-                'custom_fields': custom_fields_config
+                'mode': 'descriptions',
+                'descriptions': st.session_state.persona_descriptions
             }
 
             # Build command with persona config
