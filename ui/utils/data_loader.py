@@ -1,0 +1,158 @@
+"""Utilities for loading experiment data."""
+
+from pathlib import Path
+import pandas as pd
+from typing import Dict, List, Optional, Tuple
+import yaml
+
+
+def get_all_experiments() -> List[Path]:
+    """Get all experiment folders sorted by date (newest first)."""
+    experiments_dir = Path("experiments")
+    if not experiments_dir.exists():
+        return []
+
+    experiment_folders = sorted(
+        experiments_dir.glob("run_*"),
+        key=lambda x: x.name,
+        reverse=True
+    )
+    return experiment_folders
+
+
+def get_experiment_info(experiment_path: Path) -> Dict:
+    """Get basic info about an experiment."""
+    timestamp = experiment_path.name.replace("run_", "")
+
+    # Format timestamp: YYYYMMDD_HHMMSS -> YYYY-MM-DD HH:MM:SS
+    formatted_time = f"{timestamp[:4]}-{timestamp[4:6]}-{timestamp[6:8]} {timestamp[9:11]}:{timestamp[11:13]}:{timestamp[13:15]}"
+
+    info = {
+        'folder': experiment_path.name,
+        'timestamp': formatted_time,
+        'path': experiment_path
+    }
+
+    # Load ground truth if exists
+    gt_file = experiment_path / "ground_truth.csv"
+    if gt_file.exists():
+        df = pd.read_csv(gt_file)
+        n_respondents = df['respondent_id'].nunique()
+        n_questions = df['question_id'].nunique()
+        info['n_respondents'] = n_respondents
+        info['n_questions'] = n_questions
+        info['n_responses'] = len(df)
+    else:
+        info['n_respondents'] = 0
+        info['n_questions'] = 0
+        info['n_responses'] = 0
+
+    return info
+
+
+def load_ground_truth(experiment_path: Path) -> Optional[pd.DataFrame]:
+    """Load ground truth CSV from experiment."""
+    gt_file = experiment_path / "ground_truth.csv"
+    if gt_file.exists():
+        return pd.read_csv(gt_file)
+    return None
+
+
+def load_text_report(experiment_path: Path) -> Optional[str]:
+    """Load text report from experiment."""
+    txt_file = experiment_path / "report.txt"
+    if txt_file.exists():
+        return txt_file.read_text()
+    return None
+
+
+def load_markdown_report(experiment_path: Path) -> Optional[str]:
+    """Load markdown report from experiment."""
+    md_file = experiment_path / "report.md"
+    if md_file.exists():
+        return md_file.read_text()
+    return None
+
+
+def parse_text_report(report_text: str) -> Dict:
+    """Parse text report to extract metrics."""
+    metrics = {}
+
+    lines = report_text.split('\n')
+    current_question = None
+
+    for line in lines:
+        # Parse overall metrics
+        if "Average Mode Accuracy:" in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                human_part = parts[0].split(':')[1].strip()
+                llm_part = parts[1].split(':')[1].strip()
+
+                # Extract percentages
+                human_acc = float(human_part.replace('%', '').strip())
+                llm_acc = float(llm_part.replace('%', '').strip())
+
+                metrics['overall_human_accuracy'] = human_acc
+                metrics['overall_llm_accuracy'] = llm_acc
+
+        # Parse question-level metrics
+        if line.startswith("QUESTION:"):
+            current_question = line.split(':')[1].strip()
+            metrics[current_question] = {}
+
+        if current_question and "Mode Accuracy:" in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                human_part = parts[0].split(':')[1].strip()
+                llm_part = parts[1].split(':')[1].strip()
+
+                human_acc = float(human_part.replace('%', '').strip())
+                llm_acc = float(llm_part.replace('%', '').strip())
+
+                metrics[current_question]['human_accuracy'] = human_acc
+                metrics[current_question]['llm_accuracy'] = llm_acc
+
+        if current_question and "MAE:" in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                human_part = parts[0].split(':')[1].strip()
+                llm_part = parts[1].split(':')[1].strip()
+
+                metrics[current_question]['human_mae'] = float(human_part)
+                metrics[current_question]['llm_mae'] = float(llm_part)
+
+    return metrics
+
+
+def load_survey_config(config_path: str = "config/mixed_survey_config.yaml") -> Dict:
+    """Load survey configuration from YAML."""
+    config_file = Path(config_path)
+    if config_file.exists():
+        with open(config_file, 'r') as f:
+            return yaml.safe_load(f)
+    return {}
+
+
+def get_available_surveys() -> List[str]:
+    """Get list of available survey config files."""
+    config_dir = Path("config")
+    if not config_dir.exists():
+        return []
+
+    survey_files = list(config_dir.glob("*.yaml")) + list(config_dir.glob("*.yml"))
+    return [str(f) for f in survey_files]
+
+
+def delete_experiment(experiment_path: Path) -> bool:
+    """Delete an experiment folder and all its contents."""
+    import shutil
+
+    try:
+        if experiment_path.exists() and experiment_path.is_dir():
+            shutil.rmtree(experiment_path)
+            return True
+        return False
+    except Exception as e:
+        print(f"Error deleting experiment: {e}")
+        return False
