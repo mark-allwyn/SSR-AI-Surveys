@@ -489,17 +489,23 @@ if run_button:
             # Build persona configuration (empty, will use survey config)
             persona_config = {}
 
-            # Build command with persona config and optional ground truth
+            # Build command with persona config, optional ground truth, and survey config path
             persona_config_json = json.dumps(persona_config)
             cmd = [
                 sys.executable,
-                "run_pipeline_with_config.py",
+                "ground_truth_pipeline.py",
                 persona_config_json
             ]
 
-            # Add ground truth path if uploaded
+            # Add ground truth path if uploaded (must be second argument)
             if uploaded_ground_truth:
                 cmd.append(uploaded_ground_truth)
+            else:
+                # Add empty string as placeholder if no ground truth
+                cmd.append("")
+
+            # Add survey config path (third argument)
+            cmd.append(selected_survey)
 
             # Run the pipeline as subprocess
             status_text.text("Step 3/8: Loading survey...")

@@ -196,49 +196,116 @@ st.header("Accuracy by Question")
 human_accuracies = [question_metrics[q]['human_accuracy'] for q in question_ids]
 llm_accuracies = [question_metrics[q]['llm_accuracy'] for q in question_ids]
 
-fig_accuracy = go.Figure()
+# Split into multiple charts if more than 10 questions
+n_questions = len(question_ids)
+questions_per_chart = 10
 
-fig_accuracy.add_trace(go.Bar(
-    name='Ground Truth',
-    x=question_ids,
-    y=human_accuracies,
-    marker_color=brand_colors['teal_blue'],
-    text=[f"{v:.1f}%" for v in human_accuracies],
-    textposition='outside',
-    textfont=dict(size=12, color=brand_colors['teal_blue'], family='Arial Black')
-))
+if n_questions <= questions_per_chart:
+    # Single chart for 10 or fewer questions
+    fig_accuracy = go.Figure()
 
-fig_accuracy.add_trace(go.Bar(
-    name='LLM+SSR',
-    x=question_ids,
-    y=llm_accuracies,
-    marker_color=brand_colors['atomic_orange'],
-    text=[f"{v:.1f}%" for v in llm_accuracies],
-    textposition='outside',
-    textfont=dict(size=12, color=brand_colors['atomic_orange'], family='Arial Black')
-))
+    fig_accuracy.add_trace(go.Bar(
+        name='Ground Truth',
+        x=question_ids,
+        y=human_accuracies,
+        marker_color=brand_colors['teal_blue'],
+        text=[f"{v:.1f}%" for v in human_accuracies],
+        textposition='outside',
+        textfont=dict(size=12, color=brand_colors['teal_blue'], family='Arial Black')
+    ))
 
-fig_accuracy.update_layout(
-    title=dict(
-        text='Mode Accuracy by Question',
-        font=dict(size=20, family='Arial Black')
-    ),
-    xaxis_title='Question',
-    yaxis_title='Accuracy (%)',
-    barmode='group',
-    height=500,
-    yaxis=dict(range=[0, 110]),
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1
-    ),
-    hovermode='x unified'
-)
+    fig_accuracy.add_trace(go.Bar(
+        name='LLM+SSR',
+        x=question_ids,
+        y=llm_accuracies,
+        marker_color=brand_colors['atomic_orange'],
+        text=[f"{v:.1f}%" for v in llm_accuracies],
+        textposition='outside',
+        textfont=dict(size=12, color=brand_colors['atomic_orange'], family='Arial Black')
+    ))
 
-st.plotly_chart(fig_accuracy, use_container_width=True)
+    fig_accuracy.update_layout(
+        title=dict(
+            text='Mode Accuracy by Question',
+            font=dict(size=20, family='Arial Black')
+        ),
+        xaxis_title='Question',
+        yaxis_title='Accuracy (%)',
+        barmode='group',
+        height=500,
+        yaxis=dict(range=[0, 110]),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        hovermode='x unified'
+    )
+
+    st.plotly_chart(fig_accuracy, use_container_width=True)
+else:
+    # Multiple charts for more than 10 questions
+    n_charts = (n_questions + questions_per_chart - 1) // questions_per_chart
+
+    for chart_idx in range(n_charts):
+        start_idx = chart_idx * questions_per_chart
+        end_idx = min(start_idx + questions_per_chart, n_questions)
+
+        # Get data for this chart
+        chart_question_ids = question_ids[start_idx:end_idx]
+        chart_human_accuracies = human_accuracies[start_idx:end_idx]
+        chart_llm_accuracies = llm_accuracies[start_idx:end_idx]
+
+        # Create figure for this chunk
+        fig_accuracy = go.Figure()
+
+        fig_accuracy.add_trace(go.Bar(
+            name='Ground Truth',
+            x=chart_question_ids,
+            y=chart_human_accuracies,
+            marker_color=brand_colors['teal_blue'],
+            text=[f"{v:.1f}%" for v in chart_human_accuracies],
+            textposition='outside',
+            textfont=dict(size=12, color=brand_colors['teal_blue'], family='Arial Black')
+        ))
+
+        fig_accuracy.add_trace(go.Bar(
+            name='LLM+SSR',
+            x=chart_question_ids,
+            y=chart_llm_accuracies,
+            marker_color=brand_colors['atomic_orange'],
+            text=[f"{v:.1f}%" for v in chart_llm_accuracies],
+            textposition='outside',
+            textfont=dict(size=12, color=brand_colors['atomic_orange'], family='Arial Black')
+        ))
+
+        fig_accuracy.update_layout(
+            title=dict(
+                text=f'Mode Accuracy by Question (Q{start_idx+1}-Q{end_idx})',
+                font=dict(size=20, family='Arial Black')
+            ),
+            xaxis_title='Question',
+            yaxis_title='Accuracy (%)',
+            barmode='group',
+            height=500,
+            yaxis=dict(range=[0, 110]),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            hovermode='x unified'
+        )
+
+        st.plotly_chart(fig_accuracy, use_container_width=True)
+
+        # Add spacing between charts (except after the last one)
+        if chart_idx < n_charts - 1:
+            st.markdown("<br>", unsafe_allow_html=True)
 
 st.markdown("---")
 
@@ -382,17 +449,60 @@ styled_df = summary_df.style.apply(highlight_winner, axis=1)
 st.dataframe(styled_df, use_container_width=True, hide_index=True)
 
 # ======================
-# Section H: Actions
+# Section H: Download Reports
 # ======================
 st.markdown("---")
-st.header("Actions")
+st.header("Download Reports")
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
-    if st.button("Run New Experiment", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_Run_Experiment.py")
+    # Download text report
+    txt_file = selected_exp_path / 'report.txt'
+    if txt_file.exists():
+        with open(txt_file, 'r') as f:
+            txt_content = f.read()
+
+        st.download_button(
+            label=" Download Text Report",
+            data=txt_content,
+            file_name=f"report_{exp_info['timestamp']}.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+    else:
+        st.warning("Text report not available")
 
 with col2:
-    if st.button("Live Demo", use_container_width=True):
-        st.switch_page("pages/4_Live_Demo.py")
+    # Download markdown report
+    md_file = selected_exp_path / 'report.md'
+    if md_file.exists():
+        with open(md_file, 'r') as f:
+            md_content = f.read()
+
+        st.download_button(
+            label=" Download Markdown Report",
+            data=md_content,
+            file_name=f"report_{exp_info['timestamp']}.md",
+            mime="text/markdown",
+            use_container_width=True
+        )
+    else:
+        st.warning("Markdown report not available")
+
+with col3:
+    # Download ground truth CSV
+    csv_file = selected_exp_path / 'ground_truth.csv'
+    if csv_file.exists():
+        gt_df = pd.read_csv(csv_file)
+        csv_content = gt_df.to_csv(index=False)
+
+        st.download_button(
+            label=" Download Ground Truth CSV",
+            data=csv_content,
+            file_name=f"ground_truth_{exp_info['timestamp']}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+    else:
+        st.warning("Ground truth CSV not available")

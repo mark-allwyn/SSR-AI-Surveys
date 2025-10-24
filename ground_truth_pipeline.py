@@ -199,12 +199,13 @@ def generate_llm_style_response(target_statement: str, rating: int, max_rating: 
     return f"{hedge} {target_statement.lower()}{qualifier}."
 
 
-def main(persona_config=None, ground_truth_path=None):
+def main(persona_config=None, ground_truth_path=None, survey_config_path='config/mixed_survey_config.yaml'):
     """Run the ground truth comparison pipeline.
 
     Args:
         persona_config: Optional dict with persona configuration
         ground_truth_path: Optional path to uploaded ground truth CSV file
+        survey_config_path: Path to survey YAML config file (default: config/mixed_survey_config.yaml)
     """
     # Generate timestamp for this run
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -227,8 +228,8 @@ def main(persona_config=None, ground_truth_path=None):
 
     # 1. Load survey
     print("\n[1/8] Loading survey configuration...")
-    survey = Survey.from_config('config/mixed_survey_config.yaml')
-    print(f"    ✓ Loaded: '{survey.name}'")
+    survey = Survey.from_config(survey_config_path)
+    print(f"    ✓ Loaded: '{survey.name}' from {survey_config_path}")
     print(f"    ✓ Questions: {len(survey.questions)}")
     for q in survey.questions:
         print(f"      - {q.id} ({q.type})")
@@ -409,4 +410,21 @@ if __name__ == "__main__":
     # Ensure experiments directory exists
     Path("experiments").mkdir(parents=True, exist_ok=True)
 
-    main()
+    # Parse command-line arguments
+    persona_config = None
+    ground_truth_path = None
+    survey_config_path = 'config/mixed_survey_config.yaml'  # Default
+
+    if len(sys.argv) > 1:
+        # First argument is persona config JSON
+        persona_config = json.loads(sys.argv[1])
+
+    if len(sys.argv) > 2:
+        # Second argument is ground truth CSV path
+        ground_truth_path = sys.argv[2]
+
+    if len(sys.argv) > 3:
+        # Third argument is survey config path
+        survey_config_path = sys.argv[3]
+
+    main(persona_config=persona_config, ground_truth_path=ground_truth_path, survey_config_path=survey_config_path)
