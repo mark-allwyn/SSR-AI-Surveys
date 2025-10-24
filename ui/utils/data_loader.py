@@ -171,3 +171,95 @@ def delete_experiment(experiment_path: Path) -> bool:
     except Exception as e:
         print(f"Error deleting experiment: {e}")
         return False
+
+
+def load_distributions(experiment_path: Path) -> Optional[dict]:
+    """Load LLM probability distributions from experiment."""
+    import json
+    dist_file = experiment_path / "llm_distributions.json"
+    if dist_file.exists():
+        with open(dist_file, 'r') as f:
+            return json.load(f)
+    return None
+
+
+def group_experiments_by_survey(experiments: List[Path]) -> Dict[str, List[Path]]:
+    """
+    Group experiments by survey based on question IDs.
+
+    Returns dict where keys are survey fingerprints (hash of sorted question IDs)
+    and values are lists of experiment paths.
+    """
+    groups = {}
+
+    for exp_path in experiments:
+        gt_file = exp_path / "ground_truth.csv"
+        if gt_file.exists():
+            df = pd.read_csv(gt_file)
+            question_ids = tuple(sorted(df['question_id'].unique()))
+            fingerprint = str(hash(question_ids))
+
+            if fingerprint not in groups:
+                groups[fingerprint] = {
+                    'experiments': [],
+                    'question_ids': question_ids,
+                    'count': 0
+                }
+
+            groups[fingerprint]['experiments'].append(exp_path)
+            groups[fingerprint]['count'] += 1
+
+    return groups
+
+
+def calculate_experiment_metrics(experiment_path: Path) -> Optional[Dict]:
+    """
+    Calculate key metrics for an experiment for comparison/timeline views.
+
+    Returns dict with accuracy, MAE, sample size, and other key metrics.
+    """
+    text_report = load_text_report(experiment_path)
+    if not text_report:
+        return None
+
+    metrics = parse_text_report(text_report)
+    if not metrics:
+        return None
+
+    # Extract overall metrics
+    overall_llm = metrics.get('overall_llm_accuracy', 0)
+    question_metrics = {k: v for k, v in metrics.items()
+                       if k not in ['overall_human_accuracy', 'overall_llm_accuracy']}
+
+    # Calculate averages
+    import numpy as np
+    llm_maes = [question_metrics[q]['llm_mae'] for q in question_metrics]
+    avg_mae = np.mean(llm_maes) if llm_maes else 0
+
+    # Get sample size
+    gt_file = experiment_path / "ground_truth.csv"
+    n_respondents = 0
+    n_questions = len(question_metrics)
+    if gt_file.exists():
+        df = pd.read_csv(gt_file)
+        n_respondents = df['respondent_id'].nunique()
+
+    # Extract timestamp from folder name
+    folder_name = experiment_path.name
+    timestamp_str = folder_name.replace("run_", "")
+    from datetime import datetime
+    try:
+        timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+    except:
+        timestamp = None
+
+    return {
+        'path': experiment_path,
+        'folder': folder_name,
+        'timestamp': timestamp,
+        'accuracy': overall_llm,
+        'mae': avg_mae,
+        'n_respondents': n_respondents,
+        'n_questions': n_questions,
+        'question_ids': list(question_metrics.keys())
+    }
