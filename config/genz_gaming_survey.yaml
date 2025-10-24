@@ -1,0 +1,244 @@
+# Gen Z Online Gaming Survey Configuration
+
+survey:
+  name: "Gen Z Online Gaming Experience Survey"
+  description: "Comprehensive survey evaluating online gaming preferences, habits, and experiences for Gen Z gamers"
+
+  context: |
+    We're researching a new online multiplayer battle royale game designed specifically for Gen Z players:
+
+    **Game Features:**
+    - Cross-platform play (mobile, PC, console)
+    - 100-player matches with 15-minute rounds
+    - Unique cosmetic customization with NFT-based skins
+    - Built-in live streaming to TikTok/Twitch
+    - Voice chat with AI toxicity filtering
+    - Battle pass: $9.99/season or 2000 in-game coins
+    - Free-to-play with optional cosmetic purchases
+    - Weekly tournaments with cash prizes ($100-$10,000)
+    - Social hub for team formation and hangout
+    - Mobile-first design with controller support
+
+    **Monetization:**
+    - Battle Pass: $9.99/season (10 weeks)
+    - Premium currency: $4.99 for 500 coins, $19.99 for 2500 coins
+    - Individual skins: 200-1500 coins
+    - Loot boxes removed (direct purchase only)
+
+    **Community Features:**
+    - In-game clan system with custom emblems
+    - Ranked competitive mode with seasonal rewards
+    - Casual modes for practice
+    - Content creator program with revenue sharing
+
+  questions:
+    # Yes/No Questions (4)
+    - id: "q1_would_play"
+      text: "Would you download and try this game?"
+      type: "yes_no"
+
+    - id: "q2_recommend_friends"
+      text: "Would you recommend this game to your friends?"
+      type: "yes_no"
+
+    - id: "q3_join_tournament"
+      text: "Would you participate in the weekly tournaments?"
+      type: "yes_no"
+
+    - id: "q4_stream_gameplay"
+      text: "Would you use the built-in streaming feature to share your gameplay?"
+      type: "yes_no"
+
+    # Likert 5-point scales (8)
+    - id: "q5_download_likelihood"
+      text: "How likely are you to download this game in the first week of launch?"
+      type: "likert_5"
+      scale:
+        1: "Very unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very likely"
+
+    - id: "q6_battlepass_value"
+      text: "How would you rate the value of the $9.99 battle pass?"
+      type: "likert_5"
+      scale:
+        1: "Very poor value"
+        2: "Poor value"
+        3: "Fair value"
+        4: "Good value"
+        5: "Excellent value"
+
+    - id: "q7_gameplay_interest"
+      text: "How interested are you in the 15-minute battle royale format?"
+      type: "likert_5"
+      scale:
+        1: "Not interested at all"
+        2: "Slightly interested"
+        3: "Moderately interested"
+        4: "Very interested"
+        5: "Extremely interested"
+
+    - id: "q8_cosmetic_importance"
+      text: "How important are cosmetic customization options to you?"
+      type: "likert_5"
+      scale:
+        1: "Not important at all"
+        2: "Slightly important"
+        3: "Moderately important"
+        4: "Very important"
+        5: "Extremely important"
+
+    - id: "q9_toxicity_filter"
+      text: "How valuable is the AI toxicity filtering feature to you?"
+      type: "likert_5"
+      scale:
+        1: "Not valuable at all"
+        2: "Slightly valuable"
+        3: "Moderately valuable"
+        4: "Very valuable"
+        5: "Extremely valuable"
+
+    - id: "q10_competitive_interest"
+      text: "How interested are you in ranked competitive mode?"
+      type: "likert_5"
+      scale:
+        1: "Not interested at all"
+        2: "Slightly interested"
+        3: "Moderately interested"
+        4: "Very interested"
+        5: "Extremely interested"
+
+    - id: "q11_social_features"
+      text: "How important are the social hub and clan features to you?"
+      type: "likert_5"
+      scale:
+        1: "Not important at all"
+        2: "Slightly important"
+        3: "Moderately important"
+        4: "Very important"
+        5: "Extremely important"
+
+    - id: "q12_mobile_first"
+      text: "How do you feel about the mobile-first design approach?"
+      type: "likert_5"
+      scale:
+        1: "Very dissatisfied"
+        2: "Dissatisfied"
+        3: "Neutral"
+        4: "Satisfied"
+        5: "Very satisfied"
+
+    # Likert 7-point scales (4)
+    - id: "q13_overall_appeal"
+      text: "Overall, how appealing is this game concept to you?"
+      type: "likert_7"
+      scale:
+        1: "Not appealing at all"
+        2: "Very unappealing"
+        3: "Somewhat unappealing"
+        4: "Neutral"
+        5: "Somewhat appealing"
+        6: "Very appealing"
+        7: "Extremely appealing"
+
+    - id: "q14_monetization_fairness"
+      text: "How fair do you think the monetization model is?"
+      type: "likert_7"
+      scale:
+        1: "Extremely unfair"
+        2: "Very unfair"
+        3: "Somewhat unfair"
+        4: "Neutral"
+        5: "Somewhat fair"
+        6: "Very fair"
+        7: "Extremely fair"
+
+    - id: "q15_play_frequency"
+      text: "How often would you play this game if you downloaded it?"
+      type: "likert_7"
+      scale:
+        1: "Never"
+        2: "Rarely (once a month)"
+        3: "Occasionally (2-3 times per month)"
+        4: "Sometimes (once a week)"
+        5: "Regularly (2-3 times per week)"
+        6: "Frequently (4-6 times per week)"
+        7: "Daily"
+
+    - id: "q16_long_term_engagement"
+      text: "How long do you think you would continue playing this game?"
+      type: "likert_7"
+      scale:
+        1: "Not at all"
+        2: "Less than 1 week"
+        3: "1-2 weeks"
+        4: "1 month"
+        5: "2-3 months"
+        6: "6 months"
+        7: "1+ years"
+
+    # Multiple Choice Questions (4)
+    - id: "q17_spending_monthly"
+      text: "How much would you realistically spend per month on this game?"
+      type: "multiple_choice"
+      options:
+        - "Nothing (completely free-to-play)"
+        - "$1-$5 per month"
+        - "$6-$10 per month (battle pass only)"
+        - "$11-$20 per month (battle pass + some cosmetics)"
+        - "$21-$50 per month"
+        - "$50+ per month"
+
+    - id: "q18_preferred_platform"
+      text: "Which platform would you primarily play on?"
+      type: "multiple_choice"
+      options:
+        - "Mobile (iOS)"
+        - "Mobile (Android)"
+        - "PC"
+        - "PlayStation"
+        - "Xbox"
+        - "Nintendo Switch"
+
+    - id: "q19_play_session_length"
+      text: "How long would your typical gaming session be?"
+      type: "multiple_choice"
+      options:
+        - "15-30 minutes (1-2 matches)"
+        - "30-60 minutes (2-4 matches)"
+        - "1-2 hours (4-8 matches)"
+        - "2-3 hours (8-12 matches)"
+        - "3+ hours (marathon sessions)"
+
+    - id: "q20_primary_motivation"
+      text: "What would be your primary motivation for playing this game?"
+      type: "multiple_choice"
+      options:
+        - "Competitive gameplay and ranking up"
+        - "Playing with friends/social aspect"
+        - "Collecting cosmetics and customization"
+        - "Winning tournaments and prizes"
+        - "Creating content/streaming"
+        - "Casual fun and stress relief"
+
+  # Sample personas for this survey
+  personas:
+    - "A 16-year-old high school student who plays Fortnite daily on mobile. Budget-conscious but spends $10/month on battle passes. Highly social gamer who plays with school friends."
+
+    - "A 22-year-old college student who streams on Twitch part-time. Plays Apex Legends and Valorant on PC. Invests $30-50/month on games. Focused on competitive play and ranking."
+
+    - "An 18-year-old recent high school grad who primarily plays Call of Duty Mobile. Free-to-play only, refuses to spend money. Casual player, 1-2 hours per day."
+
+    - "A 20-year-old working part-time who plays PUBG Mobile competitively. Has disposable income and spends $50-100/month on mobile games. Tournament-focused."
+
+    - "A 19-year-old college student who plays League of Legends and Genshin Impact. Moderate spender ($15-20/month). Loves cosmetics and character customization."
+
+    - "A 17-year-old content creator with 50k TikTok followers. Plays trending games for content. Spends minimally but values streaming features highly."
+
+    - "A 21-year-old casual gamer who plays Among Us and Fall Guys with friends. Prefers short, fun sessions. Rarely spends money, maybe $5/month."
+
+    - "A 23-year-old esports enthusiast who follows tournaments religiously. Plays multiple competitive games. Willing to spend on anything that improves competitive edge."
+
+  sample_size: 100

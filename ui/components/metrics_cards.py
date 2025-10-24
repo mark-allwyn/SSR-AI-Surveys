@@ -2,6 +2,17 @@
 
 import streamlit as st
 
+# Brand colors
+brand_colors = {
+    'teal_blue': '#367588',
+    'turquoise': '#40E0D0',
+    'atomic_orange': '#FF6E3A',
+    'cornflower_blue': '#6495ED',
+    'electric_lime': '#CCFF00',
+    'teal_dark': '#2C5F6F',
+    'light_grey': '#D3D3D3'
+}
+
 
 def metric_card(title: str, value: str, subtitle: str = "", delta: str = None, delta_color: str = "normal"):
     """
@@ -17,14 +28,14 @@ def metric_card(title: str, value: str, subtitle: str = "", delta: str = None, d
     st.markdown(f"""
     <div class="metric-card">
         <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">{title}</div>
-        <div style="font-size: 2rem; font-weight: bold; color: #1f77b4;">{value}</div>
+        <div style="font-size: 2rem; font-weight: bold; color: {brand_colors['teal_blue']};">{value}</div>
         {f'<div style="font-size: 0.85rem; color: #888;">{subtitle}</div>' if subtitle else ''}
     </div>
     """, unsafe_allow_html=True)
 
     if delta:
         st.markdown(f"""
-        <div style="margin-top: 0.5rem; font-size: 0.9rem; color: {'green' if delta.startswith('+') else 'red'};">
+        <div style="margin-top: 0.5rem; font-size: 0.9rem; color: {brand_colors['electric_lime'] if delta.startswith('+') else brand_colors['atomic_orange']};">
             {delta}
         </div>
         """, unsafe_allow_html=True)

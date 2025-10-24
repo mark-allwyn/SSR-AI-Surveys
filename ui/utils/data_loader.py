@@ -88,16 +88,16 @@ def parse_text_report(report_text: str) -> Dict:
             in_overall_section = True
 
         if in_overall_section:
-            if "Human:" in line and '%' in line:
-                # Extract Human percentage
-                human_part = line.split('Human:')[1].strip().replace('%', '').strip()
+            if "Ground Truth" in line and '%' in line:
+                # Extract Ground Truth percentage
+                human_part = line.split(':')[-1].strip().replace('%', '').strip()
                 try:
                     metrics['overall_human_accuracy'] = float(human_part)
                 except ValueError:
                     pass
-            elif "LLM:" in line and '%' in line:
-                # Extract LLM percentage
-                llm_part = line.split('LLM:')[1].strip().replace('%', '').strip()
+            elif "LLM+SSR" in line and '%' in line:
+                # Extract LLM+SSR percentage
+                llm_part = line.split(':')[-1].strip().replace('%', '').strip()
                 try:
                     metrics['overall_llm_accuracy'] = float(llm_part)
                     in_overall_section = False  # Done with overall section
@@ -112,10 +112,10 @@ def parse_text_report(report_text: str) -> Dict:
         if current_question and "Mode Accuracy:" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
-                # Extract human accuracy
-                human_part = parts[0].split('Human:')[1].strip().replace('%', '').strip()
-                # Extract LLM accuracy
-                llm_part = parts[1].split('LLM:')[1].strip().replace('%', '').strip()
+                # Extract ground truth accuracy
+                human_part = parts[0].split('Ground Truth:')[1].strip().replace('%', '').strip()
+                # Extract LLM+SSR accuracy
+                llm_part = parts[1].split('LLM+SSR:')[1].strip().replace('%', '').strip()
 
                 try:
                     metrics[current_question]['human_accuracy'] = float(human_part)
@@ -126,10 +126,10 @@ def parse_text_report(report_text: str) -> Dict:
         if current_question and "MAE:" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
-                # Extract human MAE
-                human_part = parts[0].split('Human:')[1].strip()
-                # Extract LLM MAE
-                llm_part = parts[1].split('LLM:')[1].strip()
+                # Extract ground truth MAE
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                # Extract LLM+SSR MAE
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
 
                 try:
                     metrics[current_question]['human_mae'] = float(human_part)

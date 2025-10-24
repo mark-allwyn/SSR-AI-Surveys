@@ -25,7 +25,7 @@ uv pip install streamlit
 From the project root directory:
 
 ```bash
-streamlit run ui/app.py
+streamlit run ui/1_Home.py
 ```
 
 The UI will open in your default web browser at `http://localhost:8501`
@@ -43,12 +43,12 @@ The UI uses Streamlit's multi-page app structure:
 
 ```
 ui/
-├── app.py                          # Main entry point (Dashboard)
+├── 1_Home.py                       # Main entry point (Dashboard)
 ├── pages/
-│   ├── 2__Run_Experiment.py     # Configure and run experiments
-│   ├── 3__View_Results.py       # View experiment results
-│   ├── 4__Live_Demo.py          # Interactive SSR testing
-│   └── 5__Settings.py           # Configuration and management
+│   ├── 2_Run_Experiment.py      # Configure and run experiments
+│   ├── 3_Results_Dashboard.py   # View experiment results
+│   ├── 4_Live_Demo.py           # Interactive SSR testing
+│   └── 5_Settings.py            # Configuration and management
 ├── components/
 │   └── metrics_cards.py            # Reusable UI components
 └── utils/
@@ -212,7 +212,7 @@ pip install streamlit --upgrade
 ### Local Only (Current Setup)
 
 ```bash
-streamlit run ui/app.py
+streamlit run ui/1_Home.py
 ```
 
 Access at `http://localhost:8501`
@@ -241,7 +241,7 @@ COPY . .
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "ui/app.py"]
+CMD ["streamlit", "run", "ui/1_Home.py"]
 ```
 
 Build and run:
@@ -268,22 +268,22 @@ You can set these in:
 
 ```
 ui/
-├── README.md                   # This file
-├── app.py                      # Main app (Dashboard)
+├── README.md                    # This file
+├── 1_Home.py                    # Main app (Dashboard/Home)
 │
-├── pages/                      # Multi-page app pages
-│   ├── 2__Run_Experiment.py
-│   ├── 3__View_Results.py
-│   ├── 4__Live_Demo.py
-│   └── 5__Settings.py
+├── pages/                       # Multi-page app pages
+│   ├── 2_Run_Experiment.py
+│   ├── 3_Results_Dashboard.py
+│   ├── 4_Live_Demo.py
+│   └── 5_Settings.py
 │
-├── components/                 # Reusable components
+├── components/                  # Reusable components
 │   ├── __init__.py
-│   └── metrics_cards.py       # Metric display components
+│   └── metrics_cards.py        # Metric display components
 │
-└── utils/                      # Utility functions
+└── utils/                       # Utility functions
     ├── __init__.py
-    └── data_loader.py         # Experiment data loading
+    └── data_loader.py          # Experiment data loading
 ```
 
 ## Customization
@@ -297,7 +297,7 @@ ui/
 
 ### Styling
 
-Edit CSS in `app.py`:
+Edit CSS in `1_Home.py` or page files:
 
 ```python
 st.markdown("""

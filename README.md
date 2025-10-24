@@ -88,10 +88,10 @@ This generates:
 - `report.txt` - Detailed metrics
 - `report.md` - Comprehensive markdown report with explanations
 
-### Or explore interactively:
+### Or use the interactive UI:
 
 ```bash
-jupyter notebook notebooks/example_notebook.ipynb
+streamlit run ui/1_Home.py
 ```
 
 ---
@@ -114,13 +114,13 @@ ssr_pipeline/
 │   ├── ssr_model.py                  # SSR implementation (paper-exact)
 │   ├── ground_truth.py               # Evaluation metrics
 │   ├── report_generator.py           # PNG + TXT reports
-│   ├── markdown_report.py            # Markdown reports
-│   ├── analysis.py                   # Statistical analysis
-│   ├── visualization.py              # Plotting utilities
-│   └── comparison.py                 # Human vs LLM comparison
+│   └── markdown_report.py            # Markdown reports
 │
-├── notebooks/                        # Interactive tutorials
-│   └── example_notebook.ipynb        # Complete walkthrough
+├── ui/                               # Streamlit web interface
+│   ├── 1_Home.py                     # Main dashboard
+│   ├── pages/                        # UI pages
+│   ├── components/                   # Reusable components
+│   └── utils/                        # UI utilities
 │
 ├── experiments/                      # Experiment results (auto-created)
 │   └── run_TIMESTAMP/
@@ -262,6 +262,178 @@ R001,q3_platform_trust,5
 - Profiles with high environmental consciousness → higher ratings
 - Profiles with low environmental consciousness → lower ratings
 - Introduces realistic variation using probability distributions
+
+#### How Ground Truth Generation Works
+
+The ground truth generation process creates realistic "true" ratings that later get validated against SSR predictions. Here's the detailed methodology:
+
+**1. Profile-Based Tendency Determination:**
+
+Each respondent profile is analyzed to determine their overall tendency (positive, negative, or neutral):
+
+```python
+# Example from ground_truth_pipeline.py
+def determine_tendency(profile):
+    """
+    Determines if a profile tends toward positive, negative, or neutral ratings.
+
+    Uses persona description hash to ensure consistency:
+    - Same persona always gets same tendency across runs
+    - Deterministic but appears random
+    """
+    # Hash the profile description
+    profile_hash = hash(profile.description) if profile.description else hash(profile.respondent_id)
+
+    # Use hash to deterministically assign tendency
+    tendency_value = profile_hash % 3
+
+    if tendency_value == 0:
+        return "positive"    # Tends to rate highly (4-5 on Likert-5)
+    elif tendency_value == 1:
+        return "negative"    # Tends to rate lowly (1-2 on Likert-5)
+    else:
+        return "neutral"     # Balanced ratings (2-4 on Likert-5)
+```
+
+**2. Question-Specific Probability Distributions:**
+
+For each question type, tendency maps to probability distributions:
+
+```python
+# Likert 5-point scale example
+if tendency == "positive":
+    probabilities = [0.05, 0.10, 0.20, 0.30, 0.35]  # Skewed toward 4-5
+    #                1     2     3     4     5
+elif tendency == "negative":
+    probabilities = [0.35, 0.30, 0.20, 0.10, 0.05]  # Skewed toward 1-2
+else:  # neutral
+    probabilities = [0.10, 0.20, 0.40, 0.20, 0.10]  # Centered on 3
+
+# Sample from distribution
+ground_truth = np.random.choice([1, 2, 3, 4, 5], p=probabilities)
+```
+
+**3. Question Type Handling:**
+
+Different question types use different distributions:
+
+```python
+# Yes/No (2 options)
+if question.type == "yes_no":
+    if tendency == "positive":
+        probs = [0.2, 0.8]    # 80% say "Yes" (2)
+    elif tendency == "negative":
+        probs = [0.8, 0.2]    # 80% say "No" (1)
+    else:
+        probs = [0.5, 0.5]    # 50/50 split
+
+# Likert 7-point
+elif question.type == "likert_7":
+    if tendency == "positive":
+        probs = [0.02, 0.03, 0.10, 0.15, 0.25, 0.25, 0.20]  # Skewed toward 5-7
+    # ... etc
+
+# Multiple choice (varies by number of options)
+elif question.type == "multiple_choice":
+    n_options = len(question.options)
+    if tendency == "positive":
+        # Favor last options
+        probs = [0.05] * (n_options - 2) + [0.45, 0.45]
+    # ... etc
+```
+
+**4. Introducing Realistic Variation:**
+
+Even profiles with the same tendency don't always give identical answers:
+
+```python
+# Each profile gets slightly different ratings through:
+
+# a) Probabilistic sampling (not deterministic)
+rating = np.random.choice(options, p=probabilities)  # Random sampling
+
+# b) Seeded randomness for reproducibility
+np.random.seed(seed)  # Same seed = same experiment results
+
+# c) Question-level variation
+# The same respondent might rate differently across questions
+# R001: q1=5, q2=4, q3=5, q4=3  (not all 5s even with positive tendency)
+```
+
+**5. Complete Example - One Respondent, One Question:**
+
+```python
+# Profile
+profile = RespondentProfile(
+    respondent_id="R042",
+    description="22-year-old college student, plays competitively, $30-50/month"
+)
+
+# Step 1: Determine tendency
+tendency = determine_tendency(profile)  # → "positive" (based on hash)
+
+# Step 2: Question context
+question = Question(
+    id="q5_download_likelihood",
+    type="likert_5",
+    scale={1: "Very unlikely", ..., 5: "Very likely"}
+)
+
+# Step 3: Get probability distribution for positive tendency
+probabilities = [0.05, 0.10, 0.20, 0.30, 0.35]
+
+# Step 4: Sample ground truth rating
+np.random.seed(100)  # For reproducibility
+ground_truth = np.random.choice([1, 2, 3, 4, 5], p=probabilities)
+# Result: ground_truth = 5 (sampled with 35% probability)
+
+# Step 5: Save to CSV
+# R042,q5_download_likelihood,5
+```
+
+**6. Why This Approach:**
+
+- **Realistic**: Mimics how real people with similar attitudes answer differently
+- **Consistent**: Same persona + seed = same results (reproducible experiments)
+- **Varied**: Not all positive profiles give all 5s (introduces natural variation)
+- **Testable**: We know the "true" answer to validate SSR against
+
+**7. Customization Points:**
+
+You can customize ground truth generation for your domain:
+
+```python
+# In ground_truth_pipeline.py
+
+# Option 1: Change tendency logic
+if profile.income == "high" and profile.age == "young":
+    tendency = "positive"
+elif profile.budget_conscious:
+    tendency = "negative"
+
+# Option 2: Adjust probability distributions
+if tendency == "positive":
+    # More extreme distribution (more 5s)
+    probabilities = [0.01, 0.04, 0.10, 0.25, 0.60]
+
+# Option 3: Add noise/uncertainty
+probabilities = add_noise(probabilities, noise_level=0.1)
+```
+
+**8. Validation:**
+
+After generation, the ground truth CSV contains all "correct" answers:
+
+```csv
+respondent_id,question_id,ground_truth
+R001,q1_would_play,2
+R001,q2_recommend_friends,2
+R001,q3_download_likelihood,5
+...
+R100,q20_primary_motivation,1
+```
+
+This becomes the **gold standard** that SSR predictions are evaluated against.
 
 ---
 
@@ -486,6 +658,92 @@ survey:
         3: "Neutral"
         4: "Agree"
         5: "Strongly agree"
+```
+
+### Understanding the `context` Field
+
+The `context` field is **critically important** for generating realistic responses. It provides background information that:
+
+1. **Anchors responses to a specific scenario**: Without context, LLMs generate generic responses. With context, they respond to your specific product/service.
+
+2. **Enables informed opinions**: Context gives virtual respondents the information they need to form opinions, just like real survey participants.
+
+3. **Improves SSR accuracy**: More specific context leads to more semantically distinct responses, which SSR can classify more accurately.
+
+**Example - Generic vs Contextual:**
+
+❌ **Without proper context:**
+```yaml
+context: "We are evaluating a product."
+
+# Result: Generic responses like:
+# "It seems okay"
+# "I might be interested"
+```
+
+✅ **With detailed context:**
+```yaml
+context: |
+  We are evaluating a new online lottery gaming platform with the following features:
+  - Multiple lottery games (Powerball, Mega Millions, state lotteries)
+  - Mobile app and web access
+  - Automated ticket purchasing and number selection
+  - Instant win notifications and prize alerts
+  - Subscription plans: $9.99/month or $99/year
+
+# Result: Specific, contextual responses like:
+# "The automated purchasing is appealing, but $9.99/month seems high for occasional players"
+# "I'm concerned about security for payment info, but the prize alerts are convenient"
+```
+
+**What to include in `context`:**
+
+- **Product/service description**: What is being evaluated?
+- **Key features**: What are the main capabilities or attributes?
+- **Pricing information**: What does it cost? (Especially important for purchase intent questions)
+- **Target audience context**: Who is this for? What problem does it solve?
+- **Any constraints or conditions**: Limitations, requirements, or special circumstances
+
+**Context Best Practices:**
+
+1. **Be specific and concrete**: Include actual feature names, prices, and details
+2. **Keep it relevant**: Only include information that would realistically be shown to survey respondents
+3. **Match survey length**: Longer surveys can have more context; short surveys need concise context
+4. **Use realistic language**: Write as you would in an actual survey introduction
+
+**Example contexts for different domains:**
+
+**Healthcare Survey:**
+```yaml
+context: |
+  We are evaluating a new telemedicine service with these features:
+  - 24/7 access to licensed physicians via video call
+  - Average wait time: 15 minutes
+  - Prescription fulfillment at partner pharmacies
+  - $29 per consultation, or $99/month unlimited plan
+  - Accepts most major insurance plans
+```
+
+**Product Survey:**
+```yaml
+context: |
+  We are evaluating an eco-friendly water bottle with:
+  - Stainless steel construction, keeps drinks cold for 24 hours
+  - 32oz capacity with carrying handle
+  - Available in 8 colors
+  - Price: $34.99
+  - Lifetime warranty against defects
+```
+
+**Service Survey:**
+```yaml
+context: |
+  We are evaluating a meal kit delivery service featuring:
+  - 3-5 recipes per week, serves 2-4 people
+  - Locally sourced, organic ingredients when possible
+  - 30-minute average cooking time
+  - Pricing: $60-80/week depending on plan
+  - Delivery every Tuesday and Thursday
 ```
 
 ### 2. Load and use the survey
@@ -831,7 +1089,7 @@ This project is provided for research and educational purposes. Please refer to 
 
 For questions or issues:
 1. Check the [Troubleshooting](#troubleshooting) section
-2. Review the [example notebook](notebooks/example_notebook.ipynb)
+2. Review the [UI documentation](ui/README.md)
 3. Consult the [original paper](https://arxiv.org/abs/2510.08338v2)
 4. Open an issue on the repository
 

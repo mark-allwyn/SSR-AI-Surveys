@@ -15,7 +15,119 @@ from src.survey import Question
 from src.llm_client import Response
 from ui.components.metrics_cards import success_message, warning_message, error_message
 
+# Brand colors
+brand_colors = {
+    'teal_blue': '#367588',
+    'turquoise': '#40E0D0',
+    'atomic_orange': '#FF6E3A',
+    'cornflower_blue': '#6495ED',
+    'electric_lime': '#CCFF00',
+    'teal_dark': '#2C5F6F',
+    'light_grey': '#D3D3D3'
+}
+
 st.set_page_config(page_title="Live Demo", page_icon="", layout="wide")
+
+# Custom CSS for brand colors
+st.markdown(f"""
+<style>
+    /* Primary buttons */
+    .stButton > button[kind="primary"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: white !important;
+    }}
+    .stButton > button[kind="primary"]:hover {{
+        background-color: {brand_colors['teal_dark']} !important;
+        border-color: {brand_colors['teal_dark']} !important;
+    }}
+    /* Secondary buttons */
+    .stButton > button[kind="secondary"] {{
+        background-color: white !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: {brand_colors['teal_blue']} !important;
+    }}
+    .stButton > button[kind="secondary"]:hover {{
+        background-color: {brand_colors['light_grey']} !important;
+    }}
+    /* Regular buttons (no type specified) */
+    .stButton > button:not([kind]) {{
+        background-color: white !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: {brand_colors['teal_blue']} !important;
+    }}
+    .stButton > button:not([kind]):hover {{
+        background-color: {brand_colors['light_grey']} !important;
+    }}
+
+    /* Radio buttons */
+    .stRadio > label > div[data-testid="stMarkdownContainer"] > p {{
+        color: {brand_colors['teal_blue']};
+    }}
+    .stRadio > div[role="radiogroup"] > label > div[data-baseweb="radio"] > div:first-child {{
+        background-color: white !important;
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    .stRadio > div[role="radiogroup"] > label > div[data-baseweb="radio"] > div:first-child:after {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+
+    /* Checkboxes */
+    .stCheckbox > label > div[data-baseweb="checkbox"] > div {{
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    .stCheckbox > label > div[data-baseweb="checkbox"] > div[data-checked="true"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+
+    /* Sliders */
+    .stSlider [data-baseweb="slider"] {{
+        background-color: transparent !important;
+    }}
+    .stSlider [data-baseweb="slider"] > div {{
+        background-color: transparent !important;
+    }}
+    .stSlider [data-baseweb="slider"] > div > div {{
+        background-color: {brand_colors['light_grey']} !important;
+    }}
+    .stSlider [data-baseweb="slider"] > div > div > div {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+    .stSlider [data-baseweb="slider"] [role="slider"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border: 2px solid white !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    }}
+    .stSlider [data-baseweb="slider"] [role="slider"]:hover {{
+        background-color: {brand_colors['teal_dark']} !important;
+    }}
+
+    /* Text input */
+    .stTextInput > div > div > input:focus {{
+        border-color: {brand_colors['teal_blue']} !important;
+        box-shadow: 0 0 0 0.2rem {brand_colors['teal_blue']}33 !important;
+    }}
+
+    /* Text area */
+    .stTextArea > div > div > textarea:focus {{
+        border-color: {brand_colors['teal_blue']} !important;
+        box-shadow: 0 0 0 0.2rem {brand_colors['teal_blue']}33 !important;
+    }}
+
+    /* Selectbox */
+    .stSelectbox > div > div > div:focus {{
+        border-color: {brand_colors['teal_blue']} !important;
+        box-shadow: 0 0 0 0.2rem {brand_colors['teal_blue']}33 !important;
+    }}
+
+    /* Download button */
+    .stDownloadButton > button {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: white !important;
+    }}
+</style>
+""", unsafe_allow_html=True)
 
 st.title(" Live Demo - Interactive SSR Playground")
 
@@ -254,7 +366,7 @@ if process_button and text_response:
 
             fig = go.Figure()
 
-            colors = ['#1f77b4' if i != distribution.mode - 1 else '#ff7f0e'
+            colors = [brand_colors['cornflower_blue'] if i != distribution.mode - 1 else brand_colors['atomic_orange']
                      for i in range(len(probabilities))]
 
             fig.add_trace(go.Bar(
@@ -304,13 +416,13 @@ if process_button and text_response:
 
             if max_prob > 0.7:
                 confidence_level = "very confident"
-                confidence_color = "green"
+                confidence_color = brand_colors['electric_lime']
             elif max_prob > 0.5:
                 confidence_level = "moderately confident"
-                confidence_color = "orange"
+                confidence_color = brand_colors['atomic_orange']
             else:
                 confidence_level = "uncertain"
-                confidence_color = "red"
+                confidence_color = brand_colors['atomic_orange']
 
             st.markdown(f"""
             The SSR model is **<span style="color:{confidence_color}">{confidence_level}</span>** in this prediction.

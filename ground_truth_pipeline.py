@@ -2,12 +2,12 @@
 """
 Ground Truth Comparison Pipeline.
 
-This script:
-1. Generates ground truth ratings for survey respondents
-2. Generates textual responses from both "humans" and "LLMs"
-3. Applies SSR to convert text to probability distributions
-4. Compares SSR predictions against ground truth
-5. Generates a one-page comparison report
+This script compares human ground truth ratings against LLM+SSR predictions:
+1. Load or generate ground truth ratings (human responses)
+2. Generate LLM textual responses for the same questions
+3. Apply SSR to LLM text to get predictions
+4. Compare: Ground Truth (100% accurate by definition) vs LLM+SSR predictions
+5. Generate comparison report showing how well LLM+SSR recovers human ratings
 """
 
 import sys
@@ -279,22 +279,15 @@ def main(persona_config=None, ground_truth_path=None):
     ground_truth_df.to_csv(gt_path, index=False)
     print(f"    ✓ Saved to {gt_path}")
 
-    # 4. Generate "human" responses aligned with ground truth
-    print("\n[4/8] Generating human-style responses...")
-    human_responses = generate_responses_from_ground_truth(
-        survey, profiles, ground_truth_df, response_style="human", seed=101
-    )
-    print(f"    ✓ Generated {len(human_responses)} human responses")
-
-    # 5. Generate "LLM" responses aligned with ground truth
-    print("\n[5/8] Generating LLM-style responses...")
+    # 4. Generate LLM text responses (will be processed through SSR)
+    print("\n[4/6] Generating LLM text responses...")
     llm_responses = generate_responses_from_ground_truth(
         survey, profiles, ground_truth_df, response_style="llm", seed=102
     )
     print(f"    ✓ Generated {len(llm_responses)} LLM responses")
 
-    # 6. Apply SSR to convert text responses to distributions
-    print("\n[6/8] Applying Semantic Similarity Rating...")
+    # 5. Apply SSR to LLM responses only
+    print("\n[5/6] Applying SSR to LLM responses...")
     print("    • Using paper's methodology (arXiv:2510.08338v2)")
     print("    • Model: OpenAI text-embedding-3-small")
     print("    • Normalization: Paper's method (subtract min + proportional)")
@@ -306,39 +299,61 @@ def main(persona_config=None, ground_truth_path=None):
         use_openai=True
     )
 
-    print("    • Rating human responses...")
-    human_distributions = rater.rate_responses(human_responses, survey, show_progress=True)
-
     print("    • Rating LLM responses...")
     llm_distributions = rater.rate_responses(llm_responses, survey, show_progress=True)
+    print(f"    ✓ Created {len(llm_distributions)} SSR distributions")
 
-    print(f"    ✓ Created {len(human_distributions) + len(llm_distributions)} distributions")
-
-    # 7. Evaluate against ground truth
-    print("\n[7/8] Evaluating against ground truth...")
+    # 6. Evaluate: Ground Truth (perfect) vs LLM+SSR predictions
+    print("\n[6/6] Evaluating LLM+SSR against ground truth...")
     ground_truth_dict = create_ground_truth_dict(ground_truth_df)
 
-    human_comparisons = {}
+    # Ground truth comparisons (always 100% accurate)
+    from src.ground_truth import GroundTruthComparison
+    ground_truth_comparisons = {}
     llm_comparisons = {}
 
     for question in survey.questions:
-        # Filter distributions for this question
-        h_dists = [d for d in human_distributions if d.question_id == question.id]
+        # Ground truth comparison (perfect accuracy by definition)
+        gt_for_question = ground_truth_df[ground_truth_df['question_id'] == question.id]
+        n_samples = len(gt_for_question)
+
+        # Create perfect comparison for ground truth
+        ground_truth_comparisons[question.id] = GroundTruthComparison(
+            question_id=question.id,
+            question_type=question.type,
+            mode_accuracy=1.0,  # 100% by definition
+            top2_accuracy=1.0,
+            mae=0.0,  # Perfect
+            rmse=0.0,  # Perfect
+            mean_probability_at_truth=1.0,  # Perfect
+            log_likelihood=0.0,  # Perfect (log(1) = 0)
+            kl_divergence=0.0,  # Perfect
+            confusion_matrix=np.eye(question.num_options, dtype=int) * (n_samples // question.num_options),
+            n_samples=n_samples
+        )
+
+        # LLM+SSR comparison (actual performance)
         l_dists = [d for d in llm_distributions if d.question_id == question.id]
-
-        # Evaluate
-        human_comp = evaluate_against_ground_truth(h_dists, ground_truth_dict, question)
         llm_comp = evaluate_against_ground_truth(l_dists, ground_truth_dict, question)
-
-        human_comparisons[question.id] = human_comp
         llm_comparisons[question.id] = llm_comp
 
         print(f"\n    {question.id}:")
-        print(f"      Human Accuracy: {human_comp.mode_accuracy:.1%}")
-        print(f"      LLM Accuracy:   {llm_comp.mode_accuracy:.1%}")
+        print(f"      Ground Truth: 100.0% (perfect by definition)")
+        print(f"      LLM+SSR:      {llm_comp.mode_accuracy:.1%}")
+
+    # 7. Save confusion matrices for dashboard
+    print("\nSaving confusion matrices...")
+    confusion_matrices = {}
+    for question_id, llm_comp in llm_comparisons.items():
+        confusion_matrices[question_id] = llm_comp.confusion_matrix.tolist()
+
+    cm_path = experiment_dir / 'confusion_matrices.json'
+    with open(cm_path, 'w') as f:
+        json.dump(confusion_matrices, f, indent=2)
+    print(f"    ✓ Saved confusion matrices to {cm_path}")
 
     # 8. Generate reports in experiment folder
-    print("\n[8/8] Generating reports...")
+    print("\nGenerating reports...")
 
     # Create file paths in experiment folder
     png_path = experiment_dir / "report.png"
@@ -347,16 +362,16 @@ def main(persona_config=None, ground_truth_path=None):
 
     # One-page visual report
     create_one_page_report(
-        human_comparisons,
+        ground_truth_comparisons,
         llm_comparisons,
         survey,
         output_path=str(png_path),
-        title="Ground Truth Comparison: Human vs LLM SSR Predictions"
+        title="Ground Truth (Human) vs LLM+SSR Predictions"
     )
 
     # Text report
     generate_text_report(
-        human_comparisons,
+        ground_truth_comparisons,
         llm_comparisons,
         survey,
         output_path=str(txt_path)
@@ -364,7 +379,7 @@ def main(persona_config=None, ground_truth_path=None):
 
     # Comprehensive markdown report
     generate_comprehensive_report(
-        human_comparisons,
+        ground_truth_comparisons,
         llm_comparisons,
         survey,
         output_path=str(md_path)
@@ -376,17 +391,17 @@ def main(persona_config=None, ground_truth_path=None):
     print("=" * 80)
     print(f"\nAll files saved to: {experiment_dir}")
     print("\nGenerated Files:")
-    print(f"  • ground_truth.csv - Ground truth ratings")
+    print(f"  • ground_truth.csv - Human ground truth ratings")
     print(f"  • report.png - One-page visual report")
     print(f"  • report.txt - Detailed text report")
-    print(f"  • report.md - Comprehensive markdown report with explanations")
+    print(f"  • report.md - Comprehensive markdown report")
 
     print("\nOverall Results:")
-    h_avg = np.mean([c.mode_accuracy for c in human_comparisons.values()])
-    l_avg = np.mean([c.mode_accuracy for c in llm_comparisons.values()])
-    print(f"  Average Human Accuracy: {h_avg:.1%}")
-    print(f"  Average LLM Accuracy:   {l_avg:.1%}")
-    print(f"  Winner: {'Human' if h_avg > l_avg else ('LLM' if l_avg > h_avg else 'Tie')}")
+    gt_avg = 100.0  # Always perfect
+    llm_avg = np.mean([c.mode_accuracy for c in llm_comparisons.values()]) * 100
+    print(f"  Ground Truth (Human): 100.0% (perfect by definition)")
+    print(f"  LLM+SSR:              {llm_avg:.1f}%")
+    print(f"  Gap:                  {100.0 - llm_avg:.1f}%")
     print("\n")
 
 

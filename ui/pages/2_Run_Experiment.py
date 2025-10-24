@@ -14,7 +14,133 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from ui.utils.data_loader import load_survey_config, get_available_surveys
 from ui.components.metrics_cards import success_message, warning_message, error_message
 
-st.set_page_config(page_title="Run Experiment", page_icon="", layout="wide")
+# Brand colors
+brand_colors = {
+    'teal_blue': '#367588',
+    'turquoise': '#40E0D0',
+    'atomic_orange': '#FF6E3A',
+    'cornflower_blue': '#6495ED',
+    'electric_lime': '#CCFF00',
+    'teal_dark': '#2C5F6F',
+    'light_grey': '#D3D3D3'
+}
+
+st.set_page_config(
+    page_title="Run Experiment",
+    page_icon="",
+    layout="wide"
+)
+
+# Custom CSS for brand colors - Applied after page load to override Streamlit defaults
+st.markdown(f"""
+<style>
+    /* Override Streamlit's default red color variables */
+    :root {{
+        --primary-color: {brand_colors['teal_blue']} !important;
+    }}
+
+    /* Primary buttons */
+    .stButton > button[kind="primary"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: white !important;
+    }}
+    .stButton > button[kind="primary"]:hover {{
+        background-color: {brand_colors['teal_dark']} !important;
+        border-color: {brand_colors['teal_dark']} !important;
+    }}
+    /* Secondary buttons */
+    .stButton > button[kind="secondary"] {{
+        background-color: white !important;
+        border-color: {brand_colors['teal_blue']} !important;
+        color: {brand_colors['teal_blue']} !important;
+    }}
+    .stButton > button[kind="secondary"]:hover {{
+        background-color: {brand_colors['light_grey']} !important;
+    }}
+
+    /* Radio buttons */
+    .stRadio > label > div[data-testid="stMarkdownContainer"] > p {{
+        color: {brand_colors['teal_blue']};
+    }}
+    .stRadio > div[role="radiogroup"] > label > div[data-baseweb="radio"] > div:first-child {{
+        background-color: white !important;
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    .stRadio > div[role="radiogroup"] > label > div[data-baseweb="radio"] > div:first-child:after {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+
+    /* Checkboxes - More specific selectors */
+    .stCheckbox input[type="checkbox"]:checked + div {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    .stCheckbox input[type="checkbox"] + div {{
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    [data-baseweb="checkbox"] {{
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    [data-baseweb="checkbox"] > div:first-child {{
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+    [data-baseweb="checkbox"][data-checked="true"] > div:first-child {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border-color: {brand_colors['teal_blue']} !important;
+    }}
+
+    /* Sliders - More specific selectors */
+    [data-baseweb="slider"] {{
+        background-color: transparent !important;
+    }}
+    [data-baseweb="slider"] [data-testid="stThumb"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+        border: 2px solid white !important;
+    }}
+    [data-baseweb="slider"] [data-testid="stThumbValue"] {{
+        color: {brand_colors['teal_blue']} !important;
+    }}
+    [data-baseweb="slider"] > div:first-child {{
+        background: linear-gradient(to right,
+            {brand_colors['teal_blue']} 0%,
+            {brand_colors['teal_blue']} var(--value),
+            {brand_colors['light_grey']} var(--value),
+            {brand_colors['light_grey']} 100%) !important;
+    }}
+    .stSlider > div > div > div[role="slider"] {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+    /* Slider track */
+    input[type="range"]::-webkit-slider-thumb {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+    input[type="range"]::-moz-range-thumb {{
+        background-color: {brand_colors['teal_blue']} !important;
+    }}
+    input[type="range"]::-webkit-slider-runnable-track {{
+        background: linear-gradient(to right, {brand_colors['teal_blue']} 0%, {brand_colors['light_grey']} 0%) !important;
+    }}
+
+    /* Number input */
+    .stNumberInput > div > div > input:focus {{
+        border-color: {brand_colors['teal_blue']} !important;
+        box-shadow: 0 0 0 0.2rem {brand_colors['teal_blue']}33 !important;
+    }}
+
+    /* Selectbox */
+    .stSelectbox > div > div > div:focus {{
+        border-color: {brand_colors['teal_blue']} !important;
+        box-shadow: 0 0 0 0.2rem {brand_colors['teal_blue']}33 !important;
+    }}
+
+    /* File uploader */
+    .stFileUploader > div > button {{
+        border-color: {brand_colors['teal_blue']} !important;
+        color: {brand_colors['teal_blue']} !important;
+    }}
+</style>
+""", unsafe_allow_html=True)
 
 st.title(" Run Experiment")
 
@@ -22,9 +148,7 @@ st.title(" Run Experiment")
 api_key = os.getenv("OPENAI_API_KEY") or st.session_state.get('api_key')
 
 if not api_key:
-    error_message(" OpenAI API key not configured. Please go to Settings to add your API key.")
-    if st.button("Go to Settings"):
-        st.switch_page("pages/5__Settings.py")
+    error_message("OpenAI API key not configured. Please set OPENAI_API_KEY environment variable.")
     st.stop()
 
 # ======================
@@ -444,16 +568,20 @@ if run_button:
                                 n_q = gt_df['question_id'].nunique()
                                 st.metric("Questions", n_q)
 
+                        # Store experiment path for navigation
+                        st.session_state.selected_experiment = latest_experiment
+                        st.session_state.latest_experiment_path = str(latest_experiment)
+
                         # Action buttons
+                        st.markdown("---")
                         col1, col2 = st.columns(2)
 
                         with col1:
-                            if st.button(" View Results", use_container_width=True, type="primary"):
-                                st.session_state.selected_experiment = latest_experiment
-                                st.switch_page("pages/3__View_Results.py")
+                            # Use page_link for navigation
+                            st.page_link("pages/3_Results_Dashboard.py", label="View Results")
 
                         with col2:
-                            if st.button(" Run Another", use_container_width=True):
+                            if st.button("Run Another", use_container_width=True, key="run_another_btn"):
                                 st.rerun()
 
                     else:

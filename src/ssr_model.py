@@ -89,6 +89,9 @@ class SemanticSimilarityRater:
         self.normalize_method = normalize_method
         self.use_openai = use_openai
 
+        # Cache for reference statement embeddings (keyed by tuple of statements)
+        self._reference_cache = {}
+
         # Initialize embedding model
         if use_openai and model_name.startswith("text-embedding"):
             self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
@@ -243,7 +246,7 @@ class SemanticSimilarityRater:
         show_progress: bool = True
     ) -> List[RatingDistribution]:
         """
-        Rate multiple responses.
+        Rate multiple responses using batched embeddings for performance.
 
         Args:
             responses: List of Response objects
@@ -255,15 +258,90 @@ class SemanticSimilarityRater:
         """
         distributions = []
 
-        iterator = tqdm(responses, desc="Rating responses") if show_progress else responses
+        # Group responses by question for batch processing
+        responses_by_question = {}
+        for response in responses:
+            if response.question_id not in responses_by_question:
+                responses_by_question[response.question_id] = []
+            responses_by_question[response.question_id].append(response)
 
-        for response in iterator:
-            question = survey.get_question_by_id(response.question_id)
+        # Process each question's responses as a batch
+        total_questions = len(responses_by_question)
+        question_iterator = tqdm(responses_by_question.items(),
+                                desc="Rating responses",
+                                total=total_questions,
+                                disable=not show_progress)
+
+        for question_id, question_responses in question_iterator:
+            question = survey.get_question_by_id(question_id)
             if question is None:
-                print(f"Warning: Question {response.question_id} not found in survey")
+                print(f"Warning: Question {question_id} not found in survey")
                 continue
 
-            distribution = self.rate_response(response, question)
+            # Batch process all responses for this question
+            batch_distributions = self._rate_responses_batch(question_responses, question)
+            distributions.extend(batch_distributions)
+
+        return distributions
+
+    def _rate_responses_batch(
+        self,
+        responses: List[Response],
+        question: Question
+    ) -> List[RatingDistribution]:
+        """
+        Rate a batch of responses for the same question using batched embeddings.
+        Uses caching for reference statement embeddings to avoid re-computing.
+
+        Args:
+            responses: List of Response objects for the same question
+            question: Question object
+
+        Returns:
+            List of RatingDistribution objects
+        """
+        if not responses:
+            return []
+
+        # Get reference statements (same for all responses to this question)
+        scale_labels = question.get_reference_statements()
+        reference_statements = [scale_labels[i] for i in sorted(scale_labels.keys())]
+
+        # Check cache for reference embeddings
+        cache_key = tuple(reference_statements)
+        if cache_key in self._reference_cache:
+            reference_embeddings = self._reference_cache[cache_key]
+            # Only embed response texts
+            response_texts = [r.text_response for r in responses]
+            response_embeddings = self.get_embeddings(response_texts)
+        else:
+            # First time seeing these reference statements - embed everything together
+            all_texts = [r.text_response for r in responses] + reference_statements
+            all_embeddings = self.get_embeddings(all_texts)
+
+            # Split and cache reference embeddings
+            n_responses = len(responses)
+            response_embeddings = all_embeddings[:n_responses]
+            reference_embeddings = all_embeddings[n_responses:]
+            self._reference_cache[cache_key] = reference_embeddings
+
+        # Compute similarities for all responses at once
+        similarities_matrix = cosine_similarity(response_embeddings, reference_embeddings)
+
+        # Create distributions
+        distributions = []
+        for i, response in enumerate(responses):
+            similarities = similarities_matrix[i]
+            probabilities = self.similarities_to_probabilities(similarities)
+
+            distribution = RatingDistribution(
+                question_id=question.id,
+                respondent_id=response.respondent_id,
+                distribution=probabilities,
+                scale_labels=scale_labels,
+                text_response=response.text_response,
+                similarities=similarities
+            )
             distributions.append(distribution)
 
         return distributions

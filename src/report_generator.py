@@ -31,12 +31,12 @@ def create_one_page_report(
         title: Report title
     """
     # Set up the figure with custom layout
-    fig = plt.figure(figsize=(17, 11))
-    fig.suptitle(title, fontsize=20, fontweight='bold', y=0.98)
+    fig = plt.figure(figsize=(18, 12))
+    fig.suptitle(title, fontsize=22, fontweight='bold', y=0.98)
 
-    # Create grid layout
-    gs = GridSpec(4, 3, figure=fig, hspace=0.4, wspace=0.3,
-                  left=0.08, right=0.95, top=0.93, bottom=0.05)
+    # Create grid layout with more spacing
+    gs = GridSpec(4, 3, figure=fig, hspace=0.5, wspace=0.35,
+                  left=0.08, right=0.95, top=0.94, bottom=0.06)
 
     question_ids = list(human_comparisons.keys())
 
@@ -61,8 +61,8 @@ def create_one_page_report(
             ax_h = fig.add_subplot(gs[2, 0])
             ax_l = fig.add_subplot(gs[2, 1])
 
-        plot_confusion_matrix(ax_h, human_comparisons[q_id], f"H: {q_id.replace('_', ' ')[:15]}")
-        plot_confusion_matrix(ax_l, llm_comparisons[q_id], f"L: {q_id.replace('_', ' ')[:15]}")
+        plot_confusion_matrix(ax_h, human_comparisons[q_id], f"GT: {q_id.replace('_', ' ')[:15]}")
+        plot_confusion_matrix(ax_l, llm_comparisons[q_id], f"LLM: {q_id.replace('_', ' ')[:15]}")
 
     # 5. Summary Table (bottom)
     ax_table = fig.add_subplot(gs[3, :])
@@ -84,26 +84,26 @@ def plot_accuracy_comparison(ax, human_comps, llm_comps, question_ids):
     human_mode_acc = [human_comps[q].mode_accuracy * 100 for q in question_ids]
     llm_mode_acc = [llm_comps[q].mode_accuracy * 100 for q in question_ids]
 
-    bars1 = ax.bar(x - width/2, human_mode_acc, width, label='Human',
-                   color='steelblue', alpha=0.8)
-    bars2 = ax.bar(x + width/2, llm_mode_acc, width, label='LLM',
+    bars1 = ax.bar(x - width/2, human_mode_acc, width, label='Ground Truth',
+                   color='green', alpha=0.7)
+    bars2 = ax.bar(x + width/2, llm_mode_acc, width, label='LLM+SSR',
                    color='coral', alpha=0.8)
 
-    ax.set_ylabel('Mode Accuracy (%)', fontsize=12, fontweight='bold')
-    ax.set_title('Accuracy by Question', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Mode Accuracy (%)', fontsize=13, fontweight='bold')
+    ax.set_title('Accuracy by Question', fontsize=15, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=9)
-    ax.legend(fontsize=11)
-    ax.set_ylim(0, 100)
+    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=10)
+    ax.legend(fontsize=12, loc='upper right')
+    ax.set_ylim(0, 110)  # Extra space for labels
     ax.grid(axis='y', alpha=0.3)
 
     # Add value labels on bars
     for bars in [bars1, bars2]:
         for bar in bars:
             height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height,
+            ax.text(bar.get_x() + bar.get_width()/2., height + 1,
                     f'{height:.1f}%',
-                    ha='center', va='bottom', fontsize=8)
+                    ha='center', va='bottom', fontsize=9, fontweight='bold')
 
 
 def plot_error_summary(ax, human_comps, llm_comps):
@@ -122,22 +122,26 @@ def plot_error_summary(ax, human_comps, llm_comps):
     x = np.arange(len(metrics))
     width = 0.35
 
-    ax.bar(x - width/2, human_vals, width, label='Human',
-           color='steelblue', alpha=0.8)
-    ax.bar(x + width/2, llm_vals, width, label='LLM',
+    ax.bar(x - width/2, human_vals, width, label='Ground Truth',
+           color='green', alpha=0.7)
+    ax.bar(x + width/2, llm_vals, width, label='LLM+SSR',
            color='coral', alpha=0.8)
 
-    ax.set_ylabel('Error', fontsize=11, fontweight='bold')
-    ax.set_title('Average Error Metrics', fontsize=13, fontweight='bold')
+    ax.set_ylabel('Error', fontsize=12, fontweight='bold')
+    ax.set_title('Average Error Metrics', fontsize=15, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels(metrics, fontsize=11)
-    ax.legend(fontsize=10)
+    ax.set_xticklabels(metrics, fontsize=12)
+    ax.legend(fontsize=11, loc='upper right')
     ax.grid(axis='y', alpha=0.3)
+
+    # Set y-axis limit with padding for labels
+    max_val = max(max(human_vals), max(llm_vals))
+    ax.set_ylim(0, max_val * 1.2)
 
     # Add value labels
     for i, (h, l) in enumerate(zip(human_vals, llm_vals)):
-        ax.text(i - width/2, h, f'{h:.2f}', ha='center', va='bottom', fontsize=9)
-        ax.text(i + width/2, l, f'{l:.2f}', ha='center', va='bottom', fontsize=9)
+        ax.text(i - width/2, h + max_val*0.02, f'{h:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+        ax.text(i + width/2, l + max_val*0.02, f'{l:.2f}', ha='center', va='bottom', fontsize=10, fontweight='bold')
 
 
 def plot_confusion_matrix(ax, comparison, title):
@@ -155,13 +159,13 @@ def plot_confusion_matrix(ax, comparison, title):
     # Set ticks
     ax.set_xticks(np.arange(n))
     ax.set_yticks(np.arange(n))
-    ax.set_xticklabels(np.arange(1, n+1), fontsize=9)
-    ax.set_yticklabels(np.arange(1, n+1), fontsize=9)
+    ax.set_xticklabels(np.arange(1, n+1), fontsize=10)
+    ax.set_yticklabels(np.arange(1, n+1), fontsize=10)
 
-    # Add labels
-    ax.set_xlabel('Predicted', fontsize=9, fontweight='bold')
-    ax.set_ylabel('True', fontsize=9, fontweight='bold')
-    ax.set_title(title, fontsize=10, fontweight='bold')
+    # Add labels with more padding
+    ax.set_xlabel('Predicted', fontsize=11, fontweight='bold', labelpad=8)
+    ax.set_ylabel('True', fontsize=11, fontweight='bold', labelpad=8)
+    ax.set_title(title, fontsize=12, fontweight='bold', pad=12)
 
     # Add text annotations
     for i in range(n):
@@ -170,11 +174,11 @@ def plot_confusion_matrix(ax, comparison, title):
             if count > 0:
                 text = ax.text(j, i, f'{count}',
                               ha="center", va="center", color="black" if cm_norm[i, j] < 0.5 else "white",
-                              fontsize=8)
+                              fontsize=10, fontweight='bold')
 
     # Add colorbar
     cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.ax.tick_params(labelsize=8)
+    cbar.ax.tick_params(labelsize=9)
 
 
 def plot_summary_table(ax, human_comps, llm_comps, question_ids):
@@ -216,15 +220,18 @@ def plot_summary_table(ax, human_comps, llm_comps, question_ids):
     ]
     rows.append(summary_row)
 
-    # Create table
-    columns = ['Question', 'Accuracy\n(H/L)', 'MAE\n(H/L)', 'Prob@Truth\n(H/L)', 'H Wins?', 'N']
+    # Create table with better column headers
+    columns = ['Question', 'Accuracy\n(GT/LLM)', 'MAE\n(GT/LLM)', 'Prob@Truth\n(GT/LLM)', 'GT Wins?', 'N']
 
     table = ax.table(cellText=rows, colLabels=columns,
                      cellLoc='center', loc='center',
                      bbox=[0, 0, 1, 1])
 
     table.auto_set_font_size(False)
-    table.set_fontsize(9)
+    table.set_fontsize(10)
+
+    # Adjust column widths for better fit
+    table.auto_set_column_width(col=list(range(len(columns))))
 
     # Style table
     for i in range(len(columns)):
@@ -242,8 +249,8 @@ def plot_summary_table(ax, human_comps, llm_comps, question_ids):
             if i % 2 == 0:
                 table[(i, j)].set_facecolor('#F5F5F5')
 
-    ax.set_title('Summary: Human (H) vs LLM (L) Performance', fontsize=13,
-                 fontweight='bold', pad=10)
+    ax.set_title('Summary: Ground Truth (GT) vs LLM+SSR Performance', fontsize=15,
+                 fontweight='bold', pad=15)
 
 
 def generate_text_report(
@@ -257,7 +264,7 @@ def generate_text_report(
 
     with open(output_path, 'w') as f:
         f.write("="*80 + "\n")
-        f.write("GROUND TRUTH COMPARISON REPORT: HUMAN VS LLM\n")
+        f.write("GROUND TRUTH COMPARISON REPORT: HUMAN GROUND TRUTH VS LLM+SSR\n")
         f.write("="*80 + "\n\n")
 
         f.write(f"Survey: {survey.name}\n")
@@ -274,14 +281,13 @@ def generate_text_report(
         l_avg_mae = np.mean([l.mae for l in llm_comparisons.values()])
 
         f.write(f"Average Mode Accuracy:\n")
-        f.write(f"  Human: {h_avg_acc:.1%}\n")
-        f.write(f"  LLM:   {l_avg_acc:.1%}\n")
-        f.write(f"  Winner: {'Human' if h_avg_acc > l_avg_acc else ('LLM' if l_avg_acc > h_avg_acc else 'Tie')}\n\n")
+        f.write(f"  Ground Truth (Human): {h_avg_acc:.1%}\n")
+        f.write(f"  LLM+SSR:              {l_avg_acc:.1%}\n")
+        f.write(f"  Gap:                  {(h_avg_acc - l_avg_acc):.1%}\n\n")
 
         f.write(f"Average MAE:\n")
-        f.write(f"  Human: {h_avg_mae:.3f}\n")
-        f.write(f"  LLM:   {l_avg_mae:.3f}\n")
-        f.write(f"  Winner: {'Human' if h_avg_mae < l_avg_mae else ('LLM' if l_avg_mae < h_avg_mae else 'Tie')}\n\n")
+        f.write(f"  Ground Truth (Human): {h_avg_mae:.3f}\n")
+        f.write(f"  LLM+SSR:              {l_avg_mae:.3f}\n\n")
 
         # Per-question details
         for q_id in human_comparisons.keys():
@@ -295,12 +301,12 @@ def generate_text_report(
             f.write(f"Question Type: {h.question_type}\n")
             f.write(f"Sample Size: {h.n_samples}\n\n")
 
-            f.write(f"Mode Accuracy:      Human: {h.mode_accuracy:.1%}  |  LLM: {l.mode_accuracy:.1%}\n")
-            f.write(f"Top-2 Accuracy:     Human: {h.top2_accuracy:.1%}  |  LLM: {l.top2_accuracy:.1%}\n")
-            f.write(f"MAE:                Human: {h.mae:.3f}  |  LLM: {l.mae:.3f}\n")
-            f.write(f"RMSE:               Human: {h.rmse:.3f}  |  LLM: {l.rmse:.3f}\n")
-            f.write(f"Prob at Truth:      Human: {h.mean_probability_at_truth:.3f}  |  LLM: {l.mean_probability_at_truth:.3f}\n")
-            f.write(f"KL Divergence:      Human: {h.kl_divergence:.4f}  |  LLM: {l.kl_divergence:.4f}\n\n")
+            f.write(f"Mode Accuracy:      Ground Truth: {h.mode_accuracy:.1%}  |  LLM+SSR: {l.mode_accuracy:.1%}\n")
+            f.write(f"Top-2 Accuracy:     Ground Truth: {h.top2_accuracy:.1%}  |  LLM+SSR: {l.top2_accuracy:.1%}\n")
+            f.write(f"MAE:                Ground Truth: {h.mae:.3f}  |  LLM+SSR: {l.mae:.3f}\n")
+            f.write(f"RMSE:               Ground Truth: {h.rmse:.3f}  |  LLM+SSR: {l.rmse:.3f}\n")
+            f.write(f"Prob at Truth:      Ground Truth: {h.mean_probability_at_truth:.3f}  |  LLM+SSR: {l.mean_probability_at_truth:.3f}\n")
+            f.write(f"KL Divergence:      Ground Truth: {h.kl_divergence:.4f}  |  LLM+SSR: {l.kl_divergence:.4f}\n\n")
 
         f.write("="*80 + "\n")
         f.write("END OF REPORT\n")
