@@ -274,7 +274,10 @@ st.header("🎯 Multi-Dimensional Comparison")
 
 fig_radar_comparison = go.Figure()
 
-for idx, exp_path in enumerate(selected_exp_paths):
+# Use comparison_data which is sorted by timestamp
+for data in comparison_data:
+    exp_path = data['path']
+
     # Load data for this experiment
     text_report = load_text_report(exp_path)
     if text_report:
@@ -299,9 +302,9 @@ for idx, exp_path in enumerate(selected_exp_paths):
         fig_radar_comparison.add_trace(go.Scatterpolar(
             r=values_closed,
             theta=categories_closed,
-            name=comparison_data[idx]['label'].split('(')[0].strip(),
-            line=dict(color=comparison_data[idx]['color'], width=2),
-            fillcolor=comparison_data[idx]['color'],
+            name=data['label'].split('(')[0].strip(),
+            line=dict(color=data['color'], width=2),
+            fillcolor=data['color'],
             opacity=0.3,
             fill='toself'
         ))
