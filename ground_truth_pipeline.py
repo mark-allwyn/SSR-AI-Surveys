@@ -376,7 +376,7 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
         distributions_data[question_id][respondent_id] = {
             'probabilities': dist.distribution.tolist(),
             'ground_truth': int(gt_value) if gt_value is not None else None,
-            'mode': dist.mode,
+            'mode': int(dist.mode),
             'expected_value': float(dist.expected_value),
             'entropy': float(dist.entropy)
         }
