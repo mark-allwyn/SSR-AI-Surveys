@@ -1,18 +1,21 @@
-# Semantic Similarity Rating (SSR) Pipeline
+# S.A.G.E - Survey Analytics and Generation Engine
 
-A complete implementation of the Semantic Similarity Rating methodology from the paper ["LLMs Reproduce Human Purchase Intent via Semantic Similarity Elicitation"](https://arxiv.org/abs/2510.08338v2) (arXiv:2510.08338v2).
+**Powered by Semantic Similarity Rating (SSR)**
 
 ## Overview
 
-The SSR methodology converts textual survey responses into probability distributions over Likert scale options using semantic similarity. This preserves uncertainty and nuance in responses while enabling quantitative analysis.
+S.A.G.E (Survey Analytics and Generation Engine) is a comprehensive platform for analyzing survey responses using Semantic Similarity Rating. The SSR methodology converts textual survey responses into probability distributions over Likert scale options using semantic similarity, preserving uncertainty and nuance in responses while enabling quantitative analysis.
 
 **Key Features:**
+- ✅ **Interactive Web UI**: User-friendly Streamlit interface for experiments, results, and live demos
 - ✅ **Paper-exact implementation**: Uses OpenAI text-embedding-3-small and the paper's normalization method
 - ✅ **Multiple question types**: Binary (yes/no), Likert-5, Likert-7, multiple choice
 - ✅ **Ground truth evaluation**: Comprehensive metrics including mode accuracy, MAE, RMSE, KL divergence
 - ✅ **Response style comparison**: Evaluate SSR on human-style vs LLM-style responses
 - ✅ **Automated reporting**: Generates PNG visualizations, TXT metrics, and comprehensive Markdown reports
 - ✅ **Experiment organization**: Timestamped folders keep all experiment results organized
+- ✅ **Live Demo Mode**: Test SSR on individual responses in real-time
+- ✅ **Survey Management**: Create and manage custom surveys via YAML configuration
 
 ---
 
@@ -28,6 +31,7 @@ The SSR methodology converts textual survey responses into probability distribut
 8. [API Reference](#api-reference)
 9. [Paper Methodology](#paper-methodology)
 10. [Troubleshooting](#troubleshooting)
+11. [References](#references)
 
 ---
 
@@ -69,7 +73,27 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ## Quick Start
 
-### Run the complete pipeline in 3 steps:
+### Option 1: Use the S.A.G.E Web Interface (Recommended)
+
+```bash
+# 1. Activate environment
+source .venv/bin/activate
+
+# 2. Launch S.A.G.E
+streamlit run ui/1_Home.py
+
+# 3. Open your browser at http://localhost:8501
+```
+
+The web interface provides:
+- **Dashboard**: Overview of experiments and recent activity
+- **Run Experiment**: Configure and execute SSR experiments with custom surveys
+- **Results Dashboard**: Interactive visualizations and detailed analytics for single experiments
+- **Compare Experiments**: Side-by-side comparison of multiple experiment runs with trend analysis
+- **Live Demo**: Test SSR on individual text responses in real-time
+- **Settings**: API configuration, persona management, and experiment cleanup
+
+### Option 2: Use the Command Line
 
 ```bash
 # 1. Activate environment
@@ -78,21 +102,14 @@ source .venv/bin/activate
 # 2. Run the ground truth comparison pipeline
 python ground_truth_pipeline.py
 
-# 3. View results
-# Results are saved to experiments/run_TIMESTAMP/
+# 3. View results in experiments/run_TIMESTAMP/
 ```
 
 This generates:
 - `ground_truth.csv` - Ground truth ratings for all respondents
 - `report.png` - Visual comparison report
 - `report.txt` - Detailed metrics
-- `report.md` - Comprehensive markdown report with explanations
-
-### Or use the interactive UI:
-
-```bash
-streamlit run ui/1_Home.py
-```
+- `report.md` - Comprehensive markdown report
 
 ---
 
@@ -830,6 +847,106 @@ True  1   [45   5   0   0   0]
 - Off-diagonal = errors
 - Adjacent cells = common confusion between nearby ratings
 
+#### 5. Radar Chart Multi-Dimensional Metrics
+
+The Results Dashboard includes a radar chart showing 6 performance dimensions. Here's how each metric is calculated:
+
+**Accuracy (0-100%):**
+```python
+# Direct from overall LLM mode accuracy
+Accuracy = overall_llm_accuracy  # e.g., 85.2%
+```
+- Same as Mode Accuracy above
+- Percentage of exact prediction matches
+
+**Precision (0-100%):**
+```python
+# Inverse of Mean Absolute Error
+Precision = max(0, 100 - (average_mae * 20))
+```
+- Based on MAE across all questions
+- MAE of 0 → 100% precision (perfect)
+- MAE of 2.0 → 60% precision (typical 5-point scale max error)
+- Higher is better
+
+**Consistency (0-100%):**
+```python
+# Inverse of standard deviation across questions
+std_accuracy = np.std([q1_accuracy, q2_accuracy, ...])
+Consistency = max(0, 100 - std_accuracy)
+```
+- Measures performance stability across different questions
+- Low std dev → high consistency (similar accuracy on all questions)
+- High std dev → low consistency (some questions good, others poor)
+- Example: [85%, 87%, 84%] → std=1.5 → 98.5% consistency
+
+**Confidence (0-100%):**
+```python
+# Based on Shannon entropy of probability distributions
+avg_entropy = mean([entropy1, entropy2, ...])
+Confidence = max(0, 100 - (avg_entropy * 50))
+```
+- Entropy measures uncertainty in probability distributions
+- Low entropy (e.g., 0.4) → peaked distribution → high confidence → 80%
+- High entropy (e.g., 1.6) → flat distribution → low confidence → 20%
+- Formula: `H = -Σ(p * log(p))` for probabilities p
+
+**Example entropy calculation:**
+```python
+# High confidence distribution (peaked)
+probs = [0.05, 0.05, 0.80, 0.05, 0.05]
+entropy = 0.64  # Low entropy
+confidence = 100 - (0.64 * 50) = 68%
+
+# Low confidence distribution (flat)
+probs = [0.20, 0.20, 0.20, 0.20, 0.20]
+entropy = 1.61  # High entropy (max for 5 options)
+confidence = 100 - (1.61 * 50) = 19%
+```
+
+**Coverage (0-100%):**
+```python
+# Percentage of questions with valid predictions
+Coverage = (questions_with_predictions / total_questions) * 100
+```
+- Always 100% for completed experiments
+- Could be <100% if some questions failed to process
+- Included for completeness and future extensibility
+
+**Calibration (0-100%):**
+```python
+# How well predicted probabilities match actual outcomes
+Calibration = max(0, 100 - (average_mae * 25))
+```
+- Simplified calibration based on MAE
+- Perfect calibration: predicted probability matches empirical frequency
+- MAE of 0 → 100% calibration
+- MAE of 1.0 → 75% calibration
+- Related to "probability at truth" metric
+
+**Visual Interpretation:**
+
+The radar chart shows all 6 dimensions simultaneously:
+```
+      Accuracy
+         /\
+        /  \
+Coverage    Precision
+   |          |
+Calibration  Consistency
+       \    /
+      Confidence
+```
+
+- **Balanced polygon**: Good all-around performance
+- **Peaked in one direction**: Strong in some areas, weak in others
+- **Large area**: Overall strong performance
+- **Small area**: Needs improvement across dimensions
+
+**Target benchmark**: 80% line shown as reference
+- Dimensions above 80%: Exceeding target
+- Dimensions below 80%: Room for improvement
+
 ---
 
 ## API Reference
@@ -1064,9 +1181,19 @@ for question in survey.questions:
 
 ---
 
-## Citation
+## References
 
-If you use this implementation in your research, please cite the original paper:
+### Original Research Paper
+
+This implementation is based on the Semantic Similarity Rating methodology from:
+
+**"LLMs Reproduce Human Purchase Intent via Semantic Similarity Elicitation"**
+arXiv:2510.08338v2
+[https://arxiv.org/abs/2510.08338v2](https://arxiv.org/abs/2510.08338v2)
+
+### Citation
+
+If you use S.A.G.E or this SSR implementation in your research, please cite the original paper:
 
 ```bibtex
 @article{ssr2024,
@@ -1076,6 +1203,12 @@ If you use this implementation in your research, please cite the original paper:
   year={2024}
 }
 ```
+
+### Additional Resources
+
+- **S.A.G.E UI Documentation**: [ui/README.md](ui/README.md)
+- **OpenAI Embeddings**: [text-embedding-3-small](https://platform.openai.com/docs/guides/embeddings)
+- **Streamlit Framework**: [https://streamlit.io](https://streamlit.io)
 
 ---
 

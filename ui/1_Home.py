@@ -259,4 +259,4 @@ with col2:
 
 with col3:
     if st.button("Live Demo", use_container_width=True):
-        st.switch_page("pages/4_Live_Demo.py")
+        st.switch_page("pages/5_Live_Demo.py")

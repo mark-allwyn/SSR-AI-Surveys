@@ -17,9 +17,11 @@ from ui.utils.data_loader import (
     get_experiment_info,
     load_ground_truth,
     load_text_report,
-    parse_text_report
+    parse_text_report,
+    load_distributions
 )
 from ui.components.metrics_cards import warning_message, error_message
+from ui.utils.metrics_calculator import calculate_radar_metrics
 
 # Brand colors
 brand_colors = {
@@ -184,6 +186,93 @@ with col3:
               delta=f"{-gap:.1f}%",
               delta_color="inverse",
               help="Difference from perfect ground truth accuracy (lower is better)")
+
+st.markdown("---")
+
+# ======================
+# Section C2: Multi-Dimensional Performance Radar Chart
+# ======================
+st.header("Multi-Dimensional Performance")
+
+# Load distribution data for advanced metrics
+distributions_data = load_distributions(selected_exp_path)
+
+# Calculate radar metrics
+radar_metrics = calculate_radar_metrics(overall_llm, question_metrics, distributions_data)
+
+# Create radar chart
+categories = list(radar_metrics.keys())
+values = list(radar_metrics.values())
+
+# Close the radar chart by adding the first value at the end
+categories_closed = categories + [categories[0]]
+values_closed = values + [values[0]]
+
+fig_radar = go.Figure()
+
+# Add the LLM+SSR performance trace
+fig_radar.add_trace(go.Scatterpolar(
+    r=values_closed,
+    theta=categories_closed,
+    fill='toself',
+    fillcolor=brand_colors['teal_blue'],
+    opacity=0.4,
+    line=dict(color=brand_colors['teal_blue'], width=2),
+    name='LLM+SSR',
+    hovertemplate='%{theta}: %{r:.1f}<extra></extra>'
+))
+
+# Optional: Add a benchmark line at 80%
+benchmark_values = [80] * len(categories_closed)
+fig_radar.add_trace(go.Scatterpolar(
+    r=benchmark_values,
+    theta=categories_closed,
+    line=dict(color=brand_colors['light_grey'], width=1, dash='dash'),
+    name='Target (80%)',
+    hovertemplate='Target: %{r:.1f}<extra></extra>'
+))
+
+fig_radar.update_layout(
+    polar=dict(
+        radialaxis=dict(
+            visible=True,
+            range=[0, 100],
+            tickfont=dict(size=12),
+            gridcolor=brand_colors['light_grey']
+        ),
+        angularaxis=dict(
+            tickfont=dict(size=13, family='Arial Black', color=brand_colors['teal_dark'])
+        )
+    ),
+    showlegend=True,
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=-0.2,
+        xanchor="center",
+        x=0.5
+    ),
+    height=550,
+    margin=dict(l=80, r=80, t=60, b=80)
+)
+
+st.plotly_chart(fig_radar, use_container_width=True)
+
+# Add explanatory text
+with st.expander("What do these dimensions mean?"):
+    st.markdown(f"""
+    **Accuracy** ({radar_metrics['Accuracy']:.1f}%): Overall percentage of correct predictions
+
+    **Precision** ({radar_metrics['Precision']:.1f}%): How close predictions are to actual values (based on MAE)
+
+    **Consistency** ({radar_metrics['Consistency']:.1f}%): How stable performance is across different questions
+
+    **Confidence** ({radar_metrics['Confidence']:.1f}%): How certain the model is in its predictions (based on entropy)
+
+    **Coverage** ({radar_metrics['Coverage']:.1f}%): Percentage of data points with predictions
+
+    **Calibration** ({radar_metrics['Calibration']:.1f}%): How well predicted probabilities match actual outcomes
+    """)
 
 st.markdown("---")
 
@@ -392,15 +481,114 @@ for i, question_id in enumerate(question_ids):
 
     st.subheader(f"Q{i+1}: {question_id}")
 
-    col1, col2 = st.columns(2)
+    # Primary metrics in top row
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("LLM+SSR Accuracy", f"{q_metrics['llm_accuracy']:.1f}%",
-                  help="Percentage of correct predictions for this question")
+        st.metric("Accuracy", f"{q_metrics['llm_accuracy']:.1f}%",
+                  help="Percentage of correct predictions (mode accuracy)")
 
     with col2:
-        st.metric("LLM+SSR MAE", f"{q_metrics['llm_mae']:.3f}",
-                  help="Mean Absolute Error for this question")
+        st.metric("Top-2 Accuracy", f"{q_metrics.get('llm_top2_accuracy', 0):.1f}%",
+                  help="Percentage where true value is in top 2 predictions")
+
+    with col3:
+        st.metric("MAE", f"{q_metrics['llm_mae']:.3f}",
+                  help="Mean Absolute Error - average distance from true value")
+
+    with col4:
+        st.metric("RMSE", f"{q_metrics.get('llm_rmse', 0):.3f}",
+                  help="Root Mean Square Error - penalizes larger errors more")
+
+    # Advanced metrics in second row
+    col5, col6 = st.columns(2)
+
+    with col5:
+        prob_at_truth = q_metrics.get('llm_prob_at_truth', 0)
+        st.metric("Prob at Truth", f"{prob_at_truth:.3f}",
+                  help="Average probability assigned to the true rating")
+
+    with col6:
+        kl_div = q_metrics.get('llm_kl_divergence', 0)
+        st.metric("KL Divergence", f"{kl_div:.4f}",
+                  help="How different predicted distribution is from ground truth (lower is better)")
+
+    # Add distribution curves if available
+    if distributions_data and question_id in distributions_data:
+        with st.expander(" View Probability Distributions", expanded=False):
+            question_dists = distributions_data[question_id]
+
+            # Aggregate distributions for this question
+            from ui.utils.metrics_calculator import aggregate_distribution_stats
+            dist_stats = aggregate_distribution_stats(distributions_data, question_id)
+
+            if dist_stats and len(dist_stats['mean_probabilities']) > 0:
+                # Create distribution curve
+                n_ratings = len(dist_stats['mean_probabilities'])
+                rating_labels = [str(r+1) for r in range(n_ratings)]
+
+                fig_dist = go.Figure()
+
+                # Add mean probability distribution
+                fig_dist.add_trace(go.Scatter(
+                    x=rating_labels,
+                    y=dist_stats['mean_probabilities'],
+                    mode='lines+markers',
+                    name='Mean Probability',
+                    line=dict(color=brand_colors['teal_blue'], width=3),
+                    marker=dict(size=10, color=brand_colors['teal_blue']),
+                    fill='tozeroy',
+                    fillcolor=f"rgba(54, 117, 136, 0.2)",
+                    hovertemplate='Rating: %{x}<br>Probability: %{y:.3f}<extra></extra>'
+                ))
+
+                # Add ground truth distribution if available
+                if dist_stats['ground_truth_distribution']:
+                    fig_dist.add_trace(go.Bar(
+                        x=rating_labels,
+                        y=dist_stats['ground_truth_distribution'],
+                        name='Ground Truth',
+                        marker_color=brand_colors['atomic_orange'],
+                        opacity=0.5,
+                        hovertemplate='Rating: %{x}<br>Proportion: %{y:.3f}<extra></extra>'
+                    ))
+
+                # Color-code by confidence level
+                mean_entropy = dist_stats['mean_entropy']
+                if mean_entropy < 0.5:
+                    confidence_level = "High"
+                    confidence_color = brand_colors['electric_lime']
+                elif mean_entropy < 1.0:
+                    confidence_level = "Medium"
+                    confidence_color = brand_colors['cornflower_blue']
+                else:
+                    confidence_level = "Low"
+                    confidence_color = brand_colors['atomic_orange']
+
+                fig_dist.update_layout(
+                    title=dict(
+                        text=f"Probability Distribution (Confidence: {confidence_level}, Entropy: {mean_entropy:.2f})",
+                        font=dict(size=16, color=confidence_color)
+                    ),
+                    xaxis_title='Rating',
+                    yaxis_title='Probability / Proportion',
+                    height=350,
+                    yaxis=dict(range=[0, max(max(dist_stats['mean_probabilities']), max(dist_stats['ground_truth_distribution']) if dist_stats['ground_truth_distribution'] else 0) * 1.1]),
+                    showlegend=True,
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=1.02,
+                        xanchor="right",
+                        x=1
+                    ),
+                    hovermode='x unified'
+                )
+
+                st.plotly_chart(fig_dist, use_container_width=True)
+
+                # Show sample size
+                st.caption(f"Based on {dist_stats['n_samples']} respondent predictions")
 
     if i < len(question_ids) - 1:
         st.markdown("---")
@@ -418,21 +606,29 @@ for q_id in question_ids:
     q = question_metrics[q_id]
     summary_data.append({
         'Question': q_id,
-        'Ground Truth': f"{q['human_accuracy']:.1f}%",
-        'LLM+SSR Accuracy': f"{q['llm_accuracy']:.1f}%",
-        'GT MAE': f"{q['human_mae']:.3f}",
-        'LLM MAE': f"{q['llm_mae']:.3f}",
-        'Gap': f"{q['human_accuracy'] - q['llm_accuracy']:.1f}%"
+        'Accuracy': f"{q['llm_accuracy']:.1f}%",
+        'Top-2': f"{q.get('llm_top2_accuracy', 0):.1f}%",
+        'MAE': f"{q['llm_mae']:.3f}",
+        'RMSE': f"{q.get('llm_rmse', 0):.3f}",
+        'Prob@Truth': f"{q.get('llm_prob_at_truth', 0):.3f}",
+        'KL Div': f"{q.get('llm_kl_divergence', 0):.4f}"
     })
+
+# Calculate averages for additional metrics
+llm_top2 = [question_metrics[q].get('llm_top2_accuracy', 0) for q in question_ids]
+llm_rmse = [question_metrics[q].get('llm_rmse', 0) for q in question_ids]
+llm_prob = [question_metrics[q].get('llm_prob_at_truth', 0) for q in question_ids]
+llm_kl = [question_metrics[q].get('llm_kl_divergence', 0) for q in question_ids]
 
 # Add average row
 summary_data.append({
     'Question': 'AVERAGE',
-    'Ground Truth': f"{overall_human:.1f}%",
-    'LLM+SSR Accuracy': f"{overall_llm:.1f}%",
-    'GT MAE': f"{np.mean(human_mae):.3f}",
-    'LLM MAE': f"{np.mean(llm_mae):.3f}",
-    'Gap': f"{overall_human - overall_llm:.1f}%"
+    'Accuracy': f"{overall_llm:.1f}%",
+    'Top-2': f"{np.mean(llm_top2):.1f}%",
+    'MAE': f"{np.mean(llm_mae):.3f}",
+    'RMSE': f"{np.mean(llm_rmse):.3f}",
+    'Prob@Truth': f"{np.mean(llm_prob):.3f}",
+    'KL Div': f"{np.mean(llm_kl):.4f}"
 })
 
 summary_df = pd.DataFrame(summary_data)

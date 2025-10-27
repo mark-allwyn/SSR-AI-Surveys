@@ -353,6 +353,39 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
         json.dump(confusion_matrices, f, indent=2)
     print(f"    ✓ Saved confusion matrices to {cm_path}")
 
+    # 7b. Save LLM probability distributions for advanced visualizations
+    print("\nSaving LLM probability distributions...")
+    distributions_data = {}
+
+    for dist in llm_distributions:
+        question_id = dist.question_id
+        respondent_id = dist.respondent_id
+
+        if question_id not in distributions_data:
+            distributions_data[question_id] = {}
+
+        # Get ground truth for this respondent/question
+        gt_value = ground_truth_df[
+            (ground_truth_df['respondent_id'] == respondent_id) &
+            (ground_truth_df['question_id'] == question_id)
+        ]['ground_truth'].values[0] if len(ground_truth_df[
+            (ground_truth_df['respondent_id'] == respondent_id) &
+            (ground_truth_df['question_id'] == question_id)
+        ]) > 0 else None
+
+        distributions_data[question_id][respondent_id] = {
+            'probabilities': dist.distribution.tolist(),
+            'ground_truth': int(gt_value) if gt_value is not None else None,
+            'mode': int(dist.mode),
+            'expected_value': float(dist.expected_value),
+            'entropy': float(dist.entropy)
+        }
+
+    dist_path = experiment_dir / 'llm_distributions.json'
+    with open(dist_path, 'w') as f:
+        json.dump(distributions_data, f, indent=2)
+    print(f"    ✓ Saved LLM distributions to {dist_path}")
+
     # 8. Generate reports in experiment folder
     print("\nGenerating reports...")
 
@@ -393,6 +426,8 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     print(f"\nAll files saved to: {experiment_dir}")
     print("\nGenerated Files:")
     print(f"  • ground_truth.csv - Human ground truth ratings")
+    print(f"  • confusion_matrices.json - Confusion matrices for each question")
+    print(f"  • llm_distributions.json - LLM probability distributions")
     print(f"  • report.png - One-page visual report")
     print(f"  • report.txt - Detailed text report")
     print(f"  • report.md - Comprehensive markdown report")
