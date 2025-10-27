@@ -18,9 +18,7 @@ from ui.utils.data_loader import (
     load_ground_truth,
     load_text_report,
     parse_text_report,
-    load_distributions,
-    group_experiments_by_survey,
-    calculate_experiment_metrics
+    load_distributions
 )
 from ui.components.metrics_cards import warning_message, error_message
 from ui.utils.metrics_calculator import calculate_radar_metrics
@@ -277,131 +275,6 @@ with st.expander("What do these dimensions mean?"):
     """)
 
 st.markdown("---")
-
-# ======================
-# Section C3: Timeline View (Multiple Runs Detection)
-# ======================
-# Check if there are multiple runs of the same survey
-all_experiments = get_all_experiments()
-experiment_groups = group_experiments_by_survey(all_experiments)
-
-# Find which group the current experiment belongs to
-current_group = None
-for fingerprint, group_data in experiment_groups.items():
-    if selected_exp_path in group_data['experiments']:
-        current_group = group_data
-        break
-
-# Only show timeline if there are multiple runs of the same survey
-if current_group and len(current_group['experiments']) > 1:
-    st.header("Performance Timeline")
-    st.markdown(f"**{len(current_group['experiments'])} runs** detected for this survey configuration")
-
-    # Calculate metrics for all experiments in this group
-    timeline_data = []
-    for exp_path in current_group['experiments']:
-        exp_metrics = calculate_experiment_metrics(exp_path)
-        if exp_metrics:
-            timeline_data.append(exp_metrics)
-
-    # Sort by timestamp
-    timeline_data.sort(key=lambda x: x['timestamp'])
-
-    if len(timeline_data) >= 2:
-        # Extract data for plotting
-        timestamps = [d['timestamp'].strftime('%Y-%m-%d %H:%M') for d in timeline_data]
-        accuracies = [d['accuracy'] for d in timeline_data]
-        maes = [d['mae'] for d in timeline_data]
-
-        # Create timeline chart for accuracy
-        fig_timeline = go.Figure()
-
-        fig_timeline.add_trace(go.Scatter(
-            x=timestamps,
-            y=accuracies,
-            mode='lines+markers',
-            name='Accuracy',
-            line=dict(color=brand_colors['teal_blue'], width=3),
-            marker=dict(size=10, color=brand_colors['teal_blue']),
-            hovertemplate='%{x}<br>Accuracy: %{y:.1f}%<extra></extra>'
-        ))
-
-        # Add trend line
-        from scipy import stats
-        x_numeric = list(range(len(accuracies)))
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x_numeric, accuracies)
-        trend_line = [slope * x + intercept for x in x_numeric]
-
-        fig_timeline.add_trace(go.Scatter(
-            x=timestamps,
-            y=trend_line,
-            mode='lines',
-            name='Trend',
-            line=dict(color=brand_colors['atomic_orange'], width=2, dash='dash'),
-            hovertemplate='Trend: %{y:.1f}%<extra></extra>'
-        ))
-
-        fig_timeline.update_layout(
-            title=dict(
-                text='Accuracy Trend Over Time',
-                font=dict(size=20, family='Arial Black')
-            ),
-            xaxis_title='Experiment Run',
-            yaxis_title='Accuracy (%)',
-            height=400,
-            yaxis=dict(range=[0, 110]),
-            hovermode='x unified',
-            showlegend=True,
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="right",
-                x=1
-            )
-        )
-
-        st.plotly_chart(fig_timeline, use_container_width=True)
-
-        # Statistical analysis
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            first_accuracy = accuracies[0]
-            last_accuracy = accuracies[-1]
-            change = last_accuracy - first_accuracy
-            st.metric(
-                "Overall Change",
-                f"{change:+.1f}%",
-                delta=f"{change:.1f}%",
-                help="Change from first to most recent run"
-            )
-
-        with col2:
-            avg_accuracy = np.mean(accuracies)
-            st.metric(
-                "Average Accuracy",
-                f"{avg_accuracy:.1f}%",
-                help="Mean accuracy across all runs"
-            )
-
-        with col3:
-            std_accuracy = np.std(accuracies)
-            st.metric(
-                "Std Deviation",
-                f"{std_accuracy:.1f}%",
-                help="Consistency across runs (lower is more consistent)"
-            )
-
-        # Interpretation
-        if slope > 0.5:
-            st.success(f"Improving trend detected (R² = {r_value**2:.3f})")
-        elif slope < -0.5:
-            st.warning(f"Declining trend detected (R² = {r_value**2:.3f})")
-        else:
-            st.info(f"Stable performance (R² = {r_value**2:.3f})")
-
-    st.markdown("---")
 
 # ======================
 # Section D: Accuracy by Question
