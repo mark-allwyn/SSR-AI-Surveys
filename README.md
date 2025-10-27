@@ -88,7 +88,8 @@ streamlit run ui/1_Home.py
 The web interface provides:
 - **Dashboard**: Overview of experiments and recent activity
 - **Run Experiment**: Configure and execute SSR experiments with custom surveys
-- **Results Dashboard**: Interactive visualizations and detailed analytics
+- **Results Dashboard**: Interactive visualizations and detailed analytics for single experiments
+- **Compare Experiments**: Side-by-side comparison of multiple experiment runs with trend analysis
 - **Live Demo**: Test SSR on individual text responses in real-time
 - **Settings**: API configuration, persona management, and experiment cleanup
 

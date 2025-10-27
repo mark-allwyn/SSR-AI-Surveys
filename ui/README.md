@@ -6,7 +6,8 @@ A user-friendly web interface for the Semantic Similarity Rating (SSR) Pipeline.
 
 -  **Dashboard**: Overview of experiments and quick access
 -  **Run Experiment**: Configure and execute SSR pipeline with customizable personas
--  **View Results**: Explore experiment results with visualizations
+-  **Results Dashboard**: Explore individual experiment results with interactive visualizations
+-  **Compare Experiments**: Side-by-side comparison of multiple experiments with trend analysis
 -  **Live Demo**: Test SSR on individual responses in real-time
 -  **Settings**: API configuration, persona defaults, and experiment management
 
@@ -46,13 +47,15 @@ ui/
 ├── 1_Home.py                       # Main entry point (Dashboard)
 ├── pages/
 │   ├── 2_Run_Experiment.py      # Configure and run experiments
-│   ├── 3_Results_Dashboard.py   # View experiment results
-│   ├── 4_Live_Demo.py           # Interactive SSR testing
-│   └── 5_Settings.py            # Configuration and management
+│   ├── 3_Results_Dashboard.py   # View individual experiment results
+│   ├── 4_Compare_Experiments.py # Compare multiple experiments
+│   ├── 5_Live_Demo.py           # Interactive SSR testing
+│   └── 6_Settings.py            # Configuration and management
 ├── components/
 │   └── metrics_cards.py            # Reusable UI components
 └── utils/
-    └── data_loader.py              # Data loading utilities
+    ├── data_loader.py              # Data loading utilities
+    └── metrics_calculator.py       # Advanced metrics calculations
 ```
 
 ## Usage Guide
@@ -274,8 +277,9 @@ ui/
 ├── pages/                       # Multi-page app pages
 │   ├── 2_Run_Experiment.py
 │   ├── 3_Results_Dashboard.py
-│   ├── 4_Live_Demo.py
-│   └── 5_Settings.py
+│   ├── 4_Compare_Experiments.py
+│   ├── 5_Live_Demo.py
+│   └── 6_Settings.py
 │
 ├── components/                  # Reusable components
 │   ├── __init__.py
@@ -283,7 +287,8 @@ ui/
 │
 └── utils/                       # Utility functions
     ├── __init__.py
-    └── data_loader.py          # Experiment data loading
+    ├── data_loader.py          # Experiment data loading
+    └── metrics_calculator.py   # Advanced metrics calculations
 ```
 
 ## Customization
