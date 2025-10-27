@@ -100,3 +100,12 @@ def error_message(message: str):
         [ERROR] {message}
     </div>
     """, unsafe_allow_html=True)
+
+
+def info_message(message: str):
+    """Display an info message box."""
+    st.markdown(f"""
+    <div class="info-box">
+        [INFO] {message}
+    </div>
+    """, unsafe_allow_html=True)
