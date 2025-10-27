@@ -137,6 +137,62 @@ def parse_text_report(report_text: str) -> Dict:
                 except ValueError:
                     pass
 
+        if current_question and "RMSE:" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                # Extract ground truth RMSE
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                # Extract LLM+SSR RMSE
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
+
+                try:
+                    metrics[current_question]['human_rmse'] = float(human_part)
+                    metrics[current_question]['llm_rmse'] = float(llm_part)
+                except ValueError:
+                    pass
+
+        if current_question and "Top-2 Accuracy:" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                # Extract ground truth Top-2 Accuracy
+                human_part = parts[0].split('Ground Truth:')[1].strip().replace('%', '').strip()
+                # Extract LLM+SSR Top-2 Accuracy
+                llm_part = parts[1].split('LLM+SSR:')[1].strip().replace('%', '').strip()
+
+                try:
+                    metrics[current_question]['human_top2_accuracy'] = float(human_part)
+                    metrics[current_question]['llm_top2_accuracy'] = float(llm_part)
+                except ValueError:
+                    pass
+
+        if current_question and "Prob at Truth:" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                # Extract ground truth Prob at Truth
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                # Extract LLM+SSR Prob at Truth
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
+
+                try:
+                    metrics[current_question]['human_prob_at_truth'] = float(human_part)
+                    metrics[current_question]['llm_prob_at_truth'] = float(llm_part)
+                except ValueError:
+                    pass
+
+        if current_question and "KL Divergence:" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                # Extract ground truth KL Divergence
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                # Extract LLM+SSR KL Divergence
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
+
+                try:
+                    metrics[current_question]['human_kl_divergence'] = float(human_part)
+                    metrics[current_question]['llm_kl_divergence'] = float(llm_part)
+                except ValueError:
+                    pass
+
     return metrics
 
 

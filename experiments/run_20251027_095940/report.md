@@ -3,7 +3,7 @@
 
 ---
 
-**Report Generated:** 2025-10-24 11:18:02
+**Report Generated:** 2025-10-27 09:59:48
 
 **Survey:** Online Lottery Gaming Platform Evaluation
 
@@ -20,12 +20,12 @@
 ### Key Results
 
 - **Human Response Accuracy:** 100.0%
-- **LLM Response Accuracy:** 91.7%
-- **Accuracy Gap:** 8.3% (Human superior)
+- **LLM Response Accuracy:** 90.7%
+- **Accuracy Gap:** 9.3% (Human superior)
 
 ### What This Means
 
-Human-style responses show **moderately better** alignment with ground truth (8.3% advantage). The SSR method performs well on both response styles but has a slight preference for direct language.
+Human-style responses show **moderately better** alignment with ground truth (9.3% advantage). The SSR method performs well on both response styles but has a slight preference for direct language.
 
 ---
 
@@ -60,17 +60,17 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Better | Interpretation |
 |--------|-------|-----|--------|----------------|
-| **Mode Accuracy** | 100.0% | 91.7% | Human | % of predictions exactly matching ground truth |
+| **Mode Accuracy** | 100.0% | 90.7% | Human | % of predictions exactly matching ground truth |
 | **Top-2 Accuracy** | 100.0% | 100.0% | LLM | % where true answer is in top 2 predictions |
-| **Mean Absolute Error** | 0.000 | 0.090 | Human | Average distance from true rating (lower is better) |
-| **Prob at Truth** | 1.000 | 0.570 | Human | Avg probability assigned to true answer (higher = more confident) |
+| **Mean Absolute Error** | 0.000 | 0.100 | Human | Average distance from true rating (lower is better) |
+| **Prob at Truth** | 1.000 | 0.571 | Human | Avg probability assigned to true answer (higher = more confident) |
 
 ### What These Metrics Mean
 
 **Mode Accuracy** measures how often SSR's top prediction exactly matches the ground truth. This is the strictest metric—you either get it right or wrong.
 
-- **Result:** Human responses achieve 100.0% vs LLM's 91.7%
-- **Implication:** Direct language is 8.3% more likely to be correctly classified
+- **Result:** Human responses achieve 100.0% vs LLM's 90.7%
+- **Implication:** Direct language is 9.3% more likely to be correctly classified
 
 **Top-2 Accuracy** is more forgiving—it counts predictions as correct if the true answer is in the top 2 most likely ratings. This reflects SSR's probabilistic nature.
 
@@ -79,12 +79,12 @@ To evaluate SSR performance, we:
 
 **Mean Absolute Error (MAE)** measures average distance from the true rating. For a 5-point scale, an MAE of 0.5 means predictions are off by half a point on average.
 
-- **Result:** Human MAE = 0.000, LLM MAE = 0.090
+- **Result:** Human MAE = 0.000, LLM MAE = 0.100
 - **Implication:** Human responses are highly accurate (within ~0.3 points)
 
 **Probability at Truth** shows how confident SSR is when it assigns probability to the correct answer. Higher values mean more confident, accurate predictions.
 
-- **Result:** Human 1.000 vs LLM 0.570
+- **Result:** Human 1.000 vs LLM 0.571
 ---
 
 ## Question-by-Question Analysis
@@ -101,9 +101,9 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 92.0% | +8.0% |
-| MAE | 0.000 | 0.080 | -0.080 |
-| Prob at Truth | 1.000 | 0.920 | +0.080 |
+| Mode Accuracy | 100.0% | 90.0% | +10.0% |
+| MAE | 0.000 | 0.100 | -0.100 |
+| Prob at Truth | 1.000 | 0.900 | +0.100 |
 
 #### Interpretation
 
@@ -112,7 +112,7 @@ To evaluate SSR performance, we:
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 46 / 50 responses
+- **LLM correct predictions:** 45 / 50 responses
 
 
 ---
@@ -129,20 +129,20 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 80.0% | +20.0% |
-| MAE | 0.000 | 0.200 | -0.200 |
-| Prob at Truth | 1.000 | 0.406 | +0.594 |
+| Mode Accuracy | 100.0% | 78.0% | +22.0% |
+| MAE | 0.000 | 0.220 | -0.220 |
+| Prob at Truth | 1.000 | 0.403 | +0.597 |
 
 #### Interpretation
 
 **5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
 
-The 20.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+The 22.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
 
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 40 / 50 responses
+- **LLM correct predictions:** 39 / 50 responses
 
 
 ---
@@ -159,18 +159,20 @@ The 20.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 90.0% | +10.0% |
-| MAE | 0.000 | 0.140 | -0.140 |
-| Prob at Truth | 1.000 | 0.260 | +0.740 |
+| Mode Accuracy | 100.0% | 86.0% | +14.0% |
+| MAE | 0.000 | 0.180 | -0.180 |
+| Prob at Truth | 1.000 | 0.264 | +0.736 |
 
 #### Interpretation
 
 **7-point Likert scales** are more challenging because SSR must differentiate between 7 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
 
+The 14.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+
 #### Prediction Patterns
 
 - **Human correct predictions:** 49 / 49 responses
-- **LLM correct predictions:** 45 / 50 responses
+- **LLM correct predictions:** 43 / 50 responses
 
 
 ---
@@ -189,7 +191,7 @@ The 20.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 100.0% | +0.0% |
 | MAE | 0.000 | 0.000 | +0.000 |
-| Prob at Truth | 1.000 | 0.423 | +0.577 |
+| Prob at Truth | 1.000 | 0.427 | +0.573 |
 
 #### Interpretation
 
@@ -215,20 +217,18 @@ The 20.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 88.0% | +12.0% |
-| MAE | 0.000 | 0.120 | -0.120 |
-| Prob at Truth | 1.000 | 0.880 | +0.120 |
+| Mode Accuracy | 100.0% | 90.0% | +10.0% |
+| MAE | 0.000 | 0.100 | -0.100 |
+| Prob at Truth | 1.000 | 0.900 | +0.100 |
 
 #### Interpretation
 
 **Binary questions** are typically easier to classify because there are only two options. Human responses achieve near-perfect accuracy (100.0%), suggesting direct yes/no statements align perfectly with semantic similarity.
 
-LLM responses show 12.0% lower accuracy, likely due to hedging language that makes binary classification ambiguous.
-
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 44 / 50 responses
+- **LLM correct predictions:** 45 / 50 responses
 
 
 ---
@@ -247,7 +247,7 @@ LLM responses show 12.0% lower accuracy, likely due to hedging language that mak
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 100.0% | +0.0% |
 | MAE | 0.000 | 0.000 | +0.000 |
-| Prob at Truth | 1.000 | 0.528 | +0.472 |
+| Prob at Truth | 1.000 | 0.532 | +0.468 |
 
 #### Interpretation
 
@@ -265,7 +265,7 @@ LLM responses show 12.0% lower accuracy, likely due to hedging language that mak
 
 ### 1. Response Style Significantly Impacts SSR Accuracy
 
-Direct, opinionated responses (human-style) outperform hedged, nuanced responses (LLM-style) by **8.3%** on average. This suggests:
+Direct, opinionated responses (human-style) outperform hedged, nuanced responses (LLM-style) by **9.3%** on average. This suggests:
 
 - SSR relies on clear semantic alignment between response and scale labels
 - Hedging language ("I might", "perhaps", "considering") dilutes semantic signal

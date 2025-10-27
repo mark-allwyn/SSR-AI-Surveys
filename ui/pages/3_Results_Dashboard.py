@@ -608,15 +608,37 @@ for i, question_id in enumerate(question_ids):
 
     st.subheader(f"Q{i+1}: {question_id}")
 
-    col1, col2 = st.columns(2)
+    # Primary metrics in top row
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric("LLM+SSR Accuracy", f"{q_metrics['llm_accuracy']:.1f}%",
-                  help="Percentage of correct predictions for this question")
+        st.metric("Accuracy", f"{q_metrics['llm_accuracy']:.1f}%",
+                  help="Percentage of correct predictions (mode accuracy)")
 
     with col2:
-        st.metric("LLM+SSR MAE", f"{q_metrics['llm_mae']:.3f}",
-                  help="Mean Absolute Error for this question")
+        st.metric("Top-2 Accuracy", f"{q_metrics.get('llm_top2_accuracy', 0):.1f}%",
+                  help="Percentage where true value is in top 2 predictions")
+
+    with col3:
+        st.metric("MAE", f"{q_metrics['llm_mae']:.3f}",
+                  help="Mean Absolute Error - average distance from true value")
+
+    with col4:
+        st.metric("RMSE", f"{q_metrics.get('llm_rmse', 0):.3f}",
+                  help="Root Mean Square Error - penalizes larger errors more")
+
+    # Advanced metrics in second row
+    col5, col6 = st.columns(2)
+
+    with col5:
+        prob_at_truth = q_metrics.get('llm_prob_at_truth', 0)
+        st.metric("Prob at Truth", f"{prob_at_truth:.3f}",
+                  help="Average probability assigned to the true rating")
+
+    with col6:
+        kl_div = q_metrics.get('llm_kl_divergence', 0)
+        st.metric("KL Divergence", f"{kl_div:.4f}",
+                  help="How different predicted distribution is from ground truth (lower is better)")
 
     # Add distribution curves if available
     if distributions_data and question_id in distributions_data:
@@ -711,21 +733,29 @@ for q_id in question_ids:
     q = question_metrics[q_id]
     summary_data.append({
         'Question': q_id,
-        'Ground Truth': f"{q['human_accuracy']:.1f}%",
-        'LLM+SSR Accuracy': f"{q['llm_accuracy']:.1f}%",
-        'GT MAE': f"{q['human_mae']:.3f}",
-        'LLM MAE': f"{q['llm_mae']:.3f}",
-        'Gap': f"{q['human_accuracy'] - q['llm_accuracy']:.1f}%"
+        'Accuracy': f"{q['llm_accuracy']:.1f}%",
+        'Top-2': f"{q.get('llm_top2_accuracy', 0):.1f}%",
+        'MAE': f"{q['llm_mae']:.3f}",
+        'RMSE': f"{q.get('llm_rmse', 0):.3f}",
+        'Prob@Truth': f"{q.get('llm_prob_at_truth', 0):.3f}",
+        'KL Div': f"{q.get('llm_kl_divergence', 0):.4f}"
     })
+
+# Calculate averages for additional metrics
+llm_top2 = [question_metrics[q].get('llm_top2_accuracy', 0) for q in question_ids]
+llm_rmse = [question_metrics[q].get('llm_rmse', 0) for q in question_ids]
+llm_prob = [question_metrics[q].get('llm_prob_at_truth', 0) for q in question_ids]
+llm_kl = [question_metrics[q].get('llm_kl_divergence', 0) for q in question_ids]
 
 # Add average row
 summary_data.append({
     'Question': 'AVERAGE',
-    'Ground Truth': f"{overall_human:.1f}%",
-    'LLM+SSR Accuracy': f"{overall_llm:.1f}%",
-    'GT MAE': f"{np.mean(human_mae):.3f}",
-    'LLM MAE': f"{np.mean(llm_mae):.3f}",
-    'Gap': f"{overall_human - overall_llm:.1f}%"
+    'Accuracy': f"{overall_llm:.1f}%",
+    'Top-2': f"{np.mean(llm_top2):.1f}%",
+    'MAE': f"{np.mean(llm_mae):.3f}",
+    'RMSE': f"{np.mean(llm_rmse):.3f}",
+    'Prob@Truth': f"{np.mean(llm_prob):.3f}",
+    'KL Div': f"{np.mean(llm_kl):.4f}"
 })
 
 summary_df = pd.DataFrame(summary_data)

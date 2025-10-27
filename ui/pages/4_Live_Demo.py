@@ -228,23 +228,29 @@ examples = {
     "Hedged/LLM-style": "While I appreciate certain aspects of this product, considering various factors and taking into account different perspectives, I would say that it seems moderately acceptable, though there are nuances to consider."
 }
 
-col1, col2 = st.columns([3, 1])
+# Initialize session state for text response
+if 'live_demo_text' not in st.session_state:
+    st.session_state.live_demo_text = ""
 
-with col1:
-    text_response = st.text_area(
-        "Text Response",
-        value="",
-        height=150,
-        placeholder="Enter a textual response to the question...",
-        help="Type any text response you want to test"
-    )
+col1, col2 = st.columns([3, 1])
 
 with col2:
     st.markdown("**Example Responses:**")
     for example_name, example_text in examples.items():
-        if st.button(example_name, use_container_width=True):
-            text_response = example_text
-            st.rerun()
+        if st.button(example_name, use_container_width=True, key=f"example_{example_name}"):
+            st.session_state.live_demo_text = example_text
+
+with col1:
+    text_response = st.text_area(
+        "Text Response",
+        value=st.session_state.live_demo_text,
+        height=150,
+        placeholder="Enter a textual response to the question...",
+        help="Type any text response you want to test"
+    )
+    # Update session state when user types
+    if text_response != st.session_state.live_demo_text:
+        st.session_state.live_demo_text = text_response
 
 # Character counter
 if text_response:
@@ -314,12 +320,26 @@ if process_button and text_response:
             )
 
             # Create question object
-            question = Question(
-                id="demo_question",
-                text=question_text,
-                type=question_type,
-                scale=scale_labels if question_type != "yes_no" else None
-            )
+            if question_type == "yes_no":
+                question = Question(
+                    id="demo_question",
+                    text=question_text,
+                    type=question_type
+                )
+            elif question_type in ["likert_5", "likert_7", "custom"]:
+                from src.survey import LikertScale
+                scale = LikertScale(
+                    scale_type=question_type,
+                    labels=scale_labels
+                )
+                question = Question(
+                    id="demo_question",
+                    text=question_text,
+                    type=question_type,
+                    scale=scale
+                )
+            else:
+                raise ValueError(f"Unknown question type: {question_type}")
 
             # Create response object
             response = Response(
@@ -510,12 +530,26 @@ if st.button(" Process Batch", type="secondary"):
                 )
 
                 # Create question
-                question = Question(
-                    id="batch_demo",
-                    text=question_text,
-                    type=question_type,
-                    scale=scale_labels if question_type != "yes_no" else None
-                )
+                if question_type == "yes_no":
+                    question = Question(
+                        id="batch_demo",
+                        text=question_text,
+                        type=question_type
+                    )
+                elif question_type in ["likert_5", "likert_7", "custom"]:
+                    from src.survey import LikertScale
+                    scale = LikertScale(
+                        scale_type=question_type,
+                        labels=scale_labels
+                    )
+                    question = Question(
+                        id="batch_demo",
+                        text=question_text,
+                        type=question_type,
+                        scale=scale
+                    )
+                else:
+                    raise ValueError(f"Unknown question type: {question_type}")
 
                 # Process all responses
                 batch_results = []

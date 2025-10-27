@@ -3,7 +3,7 @@
 
 ---
 
-**Report Generated:** 2025-10-24 11:19:06
+**Report Generated:** 2025-10-27 10:05:26
 
 **Survey:** Online Lottery Gaming Platform Evaluation
 
@@ -61,7 +61,7 @@ To evaluate SSR performance, we:
 | Metric | Human | LLM | Better | Interpretation |
 |--------|-------|-----|--------|----------------|
 | **Mode Accuracy** | 100.0% | 91.0% | Human | % of predictions exactly matching ground truth |
-| **Top-2 Accuracy** | 100.0% | 99.7% | Human | % where true answer is in top 2 predictions |
+| **Top-2 Accuracy** | 100.0% | 100.0% | LLM | % where true answer is in top 2 predictions |
 | **Mean Absolute Error** | 0.000 | 0.093 | Human | Average distance from true rating (lower is better) |
 | **Prob at Truth** | 1.000 | 0.569 | Human | Avg probability assigned to true answer (higher = more confident) |
 
@@ -74,7 +74,7 @@ To evaluate SSR performance, we:
 
 **Top-2 Accuracy** is more forgiving—it counts predictions as correct if the true answer is in the top 2 most likely ratings. This reflects SSR's probabilistic nature.
 
-- **Result:** Human 100.0% vs LLM 99.7%
+- **Result:** Human 100.0% vs LLM 100.0%
 - **Implication:** Both methods rarely miss completely—SSR captures the right range
 
 **Mean Absolute Error (MAE)** measures average distance from the true rating. For a 5-point scale, an MAE of 0.5 means predictions are off by half a point on average.
@@ -129,20 +129,20 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 82.0% | +18.0% |
-| MAE | 0.000 | 0.180 | -0.180 |
-| Prob at Truth | 1.000 | 0.425 | +0.575 |
+| Mode Accuracy | 100.0% | 76.0% | +24.0% |
+| MAE | 0.000 | 0.240 | -0.240 |
+| Prob at Truth | 1.000 | 0.398 | +0.602 |
 
 #### Interpretation
 
 **5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
 
-The 18.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+The 24.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
 
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 41 / 50 responses
+- **LLM correct predictions:** 38 / 50 responses
 
 
 ---
@@ -161,7 +161,7 @@ The 18.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 88.0% | +12.0% |
 | MAE | 0.000 | 0.140 | -0.140 |
-| Prob at Truth | 1.000 | 0.266 | +0.734 |
+| Prob at Truth | 1.000 | 0.247 | +0.753 |
 
 #### Interpretation
 
@@ -191,7 +191,7 @@ The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 100.0% | +0.0% |
 | MAE | 0.000 | 0.000 | +0.000 |
-| Prob at Truth | 1.000 | 0.420 | +0.580 |
+| Prob at Truth | 1.000 | 0.421 | +0.579 |
 
 #### Interpretation
 
@@ -217,20 +217,18 @@ The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 88.0% | +12.0% |
-| MAE | 0.000 | 0.120 | -0.120 |
-| Prob at Truth | 1.000 | 0.880 | +0.120 |
+| Mode Accuracy | 100.0% | 92.0% | +8.0% |
+| MAE | 0.000 | 0.080 | -0.080 |
+| Prob at Truth | 1.000 | 0.920 | +0.080 |
 
 #### Interpretation
 
 **Binary questions** are typically easier to classify because there are only two options. Human responses achieve near-perfect accuracy (100.0%), suggesting direct yes/no statements align perfectly with semantic similarity.
 
-LLM responses show 12.0% lower accuracy, likely due to hedging language that makes binary classification ambiguous.
-
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 44 / 50 responses
+- **LLM correct predictions:** 46 / 50 responses
 
 
 ---
@@ -247,9 +245,9 @@ LLM responses show 12.0% lower accuracy, likely due to hedging language that mak
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 98.0% | +2.0% |
-| MAE | 0.000 | 0.020 | -0.020 |
-| Prob at Truth | 1.000 | 0.521 | +0.479 |
+| Mode Accuracy | 100.0% | 100.0% | +0.0% |
+| MAE | 0.000 | 0.000 | +0.000 |
+| Prob at Truth | 1.000 | 0.527 | +0.473 |
 
 #### Interpretation
 
@@ -258,7 +256,7 @@ LLM responses show 12.0% lower accuracy, likely due to hedging language that mak
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 49 / 50 responses
+- **LLM correct predictions:** 50 / 50 responses
 
 
 ---
