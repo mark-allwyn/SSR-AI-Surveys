@@ -34,7 +34,7 @@ brand_colors = {
     'light_grey': '#D3D3D3'
 }
 
-st.set_page_config(page_title="Compare Experiments", page_icon="📊", layout="wide")
+st.set_page_config(page_title="Compare Experiments", page_icon="", layout="wide")
 
 # Custom CSS for brand colors
 st.markdown(f"""
@@ -54,7 +54,7 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📊 Compare Experiments")
+st.title("Compare Experiments")
 st.markdown("Select multiple experiments to compare their performance side-by-side")
 
 # ======================
@@ -159,7 +159,7 @@ comparison_data.sort(key=lambda x: x['timestamp'])
 # ======================
 # Section C: Summary Metrics Comparison
 # ======================
-st.header("📈 Summary Metrics")
+st.header("Summary Metrics")
 
 # Create comparison table
 metrics_table = []
@@ -210,7 +210,7 @@ st.markdown("---")
 # ======================
 # Section D: Accuracy Comparison Chart
 # ======================
-st.header("📊 Accuracy Comparison")
+st.header("Accuracy Comparison")
 
 fig_comparison = go.Figure()
 
@@ -270,7 +270,7 @@ st.markdown("---")
 # ======================
 # Section E: Radar Chart Comparison
 # ======================
-st.header("🎯 Multi-Dimensional Comparison")
+st.header("Multi-Dimensional Comparison")
 
 fig_radar_comparison = go.Figure()
 
@@ -340,7 +340,7 @@ st.markdown("---")
 # ======================
 # Section F: Statistical Analysis
 # ======================
-st.header("📉 Statistical Analysis")
+st.header("Statistical Analysis")
 
 if len(comparison_data) >= 2:
     col1, col2 = st.columns(2)
@@ -397,7 +397,7 @@ st.markdown("---")
 # ======================
 # Section G: Recommendations
 # ======================
-st.header("💡 Recommendations")
+st.header("Recommendations")
 
 if len(comparison_data) >= 2:
     accuracies = [d['accuracy'] for d in comparison_data]
