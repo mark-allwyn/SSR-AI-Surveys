@@ -199,13 +199,14 @@ def generate_llm_style_response(target_statement: str, rating: int, max_rating: 
     return f"{hedge} {target_statement.lower()}{qualifier}."
 
 
-def main(persona_config=None, ground_truth_path=None, survey_config_path='config/mixed_survey_config.yaml'):
+def main(persona_config=None, ground_truth_path=None, survey_config_path='config/mixed_survey_config.yaml', n_respondents_override=None):
     """Run the ground truth comparison pipeline.
 
     Args:
         persona_config: Optional dict with persona configuration
         ground_truth_path: Optional path to uploaded ground truth CSV file
         survey_config_path: Path to survey YAML config file (default: config/mixed_survey_config.yaml)
+        n_respondents_override: Optional override for number of respondents (only used when generating artificial ground truth)
     """
     # Generate timestamp for this run
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -238,23 +239,9 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     if survey.personas:
         print(f"    ✓ Loaded {len(survey.personas)} personas from config")
 
-    # 2. Generate respondent profiles
-    print("\n[2/8] Generating respondent profiles...")
-    n_respondents = survey.sample_size
-
-    # Use personas from survey config if available
-    if survey.personas:
-        if not persona_config:
-            persona_config = {}
-        persona_config['mode'] = 'descriptions'
-        persona_config['descriptions'] = survey.personas
-
-    profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
-    print(f"    ✓ Generated {len(profiles)} profiles")
-
-    # 3. Load or generate ground truth ratings
+    # 2. Load or check ground truth first to determine sample size
     if ground_truth_path and Path(ground_truth_path).exists():
-        print("\n[3/8] Loading uploaded ground truth data...")
+        print("\n[2/8] Loading uploaded ground truth data...")
         ground_truth_df = pd.read_csv(ground_truth_path)
         print(f"    ✓ Loaded {len(ground_truth_df)} ground truth ratings from file")
         print(f"    ✓ File: {ground_truth_path}")
@@ -270,8 +257,37 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
         if not gt_questions.issubset(survey_questions):
             missing = gt_questions - survey_questions
             print(f"    ⚠ Warning: Ground truth contains questions not in survey: {missing}")
+
+        # Determine actual number of respondents from ground truth
+        n_respondents = ground_truth_df['respondent_id'].nunique()
+        print(f"    ✓ Detected {n_respondents} unique respondents in ground truth")
+
+        ground_truth_loaded = True
     else:
-        print("\n[3/8] Generating artificial ground truth ratings...")
+        # Use override if provided, otherwise use sample size from config
+        if n_respondents_override:
+            n_respondents = n_respondents_override
+            print(f"    ✓ Using UI override: {n_respondents} respondents")
+        else:
+            n_respondents = survey.sample_size
+        ground_truth_loaded = False
+
+    # 3. Generate respondent profiles based on actual sample size
+    print(f"\n[3/8] Generating {n_respondents} respondent profiles...")
+
+    # Use personas from survey config if available
+    if survey.personas:
+        if not persona_config:
+            persona_config = {}
+        persona_config['mode'] = 'descriptions'
+        persona_config['descriptions'] = survey.personas
+
+    profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
+    print(f"    ✓ Generated {len(profiles)} profiles")
+
+    # 4. Generate artificial ground truth if needed
+    if not ground_truth_loaded:
+        print("\n[4/8] Generating artificial ground truth ratings...")
         ground_truth_df = generate_ground_truth_ratings(survey, profiles)
         print(f"    ✓ Generated {len(ground_truth_df)} ground truth ratings")
 
@@ -280,15 +296,15 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     ground_truth_df.to_csv(gt_path, index=False)
     print(f"    ✓ Saved to {gt_path}")
 
-    # 4. Generate LLM text responses (will be processed through SSR)
-    print("\n[4/6] Generating LLM text responses...")
+    # 5. Generate LLM text responses (will be processed through SSR)
+    print("\n[5/8] Generating LLM text responses...")
     llm_responses = generate_responses_from_ground_truth(
         survey, profiles, ground_truth_df, response_style="llm", seed=102
     )
     print(f"    ✓ Generated {len(llm_responses)} LLM responses")
 
-    # 5. Apply SSR to LLM responses only
-    print("\n[5/6] Applying SSR to LLM responses...")
+    # 6. Apply SSR to LLM responses only
+    print("\n[6/8] Applying SSR to LLM responses...")
     print("    • Using paper's methodology (arXiv:2510.08338v2)")
     print("    • Model: OpenAI text-embedding-3-small")
     print("    • Normalization: Paper's method (subtract min + proportional)")
@@ -304,8 +320,8 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     llm_distributions = rater.rate_responses(llm_responses, survey, show_progress=True)
     print(f"    ✓ Created {len(llm_distributions)} SSR distributions")
 
-    # 6. Evaluate: Ground Truth (perfect) vs LLM+SSR predictions
-    print("\n[6/6] Evaluating LLM+SSR against ground truth...")
+    # 7. Evaluate: Ground Truth (perfect) vs LLM+SSR predictions
+    print("\n[7/8] Evaluating LLM+SSR against ground truth...")
     ground_truth_dict = create_ground_truth_dict(ground_truth_df)
 
     # Ground truth comparisons (always 100% accurate)
@@ -324,8 +340,10 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
             question_type=question.type,
             mode_accuracy=1.0,  # 100% by definition
             top2_accuracy=1.0,
-            mae=0.0,  # Perfect
-            rmse=0.0,  # Perfect
+            mae_mode=0.0,  # Perfect
+            rmse_mode=0.0,  # Perfect
+            mae_expected=0.0,  # Perfect
+            rmse_expected=0.0,  # Perfect
             mean_probability_at_truth=1.0,  # Perfect
             log_likelihood=0.0,  # Perfect (log(1) = 0)
             kl_divergence=0.0,  # Perfect
@@ -387,7 +405,7 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     print(f"    ✓ Saved LLM distributions to {dist_path}")
 
     # 8. Generate reports in experiment folder
-    print("\nGenerating reports...")
+    print("\n[8/8] Generating reports...")
 
     # Create file paths in experiment folder
     png_path = experiment_dir / "report.png"
@@ -449,6 +467,7 @@ if __name__ == "__main__":
     persona_config = None
     ground_truth_path = None
     survey_config_path = 'config/mixed_survey_config.yaml'  # Default
+    n_respondents_override = None
 
     if len(sys.argv) > 1:
         # First argument is persona config JSON
@@ -462,4 +481,11 @@ if __name__ == "__main__":
         # Third argument is survey config path
         survey_config_path = sys.argv[3]
 
-    main(persona_config=persona_config, ground_truth_path=ground_truth_path, survey_config_path=survey_config_path)
+    if len(sys.argv) > 4:
+        # Fourth argument is n_respondents override (optional)
+        try:
+            n_respondents_override = int(sys.argv[4])
+        except ValueError:
+            pass  # Ignore if not a valid integer
+
+    main(persona_config=persona_config, ground_truth_path=ground_truth_path, survey_config_path=survey_config_path, n_respondents_override=n_respondents_override)

@@ -71,6 +71,11 @@ class Survey:
     @classmethod
     def from_config(cls, config_path: str) -> 'Survey':
         """Load survey from YAML configuration file."""
+        from pathlib import Path
+
+        # Resolve to absolute path to handle relative paths from different working directories
+        config_path = Path(config_path).resolve()
+
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
 

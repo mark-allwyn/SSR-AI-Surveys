@@ -284,6 +284,12 @@ st.header("Accuracy by Question")
 # Prepare data for bar chart
 human_accuracies = [question_metrics[q]['human_accuracy'] for q in question_ids]
 llm_accuracies = [question_metrics[q]['llm_accuracy'] for q in question_ids]
+llm_mae_values = [question_metrics[q]['llm_mae'] for q in question_ids]
+
+# Convert MAE to "accuracy-like" score (inverted, higher is better)
+# Assuming 5-point scale: MAE of 0 = 100%, MAE of 5 = 0%
+max_rating = 5
+llm_mae_performance = [(1 - mae/max_rating) * 100 for mae in llm_mae_values]
 
 # Split into multiple charts if more than 10 questions
 n_questions = len(question_ids)
@@ -294,35 +300,49 @@ if n_questions <= questions_per_chart:
     fig_accuracy = go.Figure()
 
     fig_accuracy.add_trace(go.Bar(
-        name='Ground Truth',
+        name='Ground Truth (Mode)',
         x=question_ids,
         y=human_accuracies,
         marker_color=brand_colors['teal_blue'],
         text=[f"{v:.1f}%" for v in human_accuracies],
         textposition='outside',
-        textfont=dict(size=12, color=brand_colors['teal_blue'], family='Arial Black')
+        textfont=dict(size=11, color=brand_colors['teal_blue'], family='Arial Black'),
+        hovertemplate='Ground Truth: %{y:.1f}%<extra></extra>'
     ))
 
     fig_accuracy.add_trace(go.Bar(
-        name='LLM+SSR',
+        name='LLM Mode Accuracy',
         x=question_ids,
         y=llm_accuracies,
         marker_color=brand_colors['atomic_orange'],
         text=[f"{v:.1f}%" for v in llm_accuracies],
         textposition='outside',
-        textfont=dict(size=12, color=brand_colors['atomic_orange'], family='Arial Black')
+        textfont=dict(size=11, color=brand_colors['atomic_orange'], family='Arial Black'),
+        hovertemplate='Mode Accuracy: %{y:.1f}%<extra></extra>'
+    ))
+
+    fig_accuracy.add_trace(go.Bar(
+        name='LLM Expected Value (MAE-based)',
+        x=question_ids,
+        y=llm_mae_performance,
+        marker_color=brand_colors['turquoise'],
+        text=[f"{perf:.1f}%" for perf in llm_mae_performance],
+        textposition='outside',
+        textfont=dict(size=11, color=brand_colors['turquoise'], family='Arial Black'),
+        hovertemplate='MAE Performance: %{y:.1f}%<br>Raw MAE: %{customdata:.2f}<extra></extra>',
+        customdata=llm_mae_values
     ))
 
     fig_accuracy.update_layout(
         title=dict(
-            text='Mode Accuracy by Question',
+            text='Performance Comparison by Question<br><sub>Mode Accuracy vs Expected Value (MAE-based)</sub>',
             font=dict(size=20, family='Arial Black')
         ),
         xaxis_title='Question',
-        yaxis_title='Accuracy (%)',
+        yaxis_title='Performance (Higher = Better)',
         barmode='group',
-        height=500,
-        yaxis=dict(range=[0, 110]),
+        height=550,
+        yaxis=dict(range=[0, 115]),
         legend=dict(
             orientation="h",
             yanchor="bottom",
@@ -334,6 +354,8 @@ if n_questions <= questions_per_chart:
     )
 
     st.plotly_chart(fig_accuracy, use_container_width=True)
+
+    st.caption("**Note:** MAE-based performance = (1 - MAE/5) × 100%. Shows how well the expected value prediction performs (considering full probability distribution).")
 else:
     # Multiple charts for more than 10 questions
     n_charts = (n_questions + questions_per_chart - 1) // questions_per_chart

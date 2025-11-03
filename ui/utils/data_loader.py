@@ -10,6 +10,9 @@ def get_all_experiments() -> List[Path]:
     """Get all experiment folders sorted by date (newest first)."""
     experiments_dir = Path("experiments")
     if not experiments_dir.exists():
+        # Try parent directory
+        experiments_dir = Path("../experiments")
+    if not experiments_dir.exists():
         return []
 
     experiment_folders = sorted(
@@ -123,13 +126,16 @@ def parse_text_report(report_text: str) -> Dict:
                 except ValueError:
                     pass
 
-        if current_question and "MAE:" in line and '|' in line:
+        # Parse MAE (Expected Value) - the more robust metric
+        if current_question and "MAE (Expected Value):" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
                 # Extract ground truth MAE
                 human_part = parts[0].split('Ground Truth:')[1].strip()
                 # Extract LLM+SSR MAE
                 llm_part = parts[1].split('LLM+SSR:')[1].strip()
+                # Remove any trailing labels like [More robust]
+                llm_part = llm_part.split('[')[0].strip()
 
                 try:
                     metrics[current_question]['human_mae'] = float(human_part)
@@ -137,17 +143,46 @@ def parse_text_report(report_text: str) -> Dict:
                 except ValueError:
                     pass
 
-        if current_question and "RMSE:" in line and '|' in line:
+        # Also parse MAE (Mode) if needed
+        if current_question and "MAE (Mode):" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
+
+                try:
+                    metrics[current_question]['human_mae_mode'] = float(human_part)
+                    metrics[current_question]['llm_mae_mode'] = float(llm_part)
+                except ValueError:
+                    pass
+
+        # Parse RMSE (Expected Value) - the more robust metric
+        if current_question and "RMSE (Expected Value):" in line and '|' in line:
             parts = line.split('|')
             if len(parts) >= 2:
                 # Extract ground truth RMSE
                 human_part = parts[0].split('Ground Truth:')[1].strip()
                 # Extract LLM+SSR RMSE
                 llm_part = parts[1].split('LLM+SSR:')[1].strip()
+                # Remove any trailing labels like [More robust]
+                llm_part = llm_part.split('[')[0].strip()
 
                 try:
                     metrics[current_question]['human_rmse'] = float(human_part)
                     metrics[current_question]['llm_rmse'] = float(llm_part)
+                except ValueError:
+                    pass
+
+        # Also parse RMSE (Mode) if needed
+        if current_question and "RMSE (Mode):" in line and '|' in line:
+            parts = line.split('|')
+            if len(parts) >= 2:
+                human_part = parts[0].split('Ground Truth:')[1].strip()
+                llm_part = parts[1].split('LLM+SSR:')[1].strip()
+
+                try:
+                    metrics[current_question]['human_rmse_mode'] = float(human_part)
+                    metrics[current_question]['llm_rmse_mode'] = float(llm_part)
                 except ValueError:
                     pass
 
@@ -199,6 +234,9 @@ def parse_text_report(report_text: str) -> Dict:
 def load_survey_config(config_path: str = "config/mixed_survey_config.yaml") -> Dict:
     """Load survey configuration from YAML."""
     config_file = Path(config_path)
+    if not config_file.exists():
+        # Try parent directory
+        config_file = Path("..") / config_path
     if config_file.exists():
         with open(config_file, 'r') as f:
             return yaml.safe_load(f)
@@ -207,7 +245,10 @@ def load_survey_config(config_path: str = "config/mixed_survey_config.yaml") -> 
 
 def get_available_surveys() -> List[str]:
     """Get list of available survey config files."""
+    # Try current directory first, then parent directory
     config_dir = Path("config")
+    if not config_dir.exists():
+        config_dir = Path("../config")
     if not config_dir.exists():
         return []
 

@@ -183,6 +183,12 @@ if selected_survey:
             st.subheader(survey_data.get('name', 'Survey'))
             st.markdown(f"**Description:** {survey_data.get('description', 'N/A')}")
 
+            # Show context/stimulus if available
+            context = survey_data.get('context', '').strip()
+            if context:
+                st.markdown("**Context/Stimulus:**")
+                st.info(context)
+
         with col2:
             n_questions = len(survey_data.get('questions', []))
             sample_size = survey_data.get('sample_size', 50)
@@ -221,7 +227,7 @@ with col1:
         max_value=200,
         value=50,
         step=10,
-        help="Number of synthetic respondents to generate"
+        help="Number of synthetic respondents to generate (only applies when NOT uploading ground truth data)"
     )
 
 with col2:
@@ -489,6 +495,9 @@ if run_button:
             # Build persona configuration (empty, will use survey config)
             persona_config = {}
 
+            # Resolve survey config path to absolute path before passing to subprocess
+            survey_config_abs_path = str(Path(selected_survey).resolve())
+
             # Build command with persona config, optional ground truth, and survey config path
             persona_config_json = json.dumps(persona_config)
             cmd = [
@@ -504,8 +513,11 @@ if run_button:
                 # Add empty string as placeholder if no ground truth
                 cmd.append("")
 
-            # Add survey config path (third argument)
-            cmd.append(selected_survey)
+            # Add survey config path (third argument) - use absolute path
+            cmd.append(survey_config_abs_path)
+
+            # Add n_respondents override (fourth argument) - only used when generating artificial data
+            cmd.append(str(n_respondents))
 
             # Run the pipeline as subprocess
             status_text.text("Step 3/8: Loading survey...")
@@ -541,7 +553,8 @@ if run_button:
                 progress_bar.progress(90)
 
                 # Find the latest experiment folder
-                experiments_dir = Path("experiments")
+                # Use absolute path since UI runs from ui/ directory
+                experiments_dir = Path(__file__).parent.parent.parent / "experiments"
                 if experiments_dir.exists():
                     experiment_folders = sorted(experiments_dir.glob("run_*"), reverse=True)
                     if experiment_folders:

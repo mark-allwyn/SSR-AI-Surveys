@@ -1,0 +1,137 @@
+================================================================================
+GROUND TRUTH COMPARISON REPORT: HUMAN GROUND TRUTH VS LLM+SSR
+================================================================================
+
+Survey: Online Lottery Gaming Platform Evaluation
+Questions Analyzed: 6
+
+--------------------------------------------------------------------------------
+OVERALL SUMMARY
+--------------------------------------------------------------------------------
+
+Average Mode Accuracy:
+  Ground Truth (Human): 100.0%
+  LLM+SSR:              92.3%
+  Gap:                  7.7%
+
+Average MAE:
+  Ground Truth (Human): 0.000
+  LLM+SSR:              0.595
+
+--------------------------------------------------------------------------------
+QUESTION: q1_would_subscribe
+--------------------------------------------------------------------------------
+
+Question Type: yes_no
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 94.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.060
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.245
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 0.060  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 0.245  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.940
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0094
+
+--------------------------------------------------------------------------------
+QUESTION: q2_subscription_likelihood
+--------------------------------------------------------------------------------
+
+Question Type: likert_5
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 73.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.270
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.520
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 0.998  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 1.153  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.394
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0312
+
+--------------------------------------------------------------------------------
+QUESTION: q3_platform_trust
+--------------------------------------------------------------------------------
+
+Question Type: likert_7
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 99.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.020
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.200
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 1.311  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 1.551  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.266
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0800
+
+--------------------------------------------------------------------------------
+QUESTION: q4_price_preference
+--------------------------------------------------------------------------------
+
+Question Type: multiple_choice
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.000
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.000
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 0.639  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 0.741  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.418
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0585
+
+--------------------------------------------------------------------------------
+QUESTION: q5_recommend
+--------------------------------------------------------------------------------
+
+Question Type: yes_no
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 92.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 100.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.080
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.283
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 0.080  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 0.283  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.920
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0142
+
+--------------------------------------------------------------------------------
+QUESTION: q6_feature_importance
+--------------------------------------------------------------------------------
+
+Question Type: likert_5
+Sample Size: 100
+
+Mode Accuracy:          Ground Truth: 100.0%  |  LLM+SSR: 96.0%
+Top-2 Accuracy:         Ground Truth: 100.0%  |  LLM+SSR: 97.0%
+
+MAE (Mode):             Ground Truth: 0.000  |  LLM+SSR: 0.040
+RMSE (Mode):            Ground Truth: 0.000  |  LLM+SSR: 0.200
+
+MAE (Expected Value):   Ground Truth: 0.000  |  LLM+SSR: 0.479  [More robust]
+RMSE (Expected Value):  Ground Truth: 0.000  |  LLM+SSR: 0.542  [More robust]
+
+Prob at Truth:          Ground Truth: 1.000  |  LLM+SSR: 0.498
+KL Divergence:          Ground Truth: 0.0000  |  LLM+SSR: 0.0180
+
+================================================================================
+END OF REPORT
+================================================================================

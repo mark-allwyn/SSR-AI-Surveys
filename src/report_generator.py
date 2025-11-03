@@ -77,47 +77,64 @@ def create_one_page_report(
 
 
 def plot_accuracy_comparison(ax, human_comps, llm_comps, question_ids):
-    """Plot grouped bar chart comparing accuracies."""
+    """Plot grouped bar chart comparing mode accuracy and MAE metrics."""
     x = np.arange(len(question_ids))
-    width = 0.35
+    width = 0.2  # Narrower bars to fit more groups
 
-    human_mode_acc = [human_comps[q].mode_accuracy * 100 for q in question_ids]
+    # Get metrics for each question
     llm_mode_acc = [llm_comps[q].mode_accuracy * 100 for q in question_ids]
+    llm_mae_mode = [llm_comps[q].mae_mode for q in question_ids]
+    llm_mae_expected = [llm_comps[q].mae_expected for q in question_ids]
 
-    bars1 = ax.bar(x - width/2, human_mode_acc, width, label='Ground Truth',
-                   color='green', alpha=0.7)
-    bars2 = ax.bar(x + width/2, llm_mode_acc, width, label='LLM+SSR',
-                   color='coral', alpha=0.8)
+    # Create bars with offset positions
+    bars1 = ax.bar(x - width, llm_mode_acc, width, label='Mode Accuracy (%)',
+                   color='#6495ED', alpha=0.8)
 
-    ax.set_ylabel('Mode Accuracy (%)', fontsize=13, fontweight='bold')
-    ax.set_title('Accuracy by Question', fontsize=15, fontweight='bold', pad=15)
+    # For MAE, we'll show as inverse (100 - MAE*20) to fit on same scale, or use secondary axis
+    # Better approach: show MAE on a 0-5 scale normalized to 0-100
+    max_rating = 5  # Assuming 5-point scale
+    llm_mae_mode_norm = [(1 - mae/max_rating) * 100 for mae in llm_mae_mode]
+    llm_mae_exp_norm = [(1 - mae/max_rating) * 100 for mae in llm_mae_expected]
+
+    bars2 = ax.bar(x, llm_mae_mode_norm, width, label='MAE-Mode (inverted)',
+                   color='#FF6E3A', alpha=0.8)
+    bars3 = ax.bar(x + width, llm_mae_exp_norm, width, label='MAE-Expected (inverted)',
+                   color='#40E0D0', alpha=0.8)
+
+    ax.set_ylabel('Performance (%)', fontsize=13, fontweight='bold')
+    ax.set_title('LLM+SSR Performance by Question\n(Higher is Better)', fontsize=15, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=10)
-    ax.legend(fontsize=12, loc='upper right')
-    ax.set_ylim(0, 110)  # Extra space for labels
+    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=9)
+    ax.legend(fontsize=10, loc='lower right')
+    ax.set_ylim(0, 110)
     ax.grid(axis='y', alpha=0.3)
 
     # Add value labels on bars
-    for bars in [bars1, bars2]:
-        for bar in bars:
-            height = bar.get_height()
-            ax.text(bar.get_x() + bar.get_width()/2., height + 1,
-                    f'{height:.1f}%',
-                    ha='center', va='bottom', fontsize=9, fontweight='bold')
+    for i, (mode_acc, mae_m, mae_e) in enumerate(zip(llm_mode_acc, llm_mae_mode, llm_mae_expected)):
+        ax.text(i - width, mode_acc + 2, f'{mode_acc:.0f}%',
+                ha='center', va='bottom', fontsize=7, fontweight='bold')
+        ax.text(i, llm_mae_mode_norm[i] + 2, f'{mae_m:.2f}',
+                ha='center', va='bottom', fontsize=7, fontweight='bold')
+        ax.text(i + width, llm_mae_exp_norm[i] + 2, f'{mae_e:.2f}',
+                ha='center', va='bottom', fontsize=7, fontweight='bold')
 
 
 def plot_error_summary(ax, human_comps, llm_comps):
-    """Plot overall error statistics."""
-    # Calculate averages
-    human_mae_avg = np.mean([c.mae for c in human_comps.values()])
-    llm_mae_avg = np.mean([c.mae for c in llm_comps.values()])
+    """Plot overall error statistics using expected value (more robust)."""
+    # Calculate averages using expected value metrics (more robust)
+    human_mae_avg = np.mean([c.mae_expected for c in human_comps.values()])
+    llm_mae_avg = np.mean([c.mae_expected for c in llm_comps.values()])
 
-    human_rmse_avg = np.mean([c.rmse for c in human_comps.values()])
-    llm_rmse_avg = np.mean([c.rmse for c in llm_comps.values()])
+    human_rmse_avg = np.mean([c.rmse_expected for c in human_comps.values()])
+    llm_rmse_avg = np.mean([c.rmse_expected for c in llm_comps.values()])
 
-    metrics = ['MAE', 'RMSE']
-    human_vals = [human_mae_avg, human_rmse_avg]
-    llm_vals = [llm_mae_avg, llm_rmse_avg]
+    # Also calculate mode-based for comparison
+    human_mae_mode_avg = np.mean([c.mae_mode for c in human_comps.values()])
+    llm_mae_mode_avg = np.mean([c.mae_mode for c in llm_comps.values()])
+
+    metrics = ['MAE\n(Expected)', 'RMSE\n(Expected)', 'MAE\n(Mode)']
+    human_vals = [human_mae_avg, human_rmse_avg, human_mae_mode_avg]
+    llm_vals = [llm_mae_avg, llm_rmse_avg, llm_mae_mode_avg]
 
     x = np.arange(len(metrics))
     width = 0.35
@@ -130,7 +147,7 @@ def plot_error_summary(ax, human_comps, llm_comps):
     ax.set_ylabel('Error', fontsize=12, fontweight='bold')
     ax.set_title('Average Error Metrics', fontsize=15, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels(metrics, fontsize=12)
+    ax.set_xticklabels(metrics, fontsize=10)
     ax.legend(fontsize=11, loc='upper right')
     ax.grid(axis='y', alpha=0.3)
 
@@ -301,12 +318,17 @@ def generate_text_report(
             f.write(f"Question Type: {h.question_type}\n")
             f.write(f"Sample Size: {h.n_samples}\n\n")
 
-            f.write(f"Mode Accuracy:      Ground Truth: {h.mode_accuracy:.1%}  |  LLM+SSR: {l.mode_accuracy:.1%}\n")
-            f.write(f"Top-2 Accuracy:     Ground Truth: {h.top2_accuracy:.1%}  |  LLM+SSR: {l.top2_accuracy:.1%}\n")
-            f.write(f"MAE:                Ground Truth: {h.mae:.3f}  |  LLM+SSR: {l.mae:.3f}\n")
-            f.write(f"RMSE:               Ground Truth: {h.rmse:.3f}  |  LLM+SSR: {l.rmse:.3f}\n")
-            f.write(f"Prob at Truth:      Ground Truth: {h.mean_probability_at_truth:.3f}  |  LLM+SSR: {l.mean_probability_at_truth:.3f}\n")
-            f.write(f"KL Divergence:      Ground Truth: {h.kl_divergence:.4f}  |  LLM+SSR: {l.kl_divergence:.4f}\n\n")
+            f.write(f"Mode Accuracy:          Ground Truth: {h.mode_accuracy:.1%}  |  LLM+SSR: {l.mode_accuracy:.1%}\n")
+            f.write(f"Top-2 Accuracy:         Ground Truth: {h.top2_accuracy:.1%}  |  LLM+SSR: {l.top2_accuracy:.1%}\n")
+            f.write(f"\n")
+            f.write(f"MAE (Mode):             Ground Truth: {h.mae_mode:.3f}  |  LLM+SSR: {l.mae_mode:.3f}\n")
+            f.write(f"RMSE (Mode):            Ground Truth: {h.rmse_mode:.3f}  |  LLM+SSR: {l.rmse_mode:.3f}\n")
+            f.write(f"\n")
+            f.write(f"MAE (Expected Value):   Ground Truth: {h.mae_expected:.3f}  |  LLM+SSR: {l.mae_expected:.3f}  [More robust]\n")
+            f.write(f"RMSE (Expected Value):  Ground Truth: {h.rmse_expected:.3f}  |  LLM+SSR: {l.rmse_expected:.3f}  [More robust]\n")
+            f.write(f"\n")
+            f.write(f"Prob at Truth:          Ground Truth: {h.mean_probability_at_truth:.3f}  |  LLM+SSR: {l.mean_probability_at_truth:.3f}\n")
+            f.write(f"KL Divergence:          Ground Truth: {h.kl_divergence:.4f}  |  LLM+SSR: {l.kl_divergence:.4f}\n\n")
 
         f.write("="*80 + "\n")
         f.write("END OF REPORT\n")

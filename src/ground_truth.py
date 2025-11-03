@@ -16,13 +16,17 @@ class GroundTruthComparison:
     question_id: str
     question_type: str
 
-    # Accuracy metrics
+    # Accuracy metrics (Mode-based)
     mode_accuracy: float  # % where predicted mode matches ground truth
     top2_accuracy: float  # % where ground truth is in top 2 predicted
 
-    # Error metrics
-    mae: float  # Mean absolute error (for ordinal scales)
-    rmse: float  # Root mean squared error
+    # Error metrics (Mode-based)
+    mae_mode: float  # Mean absolute error using mode
+    rmse_mode: float  # Root mean squared error using mode
+
+    # Error metrics (Expected Value-based - more robust)
+    mae_expected: float  # Mean absolute error using expected value
+    rmse_expected: float  # Root mean squared error using expected value
 
     # Probabilistic metrics
     mean_probability_at_truth: float  # Average probability assigned to true answer
@@ -33,6 +37,17 @@ class GroundTruthComparison:
 
     # Detailed breakdown
     confusion_matrix: np.ndarray
+
+    # Legacy fields for backward compatibility
+    @property
+    def mae(self) -> float:
+        """Backward compatibility - returns expected value MAE (more robust)."""
+        return self.mae_expected
+
+    @property
+    def rmse(self) -> float:
+        """Backward compatibility - returns expected value RMSE (more robust)."""
+        return self.rmse_expected
     n_samples: int
 
 
@@ -74,6 +89,7 @@ def evaluate_against_ground_truth(
         GroundTruthComparison object with evaluation metrics
     """
     predicted_modes = []
+    predicted_expected_values = []
     predicted_probs = []
     true_values = []
     prob_at_truth = []
@@ -85,6 +101,7 @@ def evaluate_against_ground_truth(
             true_val = ground_truth[key]
             true_values.append(true_val)
             predicted_modes.append(dist.mode)
+            predicted_expected_values.append(dist.expected_value)
             predicted_probs.append(dist.distribution)
 
             # Get probability assigned to true answer
@@ -97,6 +114,7 @@ def evaluate_against_ground_truth(
         raise ValueError("No matching ground truth data found")
 
     predicted_modes = np.array(predicted_modes)
+    predicted_expected_values = np.array(predicted_expected_values)
     true_values = np.array(true_values)
     predicted_probs = np.array(predicted_probs)
 
@@ -116,9 +134,13 @@ def evaluate_against_ground_truth(
 
     top2_accuracy = top2_correct / len(true_values)
 
-    # Error metrics (for ordinal scales)
-    mae = np.mean(np.abs(predicted_modes - true_values))
-    rmse = np.sqrt(np.mean((predicted_modes - true_values) ** 2))
+    # Error metrics using mode (for ordinal scales)
+    mae_mode = np.mean(np.abs(predicted_modes - true_values))
+    rmse_mode = np.sqrt(np.mean((predicted_modes - true_values) ** 2))
+
+    # Error metrics using expected value (more robust for continuous interpretation)
+    mae_expected = np.mean(np.abs(predicted_expected_values - true_values))
+    rmse_expected = np.sqrt(np.mean((predicted_expected_values - true_values) ** 2))
 
     # Probabilistic metrics
     mean_prob_at_truth = np.mean(prob_at_truth)
@@ -153,8 +175,10 @@ def evaluate_against_ground_truth(
         question_type=question.type,
         mode_accuracy=mode_accuracy,
         top2_accuracy=top2_accuracy,
-        mae=mae,
-        rmse=rmse,
+        mae_mode=mae_mode,
+        rmse_mode=rmse_mode,
+        mae_expected=mae_expected,
+        rmse_expected=rmse_expected,
         mean_probability_at_truth=mean_prob_at_truth,
         log_likelihood=log_likelihood,
         kl_divergence=kl_div,
