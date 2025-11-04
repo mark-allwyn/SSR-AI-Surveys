@@ -4,7 +4,7 @@ description: Remove all emojis and em-dashes from all files in the repository
 
 Run the emoji removal script to clean up all Python, Markdown, and YAML files in the repository.
 
-Execute: `python3 scripts/remove_emojis.py`
+Execute: `python3 .claude/remove_emojis.py`
 
 This will:
 - Scan all .py, .md, .yaml, and .yml files

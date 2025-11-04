@@ -61,3 +61,7 @@ htmlcov/
 # OneDrive
 .Trash-*
 ~$*
+
+# Claude Code files (except commands)
+.claude/*
+!.claude/commands/
