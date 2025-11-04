@@ -1,0 +1,198 @@
+# Kantar-Style Lottery Gaming Platform Survey Configuration
+# Uses question templates for standard Kantar evaluation questions
+
+survey:
+  name: "Online Lottery Gaming Platform Evaluation"
+  description: "Kantar-style concept evaluation for online lottery gaming products"
+
+  context: |
+    We are evaluating a new online lottery gaming platform concept:
+
+    **Elf Yourself Online Lottery Platform**
+
+    A comprehensive digital lottery service that brings all your favorite lottery games
+    to your fingertips. Play Powerball, Mega Millions, and state lotteries from your
+    mobile device or computer.
+
+    Key Features:
+    - Multiple lottery games in one platform (Powerball, Mega Millions, state lotteries)
+    - Mobile app (iOS & Android) and web access
+    - Automated ticket purchasing with your favorite numbers
+    - Smart notifications for drawings and wins
+    - Secure payment processing and instant winnings withdrawal
+    - Syndicate play options (pool tickets with friends)
+    - Number analysis and lucky number generator
+
+    Subscription Plans:
+    - Basic: $9.99/month - up to 10 tickets per month
+    - Premium: $19.99/month - unlimited tickets + priority customer support
+    - Annual: $99/year - unlimited tickets + bonus entries
+
+    All subscriptions include automatic entry into exclusive subscriber-only drawings.
+
+  # Survey questions
+  questions:
+    # Core Kantar evaluation battery (in standard order)
+    - id: "purchase_intent"
+      text: "How likely would you be to subscribe to this online lottery platform?"
+      type: "likert_5"
+      scale:
+        1: "Definitely would not subscribe"
+        2: "Probably would not subscribe"
+        3: "Might or might not subscribe"
+        4: "Probably would subscribe"
+        5: "Definitely would subscribe"
+
+    - id: "uniqueness"
+      text: "This online lottery platform is unique and different from other ways to play the lottery"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "value_for_money"
+      text: "The subscription pricing for this service represents good value for money"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "likeability"
+      text: "Overall, how much do you like or dislike this online lottery platform concept?"
+      type: "likert_7"
+      scale:
+        1: "Dislike it a great deal"
+        2: "Dislike it"
+        3: "Dislike it a little"
+        4: "Neither like nor dislike it"
+        5: "Like it a little"
+        6: "Like it"
+        7: "Like it a great deal"
+
+    - id: "relevance"
+      text: "This online lottery platform is relevant to people like me"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "excitement"
+      text: "This online lottery platform concept is exciting and interesting"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "believability"
+      text: "The claims made about this online lottery platform are believable"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "understanding"
+      text: "How well do you feel you understand what this online lottery platform is offering?"
+      type: "likert_7"
+      scale:
+        1: "Do not understand at all"
+        2: "Understand very little"
+        3: "Understand a little"
+        4: "Understand somewhat"
+        5: "Understand fairly well"
+        6: "Understand very well"
+        7: "Understand completely"
+
+    - id: "trust"
+      text: "I would trust this platform with my payment information and lottery tickets"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    - id: "recommendation"
+      text: "How likely would you be to recommend this online lottery platform to a friend or family member?"
+      type: "likert_5"
+      scale:
+        1: "Definitely would not recommend"
+        2: "Probably would not recommend"
+        3: "Might or might not recommend"
+        4: "Probably would recommend"
+        5: "Definitely would recommend"
+
+    # Additional questions
+    - id: "feature_importance"
+      text: "Which feature of this online lottery platform is most important to you in making a subscription decision?"
+      type: "multiple_choice"
+      options:
+        - "Mobile app access"
+        - "Automated ticket purchasing"
+        - "Multiple lottery games in one place"
+        - "Instant win notifications"
+        - "Secure payment and withdrawal"
+        - "Syndicate/group play options"
+        - "Subscription pricing model"
+
+    - id: "current_lottery_play"
+      text: "Do you currently play the lottery?"
+      type: "yes_no"
+
+    - id: "price_preference"
+      text: "Which subscription tier would you be most likely to choose?"
+      type: "multiple_choice"
+      options:
+        - "Basic - $9.99/month (up to 10 tickets)"
+        - "Premium - $19.99/month (unlimited tickets)"
+        - "Annual - $99/year (unlimited + bonuses)"
+        - "Would not subscribe at any price"
+
+    - id: "usage_frequency"
+      text: "If you subscribed, how often would you expect to use this platform?"
+      type: "multiple_choice"
+      options:
+        - "Daily"
+        - "2-3 times per week"
+        - "Weekly"
+        - "2-3 times per month"
+        - "Monthly"
+        - "Less than monthly"
+
+  demographics:
+    - age_group
+    - gender
+    - occupation
+    - persona_group
+
+  # Persona groups matching lottery player segments
+  persona_groups:
+    - name: "Frequent Players - Tech Savvy"
+      description: "Regular lottery players comfortable with digital platforms"
+      weight: 0.25
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "35-44", "45-54"]
+        occupation: ["Professional", "Technical", "Manager"]
+      personas:
+        - "A 32-year-old software engineer who plays lottery weekly. Very comfortable with mobile apps and digital payments. Plays Powerball and state lottery."
+        - "A 38-year-old marketing manager who enjoys convenience. Plays lottery 2-3 times per week. Early adopter of subscription services."
+        - "A 45-year-old business analyst who plays lottery regularly. Values automation and time-saving features. Tech-savvy and pragmatic."
+
+    
+  sample_size: 200

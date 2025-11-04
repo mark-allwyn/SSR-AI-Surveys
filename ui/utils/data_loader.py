@@ -232,14 +232,49 @@ def parse_text_report(report_text: str) -> Dict:
 
 
 def load_survey_config(config_path: str = "config/mixed_survey_config.yaml") -> Dict:
-    """Load survey configuration from YAML."""
+    """Load survey configuration from YAML with template expansion for UI display."""
     config_file = Path(config_path)
     if not config_file.exists():
         # Try parent directory
         config_file = Path("..") / config_path
     if config_file.exists():
         with open(config_file, 'r') as f:
-            return yaml.safe_load(f)
+            config = yaml.safe_load(f)
+
+        # Expand templates for UI display
+        if 'survey' in config and 'question_templates' in config['survey']:
+            templates = config['survey']['question_templates']
+            expanded_questions = []
+
+            for q in config['survey'].get('questions', []):
+                # Check if question uses a template
+                if 'template' in q:
+                    template_id = q['template']
+                    if template_id in templates:
+                        template = templates[template_id]
+                        # Create expanded question with template values
+                        expanded_q = {
+                            'id': q['id'],
+                            'type': q.get('type', template.get('type')),
+                            'text': q.get('text', template.get('text')),
+                        }
+                        # Add scale or options from template
+                        if 'scale' in template:
+                            expanded_q['scale'] = q.get('scale', template['scale'])
+                        if 'options' in template:
+                            expanded_q['options'] = q.get('options', template['options'])
+                        expanded_questions.append(expanded_q)
+                    else:
+                        # Template not found, keep original
+                        expanded_questions.append(q)
+                else:
+                    # Regular question, no template
+                    expanded_questions.append(q)
+
+            # Replace questions with expanded version
+            config['survey']['questions'] = expanded_questions
+
+        return config
     return {}
 
 

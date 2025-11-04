@@ -16,6 +16,9 @@ S.A.G.E (Survey Analytics and Generation Engine) is a comprehensive platform for
 - ✅ **Experiment organization**: Timestamped folders keep all experiment results organized
 - ✅ **Live Demo Mode**: Test SSR on individual responses in real-time
 - ✅ **Survey Management**: Create and manage custom surveys via YAML configuration
+- ✅ **Kantar Question Templates (v2.0)**: Reusable templates for standardized surveys (70% smaller config files)
+- ✅ **Demographics System (v2.0)**: Track gender, age_group, persona_group, and occupation throughout pipeline
+- ✅ **Persona Groups (v2.0)**: Weighted sampling with target demographic distributions
 
 ---
 
@@ -118,20 +121,27 @@ This generates:
 ```
 ssr_pipeline/
 ├── README.md                          # This file
+├── CHANGELOG.md                       # Version history (v2.0+)
 ├── requirements.txt                   # Python dependencies
 ├── ground_truth_pipeline.py          # Main pipeline script
 │
 ├── config/                           # Survey configurations
-│   └── mixed_survey_config.yaml      # Lottery gaming survey (6 questions)
+│   ├── mixed_survey_config.yaml      # Lottery gaming survey (6 questions)
+│   └── kantar_lottery_survey.yaml    # Kantar template example (v2.0+)
 │
 ├── src/                              # Core modules
 │   ├── __init__.py
-│   ├── survey.py                     # Survey loading and question handling
+│   ├── survey.py                     # Survey + templates + persona groups
 │   ├── llm_client.py                 # Response generation and profiles
 │   ├── ssr_model.py                  # SSR implementation (paper-exact)
 │   ├── ground_truth.py               # Evaluation metrics
+│   ├── demographics.py               # Demographics module (v2.0+)
 │   ├── report_generator.py           # PNG + TXT reports
 │   └── markdown_report.py            # Markdown reports
+│
+├── docs/                             # Documentation (v2.0+)
+│   ├── KANTAR_INTEGRATION_PHASE1.md  # Template system guide
+│   └── KANTAR_STANDARD_TEMPLATES.md  # Template reference
 │
 ├── ui/                               # Streamlit web interface
 │   ├── 1_Home.py                     # Main dashboard
@@ -141,7 +151,8 @@ ssr_pipeline/
 │
 ├── experiments/                      # Experiment results (auto-created)
 │   └── run_TIMESTAMP/
-│       ├── ground_truth.csv
+│       ├── ground_truth.csv          # With demographics columns (v2.0+)
+│       ├── llm_distributions.json    # With demographics fields (v2.0+)
 │       ├── report.png
 │       ├── report.txt
 │       └── report.md
@@ -785,6 +796,145 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
             tendency = "negative"
         # ... generate ratings based on tendency
 ```
+
+---
+
+## Using Kantar Question Templates (v2.0+)
+
+### What are Question Templates?
+
+For surveys with repetitive question patterns (like Kantar-style evaluation batteries), templates reduce config file size by ~70% while ensuring consistency.
+
+### Example: Standardized Kantar Survey
+
+**Without templates** (verbose, ~500 lines):
+```yaml
+questions:
+  - id: q1_purchase_intent
+    text: "How likely are you to purchase this product?"
+    type: likert_5
+    scale:
+      1: "Definitely will not buy"
+      2: "Probably will not buy"
+      3: "Might or might not buy"
+      4: "Probably will buy"
+      5: "Definitely will buy"
+
+  - id: q2_purchase_intent
+    text: "How likely are you to purchase this product?"
+    type: likert_5
+    scale:
+      1: "Definitely will not buy"
+      # ... same scale repeated ...
+```
+
+**With templates** (concise, ~150 lines):
+```yaml
+survey:
+  question_templates:
+    purchase_intent:
+      text: "How likely are you to purchase this product?"
+      type: likert_5
+      scale:
+        1: "Definitely will not buy"
+        2: "Probably will not buy"
+        3: "Might or might not buy"
+        4: "Probably will buy"
+        5: "Definitely will buy"
+
+    uniqueness:
+      text: "Is this product unique or different from others?"
+      type: likert_5
+      scale:
+        1: "Not at all unique"
+        2: "Slightly unique"
+        3: "Somewhat unique"
+        4: "Very unique"
+        5: "Extremely unique"
+
+  questions:
+    - template: purchase_intent
+      id: q1_purchase_intent
+
+    - template: uniqueness
+      id: q2_uniqueness
+
+    # Can override template values
+    - template: purchase_intent
+      id: q3_custom
+      text: "Would you buy this specific variant?"
+```
+
+### Built-in Kantar Templates
+
+S.A.G.E includes 10 standard Kantar evaluation templates:
+- `purchase_intent` - Purchase likelihood
+- `uniqueness` - Product differentiation
+- `value_for_money` - Price perception
+- `likeability` - Appeal/attraction
+- `relevance` - Personal relevance
+- `excitement` - Excitement generation
+- `believability` - Claim credibility
+- `understanding` - Message clarity
+- `trust` - Brand trust
+- `recommendation` - Recommendation intent
+
+See `config/kantar_lottery_survey.yaml` for complete example and `docs/KANTAR_STANDARD_TEMPLATES.md` for reference.
+
+### Template Benefits
+
+✅ **DRY Principle**: Define once, use many times
+✅ **Consistency**: Ensure identical wording across question batteries
+✅ **Maintainability**: Update template = update all questions
+✅ **Smaller files**: 70% reduction in config size
+✅ **Backward compatible**: Existing surveys work unchanged
+
+### Using Persona Groups with Demographics (v2.0+)
+
+Create realistic synthetic populations with demographic tracking:
+
+```yaml
+persona_groups:
+  - name: "Tech-Savvy Young Professionals"
+    description: "Early adopters, high income, value innovation"
+    weight: 0.3  # 30% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["25-34", "35-44"]
+      occupation: ["Professional", "Technical"]
+    personas:
+      - "A 28-year-old software engineer. Values cutting-edge features."
+      - "A 35-year-old product manager. Focuses on user experience."
+
+  - name: "Budget-Conscious Families"
+    weight: 0.4  # 40% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["35-44", "45-54"]
+      occupation: ["Service", "Sales"]
+    personas:
+      - "A 42-year-old parent. Prioritizes value and durability."
+
+  - name: "Retired Skeptics"
+    weight: 0.3  # 30% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["55-64", "65+"]
+      occupation: ["Retired"]
+    personas:
+      - "A 68-year-old retiree. Skeptical of new products."
+```
+
+**Demographics tracked throughout pipeline:**
+- `gender` - Gender category
+- `age_group` - Age range (e.g., "25-34", "35-44")
+- `persona_group` - Named segment (e.g., "Tech-Savvy Young Professionals")
+- `occupation` - Occupation category
+
+**Demographics included in all outputs:**
+- Ground truth CSV (optional columns)
+- LLM distributions JSON (per response)
+- Experiment reports (segmentation ready)
 
 ---
 

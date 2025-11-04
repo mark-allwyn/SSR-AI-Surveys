@@ -129,6 +129,17 @@ class Question:
 
 
 @dataclass
+class QuestionTemplate:
+    """Represents a reusable question template for Kantar-style surveys."""
+    id: str
+    text: str
+    type: str
+    scale: Optional[Dict[int, str]] = None
+    options: Optional[List[str]] = None
+    description: Optional[str] = None
+
+
+@dataclass
 class Survey:
     """Represents a complete survey."""
     name: str
@@ -139,6 +150,7 @@ class Survey:
     personas: List[str] = field(default_factory=list)
     persona_groups: List[PersonaGroup] = field(default_factory=list)
     sample_size: int = 100
+    question_templates: Dict[str, QuestionTemplate] = field(default_factory=dict)
 
     @classmethod
     def from_config(cls, config_path: str) -> 'Survey':
@@ -153,34 +165,76 @@ class Survey:
 
         survey_config = config['survey']
 
-        # Parse questions
+        # Parse question templates if present
+        question_templates = {}
+        if 'question_templates' in survey_config:
+            for template_id, template_config in survey_config['question_templates'].items():
+                question_templates[template_id] = QuestionTemplate(
+                    id=template_id,
+                    text=template_config['text'],
+                    type=template_config['type'],
+                    scale=template_config.get('scale'),
+                    options=template_config.get('options'),
+                    description=template_config.get('description')
+                )
+
+        # Parse questions (may reference templates)
         questions = []
         for q_config in survey_config['questions']:
-            q_type = q_config['type']
+            # Check if this question references a template
+            if 'template' in q_config:
+                template_id = q_config['template']
+                if template_id not in question_templates:
+                    raise ValueError(f"Question references unknown template: {template_id}")
 
+                template = question_templates[template_id]
+
+                # Use template values, but allow overrides from q_config
+                q_type = q_config.get('type', template.type)
+                q_text = q_config.get('text', template.text)
+                q_scale = q_config.get('scale', template.scale)
+                q_options = q_config.get('options', template.options)
+
+                # ID must be provided in q_config
+                if 'id' not in q_config:
+                    raise ValueError(f"Question using template '{template_id}' must provide an 'id'")
+                q_id = q_config['id']
+            else:
+                # Regular question definition (no template)
+                q_type = q_config['type']
+                q_id = q_config['id']
+                q_text = q_config['text']
+                q_scale = q_config.get('scale')
+                q_options = q_config.get('options')
+
+            # Create Question object based on type
             if q_type.startswith("likert"):
+                if not q_scale:
+                    raise ValueError(f"Question {q_id}: likert questions must have a scale")
                 scale = LikertScale(
                     scale_type=q_type,
-                    labels=q_config['scale']
+                    labels=q_scale
                 )
                 question = Question(
-                    id=q_config['id'],
-                    text=q_config['text'],
+                    id=q_id,
+                    text=q_text,
                     type=q_type,
                     scale=scale
                 )
             elif q_type == "yes_no":
                 question = Question(
-                    id=q_config['id'],
-                    text=q_config['text'],
+                    id=q_id,
+                    text=q_text,
                     type=q_type
                 )
             elif q_type == "multiple_choice":
+                if not q_options:
+                    raise ValueError(f"Question {q_id}: multiple_choice questions must have options")
                 question = Question(
-                    id=q_config['id'],
-                    text=q_config['text'],
+                    id=q_id,
+                    text=q_text,
                     type=q_type,
-                    options=q_config['options']
+                    options=q_options
                 )
             else:
                 raise ValueError(f"Unknown question type: {q_type}")
@@ -208,7 +262,8 @@ class Survey:
             demographics=survey_config.get('demographics', []),
             personas=survey_config.get('personas', []),
             persona_groups=persona_groups,
-            sample_size=survey_config.get('sample_size', 100)
+            sample_size=survey_config.get('sample_size', 100),
+            question_templates=question_templates
         )
 
     def get_question_by_id(self, question_id: str) -> Optional[Question]:

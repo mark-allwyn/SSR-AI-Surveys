@@ -77,46 +77,58 @@ def create_one_page_report(
 
 
 def plot_accuracy_comparison(ax, human_comps, llm_comps, question_ids):
-    """Plot grouped bar chart comparing mode accuracy and MAE metrics."""
+    """Plot grouped bar chart comparing Ground Truth vs LLM+SSR with Mode and Expected Value metrics."""
     x = np.arange(len(question_ids))
-    width = 0.2  # Narrower bars to fit more groups
+    width = 0.2  # Narrower bars for 4 groups
 
     # Get metrics for each question
+    human_mode_acc = [human_comps[q].mode_accuracy * 100 for q in question_ids]
     llm_mode_acc = [llm_comps[q].mode_accuracy * 100 for q in question_ids]
-    llm_mae_mode = [llm_comps[q].mae_mode for q in question_ids]
+    human_mae_expected = [human_comps[q].mae_expected for q in question_ids]
     llm_mae_expected = [llm_comps[q].mae_expected for q in question_ids]
 
-    # Create bars with offset positions
-    bars1 = ax.bar(x - width, llm_mode_acc, width, label='Mode Accuracy (%)',
-                   color='#6495ED', alpha=0.8)
-
-    # For MAE, we'll show as inverse (100 - MAE*20) to fit on same scale, or use secondary axis
-    # Better approach: show MAE on a 0-5 scale normalized to 0-100
+    # Convert MAE to "accuracy-like" metric (1 - MAE/max_scale) * 100
+    # Lower MAE = better, so we invert it
     max_rating = 5  # Assuming 5-point scale
-    llm_mae_mode_norm = [(1 - mae/max_rating) * 100 for mae in llm_mae_mode]
+    human_mae_exp_norm = [(1 - mae/max_rating) * 100 for mae in human_mae_expected]
     llm_mae_exp_norm = [(1 - mae/max_rating) * 100 for mae in llm_mae_expected]
 
-    bars2 = ax.bar(x, llm_mae_mode_norm, width, label='MAE-Mode (inverted)',
-                   color='#FF6E3A', alpha=0.8)
-    bars3 = ax.bar(x + width, llm_mae_exp_norm, width, label='MAE-Expected (inverted)',
-                   color='#40E0D0', alpha=0.8)
+    # Create bars with offset positions
+    # Group 1: Ground Truth Mode Accuracy
+    bars1 = ax.bar(x - 1.5*width, human_mode_acc, width, label='GT: Mode Accuracy',
+                   color='#6495ED', alpha=0.7, edgecolor='navy', linewidth=1)
+
+    # Group 2: LLM+SSR Mode Accuracy
+    bars2 = ax.bar(x - 0.5*width, llm_mode_acc, width, label='LLM: Mode Accuracy',
+                   color='#6495ED', alpha=1.0, edgecolor='navy', linewidth=1.5)
+
+    # Group 3: Ground Truth Expected Value Accuracy
+    bars3 = ax.bar(x + 0.5*width, human_mae_exp_norm, width, label='GT: Expected Val*',
+                   color='#40E0D0', alpha=0.7, edgecolor='#2C9A8F', linewidth=1)
+
+    # Group 4: LLM+SSR Expected Value Accuracy
+    bars4 = ax.bar(x + 1.5*width, llm_mae_exp_norm, width, label='LLM: Expected Val*',
+                   color='#40E0D0', alpha=1.0, edgecolor='#2C9A8F', linewidth=1.5)
 
     ax.set_ylabel('Performance (%)', fontsize=13, fontweight='bold')
-    ax.set_title('LLM+SSR Performance by Question\n(Higher is Better)', fontsize=15, fontweight='bold', pad=15)
+    ax.set_title('Performance Comparison by Question: Ground Truth vs LLM+SSR\n(Higher is Better)',
+                 fontsize=14, fontweight='bold', pad=15)
     ax.set_xticks(x)
-    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=9)
-    ax.legend(fontsize=10, loc='lower right')
+    ax.set_xticklabels([q.replace('_', '\n') for q in question_ids], fontsize=8)
+    ax.legend(fontsize=9, loc='lower right', ncol=2,
+              title='* Expected Val = (1 - MAE/5) × 100',
+              title_fontsize=7)
     ax.set_ylim(0, 110)
     ax.grid(axis='y', alpha=0.3)
 
-    # Add value labels on bars
-    for i, (mode_acc, mae_m, mae_e) in enumerate(zip(llm_mode_acc, llm_mae_mode, llm_mae_expected)):
-        ax.text(i - width, mode_acc + 2, f'{mode_acc:.0f}%',
+    # Add value labels on bars (only on LLM bars to avoid clutter)
+    for i, (llm_mode, llm_mae_norm, llm_mae) in enumerate(zip(llm_mode_acc, llm_mae_exp_norm, llm_mae_expected)):
+        # LLM Mode accuracy label
+        ax.text(i - 0.5*width, llm_mode + 2, f'{llm_mode:.0f}%',
                 ha='center', va='bottom', fontsize=7, fontweight='bold')
-        ax.text(i, llm_mae_mode_norm[i] + 2, f'{mae_m:.2f}',
-                ha='center', va='bottom', fontsize=7, fontweight='bold')
-        ax.text(i + width, llm_mae_exp_norm[i] + 2, f'{mae_e:.2f}',
-                ha='center', va='bottom', fontsize=7, fontweight='bold')
+        # LLM Expected value label with MAE
+        ax.text(i + 1.5*width, llm_mae_norm + 2, f'{llm_mae_norm:.0f}%\n({llm_mae:.2f})',
+                ha='center', va='bottom', fontsize=6, fontweight='bold')
 
 
 def plot_error_summary(ax, human_comps, llm_comps):

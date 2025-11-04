@@ -244,30 +244,84 @@ elif section == " Ground Truth Data Schema":
             "Use Case": "Time-series analysis"
         },
         {
+            "Column": "gender",
+            "Type": "string",
+            "Description": "Gender category (tracked demographic)",
+            "Example": "Male, Female, Non-binary",
+            "Use Case": "Demographics tracking and segmentation"
+        },
+        {
+            "Column": "age_group",
+            "Type": "string",
+            "Description": "Age range category (tracked demographic)",
+            "Example": "25-34, 35-44, 45-54",
+            "Use Case": "Demographics tracking and segmentation"
+        },
+        {
+            "Column": "persona_group",
+            "Type": "string",
+            "Description": "Named persona segment (tracked demographic)",
+            "Example": "Tech-Savvy Young Professionals",
+            "Use Case": "Demographics tracking and segmentation"
+        },
+        {
+            "Column": "occupation",
+            "Type": "string",
+            "Description": "Occupation category (tracked demographic)",
+            "Example": "Professional, Technical, Service",
+            "Use Case": "Demographics tracking and segmentation"
+        },
+        {
             "Column": "demographics_*",
             "Type": "various",
-            "Description": "Any demographic columns (age, gender, etc.)",
-            "Example": "age, gender, income_bracket",
-            "Use Case": "Segmentation and subgroup analysis"
+            "Description": "Any other demographic columns",
+            "Example": "income_bracket, education_level",
+            "Use Case": "Extended segmentation and analysis"
         },
     ])
 
     st.dataframe(optional_df, use_container_width=True, hide_index=True)
 
+    st.info("""
+    **Demographics System (v2.0+):** The pipeline tracks four standard demographic fields:
+    - `gender`, `age_group`, `persona_group`, `occupation`
+
+    These demographics are:
+    - Automatically included in all outputs (ground truth CSV, LLM distributions JSON, reports)
+    - Sampled from persona group distributions when generating synthetic responses
+    - Default to "Unknown" if not provided
+    - Fully backward compatible (optional fields)
+    """)
+
     # Example data
     st.markdown("---")
     st.subheader(" Example Ground Truth Data")
 
-    example_gt = pd.DataFrame([
-        {"respondent_id": "R001", "question_id": "recommend", "ground_truth": 5},
-        {"respondent_id": "R001", "question_id": "quality", "ground_truth": 5},
-        {"respondent_id": "R002", "question_id": "recommend", "ground_truth": 3},
-        {"respondent_id": "R002", "question_id": "quality", "ground_truth": 3},
-        {"respondent_id": "R003", "question_id": "recommend", "ground_truth": 2},
-        {"respondent_id": "R003", "question_id": "quality", "ground_truth": 2},
-    ])
+    col1, col2 = st.columns(2)
 
-    st.dataframe(example_gt, use_container_width=True, hide_index=True)
+    with col1:
+        st.markdown("**Basic (Required columns only)**")
+        example_gt_basic = pd.DataFrame([
+            {"respondent_id": "R001", "question_id": "recommend", "ground_truth": 5},
+            {"respondent_id": "R001", "question_id": "quality", "ground_truth": 5},
+            {"respondent_id": "R002", "question_id": "recommend", "ground_truth": 3},
+            {"respondent_id": "R002", "question_id": "quality", "ground_truth": 3},
+            {"respondent_id": "R003", "question_id": "recommend", "ground_truth": 2},
+            {"respondent_id": "R003", "question_id": "quality", "ground_truth": 2},
+        ])
+        st.dataframe(example_gt_basic, use_container_width=True, hide_index=True)
+
+    with col2:
+        st.markdown("**With Demographics (Optional)**")
+        example_gt_demographics = pd.DataFrame([
+            {"respondent_id": "R001", "question_id": "recommend", "ground_truth": 5, "gender": "Male", "age_group": "25-34", "occupation": "Professional"},
+            {"respondent_id": "R001", "question_id": "quality", "ground_truth": 5, "gender": "Male", "age_group": "25-34", "occupation": "Professional"},
+            {"respondent_id": "R002", "question_id": "recommend", "ground_truth": 3, "gender": "Female", "age_group": "35-44", "occupation": "Technical"},
+            {"respondent_id": "R002", "question_id": "quality", "ground_truth": 3, "gender": "Female", "age_group": "35-44", "occupation": "Technical"},
+            {"respondent_id": "R003", "question_id": "recommend", "ground_truth": 2, "gender": "Male", "age_group": "45-54", "occupation": "Service"},
+            {"respondent_id": "R003", "question_id": "quality", "ground_truth": 2, "gender": "Male", "age_group": "45-54", "occupation": "Service"},
+        ])
+        st.dataframe(example_gt_demographics, use_container_width=True, hide_index=True)
 
     # Data quality requirements
     st.markdown("---")
@@ -401,6 +455,12 @@ settings:
             "Description": "Context/stimulus information shown to respondents before questions"
         },
         {
+            "Field": "question_templates",
+            "Type": "dict",
+            "Required": "Optional (v2.0+)",
+            "Description": "Reusable question templates for standardized surveys"
+        },
+        {
             "Field": "questions",
             "Type": "list",
             "Required": " Required",
@@ -409,8 +469,14 @@ settings:
         {
             "Field": "personas",
             "Type": "object",
-            "Required": "Optional",
-            "Description": "Persona definitions for LLM generation"
+            "Required": "Optional (v1.0)",
+            "Description": "Simple persona descriptions for LLM generation"
+        },
+        {
+            "Field": "persona_groups",
+            "Type": "list",
+            "Required": "Optional (v2.0+)",
+            "Description": "Persona groups with demographics and weighted sampling"
         },
         {
             "Field": "settings",
@@ -514,15 +580,71 @@ settings:
         ```
         """)
 
+    # Question Templates section (NEW in v2.0)
+    st.markdown("---")
+    st.subheader(" Question Templates (Optional - v2.0+)")
+
+    st.markdown("""
+    **NEW in v2.0:** Define reusable question templates for standardized surveys (e.g., Kantar-style).
+    Templates reduce config file size by ~70% for repetitive questions.
+    """)
+
+    templates_yaml = """# Define templates once
+question_templates:
+  purchase_intent:
+    text: "How likely are you to purchase this product?"
+    type: likert_5
+    scale:
+      1: "Definitely will not buy"
+      2: "Probably will not buy"
+      3: "Might or might not buy"
+      4: "Probably will buy"
+      5: "Definitely will buy"
+
+  uniqueness:
+    text: "Is this product unique or different from others?"
+    type: likert_5
+    scale:
+      1: "Not at all unique"
+      2: "Slightly unique"
+      3: "Somewhat unique"
+      4: "Very unique"
+      5: "Extremely unique"
+
+# Use templates in questions
+questions:
+  - template: purchase_intent
+    id: q1_purchase_intent
+
+  - template: uniqueness
+    id: q2_uniqueness
+
+  # Can still override template values
+  - template: purchase_intent
+    id: q3_custom_purchase
+    text: "Would you buy this specific variant?"  # Override text
+"""
+
+    st.code(templates_yaml, language="yaml")
+
+    st.success("""
+    **Benefits of Templates:**
+    - DRY (Don't Repeat Yourself) - Define once, use many times
+    - 70% smaller config files for surveys with many similar questions
+    - Consistent wording across Kantar-style evaluation batteries
+    - Fully backward compatible (optional feature)
+    - Templates expand automatically at runtime
+    """)
+
     # Personas section
     st.markdown("---")
     st.subheader(" Personas Configuration (Optional)")
 
     st.markdown("""
-    Used for LLM-based response generation. Define diverse respondent profiles:
+    **v1.0 Style (Simple):** Used for LLM-based response generation. Define diverse respondent profiles:
     """)
 
-    personas_yaml = """personas:
+    personas_yaml_simple = """personas:
   mode: descriptions
   descriptions:
     - "A 35-year-old tech entrepreneur in San Francisco. High income, environmentally conscious."
@@ -531,11 +653,56 @@ settings:
     - "A 45-year-old small business owner. Pragmatic, family-oriented, moderate income."
 """
 
-    st.code(personas_yaml, language="yaml")
+    st.code(personas_yaml_simple, language="yaml")
+
+    st.markdown("**v2.0 Style (Persona Groups with Demographics):** Define weighted persona groups with target demographics:")
+
+    personas_yaml_groups = """persona_groups:
+  - name: "Tech-Savvy Young Professionals"
+    description: "Early adopters, high income, value innovation"
+    weight: 0.3  # 30% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["25-34", "35-44"]
+      occupation: ["Professional", "Technical"]
+    personas:
+      - "A 28-year-old software engineer. Values cutting-edge features and efficiency."
+      - "A 35-year-old product manager. Focuses on user experience and quality."
+
+  - name: "Budget-Conscious Families"
+    description: "Value seekers, practical, family-oriented"
+    weight: 0.4  # 40% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["35-44", "45-54"]
+      occupation: ["Service", "Sales"]
+    personas:
+      - "A 42-year-old parent. Prioritizes value for money and durability."
+      - "A 38-year-old homemaker. Careful shopper, researches before buying."
+
+  - name: "Retired Skeptics"
+    description: "Traditional, cautious, fixed income"
+    weight: 0.3  # 30% of sample
+    target_demographics:
+      gender: ["Male", "Female"]
+      age_group: ["55-64", "65+"]
+      occupation: ["Retired"]
+    personas:
+      - "A 68-year-old retiree. Skeptical of new products, needs convincing."
+      - "A 62-year-old soon-to-retire. Conservative spending habits."
+"""
+
+    st.code(personas_yaml_groups, language="yaml")
 
     st.info("""
     **Note:** Personas are only needed if you're using the LLM generation feature to create
     synthetic survey responses. If you already have ground truth data, you can omit this section.
+
+    **Persona Groups (v2.0+) enable:**
+    - Weighted sampling based on target population distributions
+    - Automatic demographic assignment (gender, age_group, occupation)
+    - More realistic synthetic survey populations
+    - Demographics tracked throughout pipeline and included in all outputs
     """)
 
 # ======================
@@ -605,12 +772,16 @@ elif section == " Output Data Formats":
       "entropy": 1.52,
       "text_response": "I think this product is pretty good overall.",
       "ground_truth_rating": 4,
-      "similarities": [0.72, 0.78, 0.85, 0.91, 0.82]
+      "similarities": [0.72, 0.78, 0.85, 0.91, 0.82],
+      "gender": "Male",
+      "age_group": "25-34",
+      "persona_group": "Tech-Savvy Young Professionals",
+      "occupation": "Professional"
     }
   }
 }
 
-// Example with real data:
+// Example with real data (v2.0+ with demographics):
 {
   "R001": {
     "recommend": {
@@ -620,7 +791,11 @@ elif section == " Output Data Formats":
       "entropy": 1.31,
       "text_response": "Absolutely love it! Would definitely recommend.",
       "ground_truth_rating": 5,
-      "similarities": [0.65, 0.71, 0.78, 0.87, 0.93]
+      "similarities": [0.65, 0.71, 0.78, 0.87, 0.93],
+      "gender": "Male",
+      "age_group": "25-34",
+      "persona_group": "Tech-Savvy Young Professionals",
+      "occupation": "Professional"
     },
     "quality": {
       "distribution": [0.05, 0.12, 0.28, 0.38, 0.17],
@@ -629,7 +804,11 @@ elif section == " Output Data Formats":
       "entropy": 1.45,
       "text_response": "Quality is good, no major issues.",
       "ground_truth_rating": 4,
-      "similarities": [0.68, 0.74, 0.82, 0.88, 0.79]
+      "similarities": [0.68, 0.74, 0.82, 0.88, 0.79],
+      "gender": "Male",
+      "age_group": "25-34",
+      "persona_group": "Tech-Savvy Young Professionals",
+      "occupation": "Professional"
     }
   }
 }
@@ -682,6 +861,30 @@ elif section == " Output Data Formats":
             "Type": "array[float]",
             "Description": "Raw cosine similarities before normalization",
             "Example": "[0.72, 0.78, 0.85, 0.91, 0.82]"
+        },
+        {
+            "Field": "gender",
+            "Type": "string",
+            "Description": "Gender category (v2.0+ optional)",
+            "Example": "Male"
+        },
+        {
+            "Field": "age_group",
+            "Type": "string",
+            "Description": "Age range category (v2.0+ optional)",
+            "Example": "25-34"
+        },
+        {
+            "Field": "persona_group",
+            "Type": "string",
+            "Description": "Named persona segment (v2.0+ optional)",
+            "Example": "Tech-Savvy Young Professionals"
+        },
+        {
+            "Field": "occupation",
+            "Type": "string",
+            "Description": "Occupation category (v2.0+ optional)",
+            "Example": "Professional"
         },
     ])
 

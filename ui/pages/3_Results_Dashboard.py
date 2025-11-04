@@ -300,36 +300,25 @@ if n_questions <= questions_per_chart:
     fig_accuracy = go.Figure()
 
     fig_accuracy.add_trace(go.Bar(
-        name='Ground Truth (Mode)',
-        x=question_ids,
-        y=human_accuracies,
-        marker_color=brand_colors['teal_blue'],
-        text=[f"{v:.1f}%" for v in human_accuracies],
-        textposition='outside',
-        textfont=dict(size=11, color=brand_colors['teal_blue'], family='Arial Black'),
-        hovertemplate='Ground Truth: %{y:.1f}%<extra></extra>'
-    ))
-
-    fig_accuracy.add_trace(go.Bar(
-        name='LLM Mode Accuracy',
+        name='Mode Accuracy',
         x=question_ids,
         y=llm_accuracies,
-        marker_color=brand_colors['atomic_orange'],
+        marker_color=brand_colors['cornflower_blue'],
         text=[f"{v:.1f}%" for v in llm_accuracies],
         textposition='outside',
-        textfont=dict(size=11, color=brand_colors['atomic_orange'], family='Arial Black'),
+        textfont=dict(size=12, color=brand_colors['cornflower_blue'], family='Arial Black'),
         hovertemplate='Mode Accuracy: %{y:.1f}%<extra></extra>'
     ))
 
     fig_accuracy.add_trace(go.Bar(
-        name='LLM Expected Value (MAE-based)',
+        name='Expected Value Accuracy (MAE-based)',
         x=question_ids,
         y=llm_mae_performance,
         marker_color=brand_colors['turquoise'],
         text=[f"{perf:.1f}%" for perf in llm_mae_performance],
         textposition='outside',
-        textfont=dict(size=11, color=brand_colors['turquoise'], family='Arial Black'),
-        hovertemplate='MAE Performance: %{y:.1f}%<br>Raw MAE: %{customdata:.2f}<extra></extra>',
+        textfont=dict(size=12, color=brand_colors['turquoise'], family='Arial Black'),
+        hovertemplate='Expected Value: %{y:.1f}%<br>Raw MAE: %{customdata:.2f}<extra></extra>',
         customdata=llm_mae_values
     ))
 
@@ -366,42 +355,46 @@ else:
 
         # Get data for this chart
         chart_question_ids = question_ids[start_idx:end_idx]
-        chart_human_accuracies = human_accuracies[start_idx:end_idx]
         chart_llm_accuracies = llm_accuracies[start_idx:end_idx]
+        chart_llm_mae_performance = llm_mae_performance[start_idx:end_idx]
+        chart_llm_mae_values = llm_mae_values[start_idx:end_idx]
 
         # Create figure for this chunk
         fig_accuracy = go.Figure()
 
         fig_accuracy.add_trace(go.Bar(
-            name='Ground Truth',
+            name='Mode Accuracy',
             x=chart_question_ids,
-            y=chart_human_accuracies,
-            marker_color=brand_colors['teal_blue'],
-            text=[f"{v:.1f}%" for v in chart_human_accuracies],
+            y=chart_llm_accuracies,
+            marker_color=brand_colors['cornflower_blue'],
+            text=[f"{v:.1f}%" for v in chart_llm_accuracies],
             textposition='outside',
-            textfont=dict(size=12, color=brand_colors['teal_blue'], family='Arial Black')
+            textfont=dict(size=12, color=brand_colors['cornflower_blue'], family='Arial Black'),
+            hovertemplate='Mode Accuracy: %{y:.1f}%<extra></extra>'
         ))
 
         fig_accuracy.add_trace(go.Bar(
-            name='LLM+SSR',
+            name='Expected Value Accuracy (MAE-based)',
             x=chart_question_ids,
-            y=chart_llm_accuracies,
-            marker_color=brand_colors['atomic_orange'],
-            text=[f"{v:.1f}%" for v in chart_llm_accuracies],
+            y=chart_llm_mae_performance,
+            marker_color=brand_colors['turquoise'],
+            text=[f"{perf:.1f}%" for perf in chart_llm_mae_performance],
             textposition='outside',
-            textfont=dict(size=12, color=brand_colors['atomic_orange'], family='Arial Black')
+            textfont=dict(size=12, color=brand_colors['turquoise'], family='Arial Black'),
+            hovertemplate='Expected Value: %{y:.1f}%<br>Raw MAE: %{customdata:.2f}<extra></extra>',
+            customdata=chart_llm_mae_values
         ))
 
         fig_accuracy.update_layout(
             title=dict(
-                text=f'Mode Accuracy by Question (Q{start_idx+1}-Q{end_idx})',
+                text=f'Performance Comparison (Q{start_idx+1}-Q{end_idx})<br><sub>Mode Accuracy vs Expected Value (MAE-based)</sub>',
                 font=dict(size=20, family='Arial Black')
             ),
             xaxis_title='Question',
-            yaxis_title='Accuracy (%)',
+            yaxis_title='Performance (Higher = Better)',
             barmode='group',
-            height=500,
-            yaxis=dict(range=[0, 110]),
+            height=550,
+            yaxis=dict(range=[0, 115]),
             legend=dict(
                 orientation="h",
                 yanchor="bottom",
@@ -417,6 +410,9 @@ else:
         # Add spacing between charts (except after the last one)
         if chart_idx < n_charts - 1:
             st.markdown("<br>", unsafe_allow_html=True)
+
+    # Add caption after all charts
+    st.caption("**Note:** MAE-based performance = (1 - MAE/5) × 100%. Shows how well the expected value prediction performs (considering full probability distribution).")
 
 st.markdown("---")
 
@@ -672,7 +668,7 @@ st.dataframe(styled_df, use_container_width=True, hide_index=True)
 st.markdown("---")
 st.header("Download Reports")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     # Download text report
@@ -682,7 +678,7 @@ with col1:
             txt_content = f.read()
 
         st.download_button(
-            label=" Download Text Report",
+            label="Download Text Report",
             data=txt_content,
             file_name=f"report_{exp_info['timestamp']}.txt",
             mime="text/plain",
@@ -699,7 +695,7 @@ with col2:
             md_content = f.read()
 
         st.download_button(
-            label=" Download Markdown Report",
+            label="Download Markdown Report",
             data=md_content,
             file_name=f"report_{exp_info['timestamp']}.md",
             mime="text/markdown",
@@ -716,7 +712,7 @@ with col3:
         csv_content = gt_df.to_csv(index=False)
 
         st.download_button(
-            label=" Download Ground Truth CSV",
+            label="Download Ground Truth CSV",
             data=csv_content,
             file_name=f"ground_truth_{exp_info['timestamp']}.csv",
             mime="text/csv",
@@ -724,3 +720,49 @@ with col3:
         )
     else:
         st.warning("Ground truth CSV not available")
+
+with col4:
+    # Download LLM responses CSV
+    llm_file = selected_exp_path / 'llm_distributions.json'
+    if llm_file.exists():
+        import json
+
+        with open(llm_file, 'r') as f:
+            llm_data = json.load(f)
+
+        # Convert JSON to CSV format
+        llm_rows = []
+        for question_id, respondents in llm_data.items():
+            for respondent_id, data in respondents.items():
+                row = {
+                    'respondent_id': respondent_id,
+                    'question_id': question_id,
+                    'ground_truth': data.get('ground_truth'),
+                    'mode': data.get('mode'),
+                    'expected_value': data.get('expected_value'),
+                    'entropy': data.get('entropy'),
+                    'gender': data.get('gender'),
+                    'age_group': data.get('age_group'),
+                    'persona_group': data.get('persona_group'),
+                    'occupation': data.get('occupation')
+                }
+
+                # Add probability columns
+                probs = data.get('probabilities', [])
+                for i, prob in enumerate(probs, 1):
+                    row[f'prob_{i}'] = prob
+
+                llm_rows.append(row)
+
+        llm_df = pd.DataFrame(llm_rows)
+        llm_csv_content = llm_df.to_csv(index=False)
+
+        st.download_button(
+            label="Download LLM Responses CSV",
+            data=llm_csv_content,
+            file_name=f"llm_responses_{exp_info['timestamp']}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+    else:
+        st.warning("LLM responses not available")

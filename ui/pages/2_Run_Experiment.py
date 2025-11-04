@@ -204,12 +204,15 @@ if selected_survey:
                 st.markdown(f"*{q.get('text')}*")
 
                 # Show scale/options
+                q_type = q.get('type', '')
                 if 'scale' in q:
                     scale_preview = ", ".join([f"{k}: {v}" for k, v in q['scale'].items()])
                     st.caption(f"Scale: {scale_preview}")
                 elif 'options' in q:
                     options_preview = ", ".join(q['options'])
                     st.caption(f"Options: {options_preview}")
+                elif q_type == 'yes_no':
+                    st.caption("Options: No, Yes")
 
                 st.markdown("---")
 
@@ -274,27 +277,69 @@ used in human ground truth data collection.
 
 # Load personas from survey config (if survey was loaded)
 if selected_survey and survey_config and 'survey' in survey_config:
-    survey_personas = survey_config['survey'].get('personas', [])
+    # Support both v1.0 (personas) and v2.0 (persona_groups) formats
+    survey_personas = []
+    persona_groups_config = survey_config['survey'].get('persona_groups', [])
 
-    if survey_personas:
-        # Show persona pool from config
-        with st.expander(f" Persona Pool from Config ({len(survey_personas)} personas)", expanded=False):
-            st.markdown("**Personas defined in survey config:**")
-            for i, persona in enumerate(survey_personas, 1):
-                st.markdown(f"{i}. {persona}")
+    if persona_groups_config:
+        # v2.0 format: extract personas from persona groups
+        for group in persona_groups_config:
+            if 'personas' in group:
+                survey_personas.extend(group['personas'])
 
-            st.info(f"Edit {selected_survey} to modify personas")
+        if survey_personas:
+            # Show persona groups from config
+            with st.expander(f" Persona Groups from Config ({len(persona_groups_config)} groups, {len(survey_personas)} personas)", expanded=False):
+                st.markdown("**Persona groups defined in survey config (v2.0+):**")
+                for i, group in enumerate(persona_groups_config, 1):
+                    st.markdown(f"**{i}. {group['name']}** (weight: {group.get('weight', 0):.0%})")
+                    st.markdown(f"   *{group.get('description', '')}*")
+                    if 'target_demographics' in group:
+                        demo = group['target_demographics']
+                        st.markdown(f"   Demographics: {', '.join([f'{k}: {v}' for k, v in demo.items()])}")
+                    st.markdown(f"   Personas: {len(group['personas'])}")
+                    for persona in group['personas']:
+                        st.markdown(f"   - {persona}")
+                    st.markdown("")
 
-        # Show current configuration summary
-        st.markdown("**Current Configuration:**")
-        col1, col2 = st.columns(2)
+                st.info(f"Edit {selected_survey} to modify persona groups")
 
-        with col1:
-            st.metric("Persona Pool Size", len(survey_personas))
+            # Show current configuration summary
+            st.markdown("**Current Configuration:**")
+            col1, col2, col3 = st.columns(3)
 
-        with col2:
-            st.metric("Selection Method", "Random")
+            with col1:
+                st.metric("Persona Groups", len(persona_groups_config))
+
+            with col2:
+                st.metric("Total Personas", len(survey_personas))
+
+            with col3:
+                st.metric("Demographics", "Tracked")
     else:
+        # v1.0 format: simple personas list
+        survey_personas = survey_config['survey'].get('personas', [])
+
+        if survey_personas:
+            # Show persona pool from config
+            with st.expander(f" Persona Pool from Config ({len(survey_personas)} personas)", expanded=False):
+                st.markdown("**Personas defined in survey config:**")
+                for i, persona in enumerate(survey_personas, 1):
+                    st.markdown(f"{i}. {persona}")
+
+                st.info(f"Edit {selected_survey} to modify personas")
+
+            # Show current configuration summary
+            st.markdown("**Current Configuration:**")
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric("Persona Pool Size", len(survey_personas))
+
+            with col2:
+                st.metric("Selection Method", "Random")
+
+    if not survey_personas:
         warning_message("No personas defined in survey config. Using default personas.")
 
 # ======================
