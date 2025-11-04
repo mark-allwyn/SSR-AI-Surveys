@@ -62,6 +62,5 @@ htmlcov/
 .Trash-*
 ~$*
 
-# Claude Code files (except commands)
-.claude/*
-!.claude/commands/
+# Claude Code files
+.claude/
