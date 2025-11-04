@@ -24,11 +24,19 @@ class RespondentProfile:
     """Profile for a simulated survey respondent."""
     description: str
     respondent_id: str = None
+    gender: str = "Unknown"
+    age_group: str = "Unknown"
+    persona_group: str = "General"
+    occupation: str = "Unknown"
 
     def to_dict(self) -> Dict:
         return {
             'description': self.description,
-            'respondent_id': self.respondent_id
+            'respondent_id': self.respondent_id,
+            'gender': self.gender,
+            'age_group': self.age_group,
+            'persona_group': self.persona_group,
+            'occupation': self.occupation
         }
 
 
@@ -167,28 +175,67 @@ class LLMClient:
 
 def generate_diverse_profiles(
     n_profiles: int = 100,
-    persona_config: Optional[Dict] = None
+    persona_config: Optional[Dict] = None,
+    persona_groups: Optional[List] = None
 ) -> List[RespondentProfile]:
     """
     Generate diverse respondent profiles for survey simulation.
 
     Args:
         n_profiles: Number of profiles to generate
-        persona_config: Optional configuration dict
+        persona_config: Optional configuration dict (legacy support)
                        Format: {
                            'mode': 'descriptions',
                            'descriptions': ['persona 1 description', 'persona 2 description', ...]
                        }
+        persona_groups: Optional list of PersonaGroup objects from Survey
 
     Returns:
-        List of RespondentProfile objects
+        List of RespondentProfile objects with demographics
     """
     import random
 
     profiles = []
 
-    # Use description-based personas
-    if persona_config and persona_config.get('mode') == 'descriptions':
+    # NEW: Use persona_groups if available (preferred method)
+    if persona_groups and len(persona_groups) > 0:
+        # Calculate how many profiles per group based on weights
+        total_weight = sum(pg.weight for pg in persona_groups)
+        group_allocations = []
+
+        for pg in persona_groups:
+            proportion = pg.weight / total_weight
+            count = int(n_profiles * proportion)
+            group_allocations.append((pg, count))
+
+        # Adjust for rounding errors
+        allocated = sum(count for _, count in group_allocations)
+        if allocated < n_profiles:
+            group_allocations[0] = (group_allocations[0][0], group_allocations[0][1] + (n_profiles - allocated))
+
+        # Generate profiles for each group
+        profile_idx = 0
+        for persona_group, count in group_allocations:
+            for _ in range(count):
+                # Select random persona from this group
+                persona_description = random.choice(persona_group.personas)
+
+                # Sample demographics from target distribution
+                demographics = persona_group.sample_demographics()
+
+                profile = RespondentProfile(
+                    description=persona_description,
+                    respondent_id=f"R{profile_idx+1:03d}",
+                    gender=demographics['gender'],
+                    age_group=demographics['age_group'],
+                    persona_group=persona_group.name,
+                    occupation=demographics['occupation']
+                )
+                profiles.append(profile)
+                profile_idx += 1
+
+    # LEGACY: Use description-based personas (backward compatibility)
+    elif persona_config and persona_config.get('mode') == 'descriptions':
         descriptions = persona_config.get('descriptions', [])
 
         if not descriptions:
@@ -210,7 +257,7 @@ def generate_diverse_profiles(
             )
             profiles.append(profile)
     else:
-        # Fallback: use default descriptions
+        # Fallback: use default descriptions (backward compatibility)
         descriptions = [
             "A 35-year-old tech entrepreneur. High income, environmentally conscious.",
             "A retired teacher on fixed income. Cautious about change.",

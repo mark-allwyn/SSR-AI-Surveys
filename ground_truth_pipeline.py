@@ -37,7 +37,7 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
 
     For description-based personas, generates realistic varied distributions.
 
-    Returns DataFrame with columns: respondent_id, question_id, ground_truth
+    Returns DataFrame with columns: respondent_id, question_id, ground_truth, gender, age_group, persona_group, occupation
     """
     np.random.seed(seed)
 
@@ -45,6 +45,12 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
 
     for i, profile in enumerate(profiles):
         respondent_id = f"R{i+1:03d}"
+
+        # Extract demographics from profile
+        gender = profile.gender if hasattr(profile, 'gender') else "Unknown"
+        age_group = profile.age_group if hasattr(profile, 'age_group') else "Unknown"
+        persona_group = profile.persona_group if hasattr(profile, 'persona_group') else "General"
+        occupation = profile.occupation if hasattr(profile, 'occupation') else "Unknown"
 
         # For description-based personas, use hash of description to determine tendency
         # This ensures same persona gets consistent tendency across runs
@@ -101,7 +107,11 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
             records.append({
                 'respondent_id': respondent_id,
                 'question_id': question.id,
-                'ground_truth': ground_truth
+                'ground_truth': ground_truth,
+                'gender': gender,
+                'age_group': age_group,
+                'persona_group': persona_group,
+                'occupation': occupation
             })
 
     return pd.DataFrame(records)
@@ -275,14 +285,24 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
     # 3. Generate respondent profiles based on actual sample size
     print(f"\n[3/8] Generating {n_respondents} respondent profiles...")
 
-    # Use personas from survey config if available
-    if survey.personas:
+    # Prefer persona_groups if available, otherwise fall back to personas
+    if survey.persona_groups:
+        print(f"    ✓ Using {len(survey.persona_groups)} persona groups with demographics")
+        profiles = generate_diverse_profiles(n_respondents, persona_groups=survey.persona_groups)
+        # Display demographic distribution
+        for pg in survey.persona_groups:
+            print(f"      - {pg.name}: {pg.description}")
+    elif survey.personas:
+        print(f"    ✓ Using {len(survey.personas)} personas (legacy mode, no demographics)")
         if not persona_config:
             persona_config = {}
         persona_config['mode'] = 'descriptions'
         persona_config['descriptions'] = survey.personas
+        profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
+    else:
+        print("    ✓ Using default profiles")
+        profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
 
-    profiles = generate_diverse_profiles(n_respondents, persona_config=persona_config)
     print(f"    ✓ Generated {len(profiles)} profiles")
 
     # 4. Generate artificial ground truth if needed
@@ -382,21 +402,36 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
         if question_id not in distributions_data:
             distributions_data[question_id] = {}
 
-        # Get ground truth for this respondent/question
-        gt_value = ground_truth_df[
+        # Get ground truth and demographics for this respondent/question
+        gt_row = ground_truth_df[
             (ground_truth_df['respondent_id'] == respondent_id) &
             (ground_truth_df['question_id'] == question_id)
-        ]['ground_truth'].values[0] if len(ground_truth_df[
-            (ground_truth_df['respondent_id'] == respondent_id) &
-            (ground_truth_df['question_id'] == question_id)
-        ]) > 0 else None
+        ]
+
+        gt_value = None
+        gender = "Unknown"
+        age_group = "Unknown"
+        persona_group = "General"
+        occupation = "Unknown"
+
+        if len(gt_row) > 0:
+            gt_value = gt_row['ground_truth'].values[0]
+            # Extract demographics with backward compatibility
+            gender = gt_row['gender'].values[0] if 'gender' in gt_row.columns else "Unknown"
+            age_group = gt_row['age_group'].values[0] if 'age_group' in gt_row.columns else "Unknown"
+            persona_group = gt_row['persona_group'].values[0] if 'persona_group' in gt_row.columns else "General"
+            occupation = gt_row['occupation'].values[0] if 'occupation' in gt_row.columns else "Unknown"
 
         distributions_data[question_id][respondent_id] = {
             'probabilities': dist.distribution.tolist(),
             'ground_truth': int(gt_value) if gt_value is not None else None,
             'mode': int(dist.mode),
             'expected_value': float(dist.expected_value),
-            'entropy': float(dist.entropy)
+            'entropy': float(dist.entropy),
+            'gender': gender,
+            'age_group': age_group,
+            'persona_group': persona_group,
+            'occupation': occupation
         }
 
     dist_path = experiment_dir / 'llm_distributions.json'

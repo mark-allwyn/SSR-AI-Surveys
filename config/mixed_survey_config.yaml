@@ -72,17 +72,58 @@ survey:
 
   demographics:
     - age_group
-    - income_bracket
-    - lottery_playing_frequency
-    - gambling_attitude
+    - gender
+    - occupation
+    - persona_group
 
-  # Persona descriptions for generating LLM responses
-  # These match the personas used in human ground truth collection
-  personas:
-    - "A 35-year-old tech entrepreneur in San Francisco. Values innovation and efficiency. Early adopter of new technology. High income, plays lottery occasionally for fun."
-    - "A 68-year-old retired teacher living in rural Iowa. Fixed income, cautious about online payments. Never played lottery online before."
-    - "A 28-year-old graduate student. Very budget-conscious. Plays lottery weekly at convenience store. Interested in mobile apps."
-    - "A 45-year-old small business owner in suburban Texas. Moderate income, family-oriented. Plays lottery when jackpot is high."
-    - "A 52-year-old nurse in an urban hospital. Middle income, works long hours. Likes convenience of automated services."
+  # Persona groups with demographic distributions
+  persona_groups:
+    - name: "Tech-Savvy Young Professionals"
+      description: "Early adopters comfortable with digital payments and mobile apps"
+      weight: 0.3
+      target_demographics:
+        gender: ["Male", "Female", "Non-binary"]
+        age_group: ["25-34", "35-44"]
+        occupation: ["Professional", "Technical", "Manager"]
+      personas:
+        - "A tech entrepreneur who values innovation and efficiency. Early adopter of new technology. Plays lottery occasionally for fun."
+        - "A software developer interested in mobile apps. Budget-conscious but tech-savvy. Plays lottery weekly."
+        - "A product manager at a startup. Values convenience and automation. Moderate lottery player."
+
+    - name: "Cautious Seniors"
+      description: "Older adults on fixed income, wary of online payments"
+      weight: 0.2
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["55-64", "65+"]
+        occupation: ["Retired", "Professional"]
+      personas:
+        - "A retired teacher living in a rural area. Fixed income, cautious about online payments. Never played lottery online before."
+        - "A retired nurse concerned about financial security. Prefers traditional lottery purchases but open to trying new methods."
+        - "A semi-retired small business owner. Conservative with money. Plays lottery occasionally."
+
+    - name: "Budget-Conscious Millennials"
+      description: "Younger adults watching spending, interested in convenience"
+      weight: 0.25
+      target_demographics:
+        gender: ["Male", "Female", "Non-binary"]
+        age_group: ["25-34", "35-44"]
+        occupation: ["Student", "Service", "Administrative"]
+      personas:
+        - "A graduate student on a tight budget. Plays lottery weekly at convenience store. Very interested in mobile apps."
+        - "A retail worker who plays lottery hoping for a big win. Budget-conscious but likes automated features."
+        - "An administrative assistant interested in subscription services. Moderate lottery player."
+
+    - name: "Middle-Income Families"
+      description: "Family-oriented adults with moderate income"
+      weight: 0.25
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["35-44", "45-54"]
+        occupation: ["Manager", "Professional", "Self-employed"]
+      personas:
+        - "A small business owner in the suburbs. Moderate income, family-oriented. Plays lottery when jackpot is high."
+        - "A middle manager at a corporation. Works long hours, values convenience. Occasional lottery player."
+        - "A self-employed consultant. Pragmatic about spending. Plays lottery for entertainment."
 
   sample_size: 50

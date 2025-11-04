@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 import yaml
 from pathlib import Path
+from src.demographics import Gender, validate_age_group, validate_occupation, format_demographic_profile
 
 
 @dataclass
@@ -23,6 +24,76 @@ class LikertScale:
     @property
     def num_points(self) -> int:
         return len(self.labels)
+
+
+@dataclass
+class Respondent:
+    """Represents a survey respondent with demographic information."""
+    respondent_id: str
+    gender: str = "Unknown"
+    age_group: str = "Unknown"
+    persona_group: str = "General"
+    occupation: str = "Unknown"
+
+    def __post_init__(self):
+        """Validate demographic fields."""
+        self.age_group = validate_age_group(self.age_group)
+        self.occupation = validate_occupation(self.occupation)
+
+    def to_dict(self) -> Dict:
+        """Convert to dictionary format."""
+        return {
+            'respondent_id': self.respondent_id,
+            'gender': self.gender,
+            'age_group': self.age_group,
+            'persona_group': self.persona_group,
+            'occupation': self.occupation
+        }
+
+    def format_profile(self) -> str:
+        """Format demographic information for LLM prompts."""
+        return format_demographic_profile(self.gender, self.age_group, self.occupation)
+
+
+@dataclass
+class PersonaGroup:
+    """Represents a persona group with target demographics."""
+    name: str
+    description: str
+    personas: List[str]
+    target_demographics: Dict[str, List] = field(default_factory=dict)
+    weight: float = 1.0  # Relative weight for sampling
+
+    def sample_demographics(self) -> Dict[str, str]:
+        """
+        Sample demographics based on target distribution.
+
+        Returns:
+            Dictionary with 'gender', 'age_group', 'occupation'
+        """
+        import random
+
+        demographics = {}
+
+        # Sample gender
+        if 'gender' in self.target_demographics:
+            demographics['gender'] = random.choice(self.target_demographics['gender'])
+        else:
+            demographics['gender'] = "Unknown"
+
+        # Sample age_group
+        if 'age_group' in self.target_demographics:
+            demographics['age_group'] = random.choice(self.target_demographics['age_group'])
+        else:
+            demographics['age_group'] = "Unknown"
+
+        # Sample occupation
+        if 'occupation' in self.target_demographics:
+            demographics['occupation'] = random.choice(self.target_demographics['occupation'])
+        else:
+            demographics['occupation'] = "Unknown"
+
+        return demographics
 
 
 @dataclass
@@ -66,6 +137,7 @@ class Survey:
     questions: List[Question]
     demographics: List[str] = field(default_factory=list)
     personas: List[str] = field(default_factory=list)
+    persona_groups: List[PersonaGroup] = field(default_factory=list)
     sample_size: int = 100
 
     @classmethod
@@ -115,6 +187,19 @@ class Survey:
 
             questions.append(question)
 
+        # Parse persona_groups if present
+        persona_groups = []
+        if 'persona_groups' in survey_config:
+            for pg_config in survey_config['persona_groups']:
+                persona_group = PersonaGroup(
+                    name=pg_config['name'],
+                    description=pg_config.get('description', ''),
+                    personas=pg_config.get('personas', []),
+                    target_demographics=pg_config.get('target_demographics', {}),
+                    weight=pg_config.get('weight', 1.0)
+                )
+                persona_groups.append(persona_group)
+
         return cls(
             name=survey_config['name'],
             description=survey_config['description'],
@@ -122,6 +207,7 @@ class Survey:
             questions=questions,
             demographics=survey_config.get('demographics', []),
             personas=survey_config.get('personas', []),
+            persona_groups=persona_groups,
             sample_size=survey_config.get('sample_size', 100)
         )
 
