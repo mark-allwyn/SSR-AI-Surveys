@@ -16,7 +16,6 @@ S.A.G.E (Survey Analytics and Generation Engine) is a comprehensive platform for
 - ✅ **Experiment organization**: Timestamped folders keep all experiment results organized
 - ✅ **Live Demo Mode**: Test SSR on individual responses in real-time
 - ✅ **Survey Management**: Create and manage custom surveys via YAML configuration
-- ✅ **Kantar Question Templates (v2.0)**: Reusable templates for standardized surveys (70% smaller config files)
 - ✅ **Demographics System (v2.0)**: Track gender, age_group, persona_group, and occupation throughout pipeline
 - ✅ **Persona Groups (v2.0)**: Weighted sampling with target demographic distributions
 
@@ -126,12 +125,12 @@ ssr_pipeline/
 ├── ground_truth_pipeline.py          # Main pipeline script
 │
 ├── config/                           # Survey configurations
-│   ├── mixed_survey_config.yaml      # Lottery gaming survey (6 questions)
-│   └── kantar_lottery_survey.yaml    # Kantar template example (v2.0+)
+│   ├── mixed_survey_config.yaml      # Example survey (6 questions)
+│   └── kantar_lottery_survey.yaml    # Kantar-style survey example
 │
 ├── src/                              # Core modules
 │   ├── __init__.py
-│   ├── survey.py                     # Survey + templates + persona groups
+│   ├── survey.py                     # Survey + persona groups
 │   ├── llm_client.py                 # Response generation and profiles
 │   ├── ssr_model.py                  # SSR implementation (paper-exact)
 │   ├── ground_truth.py               # Evaluation metrics
@@ -139,9 +138,8 @@ ssr_pipeline/
 │   ├── report_generator.py           # PNG + TXT reports
 │   └── markdown_report.py            # Markdown reports
 │
-├── docs/                             # Documentation (v2.0+)
-│   ├── KANTAR_INTEGRATION_PHASE1.md  # Template system guide
-│   └── KANTAR_STANDARD_TEMPLATES.md  # Template reference
+├── docs/                             # Documentation
+│   └── UI_REFACTORING_PLAN.md        # UI enhancement roadmap
 │
 ├── ui/                               # Streamlit web interface
 │   ├── 1_Home.py                     # Main dashboard
@@ -799,97 +797,7 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
 
 ---
 
-## Using Kantar Question Templates (v2.0+)
-
-### What are Question Templates?
-
-For surveys with repetitive question patterns (like Kantar-style evaluation batteries), templates reduce config file size by ~70% while ensuring consistency.
-
-### Example: Standardized Kantar Survey
-
-**Without templates** (verbose, ~500 lines):
-```yaml
-questions:
-  - id: q1_purchase_intent
-    text: "How likely are you to purchase this product?"
-    type: likert_5
-    scale:
-      1: "Definitely will not buy"
-      2: "Probably will not buy"
-      3: "Might or might not buy"
-      4: "Probably will buy"
-      5: "Definitely will buy"
-
-  - id: q2_purchase_intent
-    text: "How likely are you to purchase this product?"
-    type: likert_5
-    scale:
-      1: "Definitely will not buy"
-      # ... same scale repeated ...
-```
-
-**With templates** (concise, ~150 lines):
-```yaml
-survey:
-  question_templates:
-    purchase_intent:
-      text: "How likely are you to purchase this product?"
-      type: likert_5
-      scale:
-        1: "Definitely will not buy"
-        2: "Probably will not buy"
-        3: "Might or might not buy"
-        4: "Probably will buy"
-        5: "Definitely will buy"
-
-    uniqueness:
-      text: "Is this product unique or different from others?"
-      type: likert_5
-      scale:
-        1: "Not at all unique"
-        2: "Slightly unique"
-        3: "Somewhat unique"
-        4: "Very unique"
-        5: "Extremely unique"
-
-  questions:
-    - template: purchase_intent
-      id: q1_purchase_intent
-
-    - template: uniqueness
-      id: q2_uniqueness
-
-    # Can override template values
-    - template: purchase_intent
-      id: q3_custom
-      text: "Would you buy this specific variant?"
-```
-
-### Built-in Kantar Templates
-
-S.A.G.E includes 10 standard Kantar evaluation templates:
-- `purchase_intent` - Purchase likelihood
-- `uniqueness` - Product differentiation
-- `value_for_money` - Price perception
-- `likeability` - Appeal/attraction
-- `relevance` - Personal relevance
-- `excitement` - Excitement generation
-- `believability` - Claim credibility
-- `understanding` - Message clarity
-- `trust` - Brand trust
-- `recommendation` - Recommendation intent
-
-See `config/kantar_lottery_survey.yaml` for complete example and `docs/KANTAR_STANDARD_TEMPLATES.md` for reference.
-
-### Template Benefits
-
-✅ **DRY Principle**: Define once, use many times
-✅ **Consistency**: Ensure identical wording across question batteries
-✅ **Maintainability**: Update template = update all questions
-✅ **Smaller files**: 70% reduction in config size
-✅ **Backward compatible**: Existing surveys work unchanged
-
-### Using Persona Groups with Demographics (v2.0+)
+## Using Persona Groups with Demographics (v2.0+)
 
 Create realistic synthetic populations with demographic tracking:
 

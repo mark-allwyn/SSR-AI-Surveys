@@ -455,12 +455,6 @@ settings:
             "Description": "Context/stimulus information shown to respondents before questions"
         },
         {
-            "Field": "question_templates",
-            "Type": "dict",
-            "Required": "Optional (v2.0+)",
-            "Description": "Reusable question templates for standardized surveys"
-        },
-        {
             "Field": "questions",
             "Type": "list",
             "Required": " Required",
@@ -579,62 +573,6 @@ settings:
           6: "Excellent"
         ```
         """)
-
-    # Question Templates section (NEW in v2.0)
-    st.markdown("---")
-    st.subheader(" Question Templates (Optional - v2.0+)")
-
-    st.markdown("""
-    **NEW in v2.0:** Define reusable question templates for standardized surveys (e.g., Kantar-style).
-    Templates reduce config file size by ~70% for repetitive questions.
-    """)
-
-    templates_yaml = """# Define templates once
-question_templates:
-  purchase_intent:
-    text: "How likely are you to purchase this product?"
-    type: likert_5
-    scale:
-      1: "Definitely will not buy"
-      2: "Probably will not buy"
-      3: "Might or might not buy"
-      4: "Probably will buy"
-      5: "Definitely will buy"
-
-  uniqueness:
-    text: "Is this product unique or different from others?"
-    type: likert_5
-    scale:
-      1: "Not at all unique"
-      2: "Slightly unique"
-      3: "Somewhat unique"
-      4: "Very unique"
-      5: "Extremely unique"
-
-# Use templates in questions
-questions:
-  - template: purchase_intent
-    id: q1_purchase_intent
-
-  - template: uniqueness
-    id: q2_uniqueness
-
-  # Can still override template values
-  - template: purchase_intent
-    id: q3_custom_purchase
-    text: "Would you buy this specific variant?"  # Override text
-"""
-
-    st.code(templates_yaml, language="yaml")
-
-    st.success("""
-    **Benefits of Templates:**
-    - DRY (Don't Repeat Yourself) - Define once, use many times
-    - 70% smaller config files for surveys with many similar questions
-    - Consistent wording across Kantar-style evaluation batteries
-    - Fully backward compatible (optional feature)
-    - Templates expand automatically at runtime
-    """)
 
     # Personas section
     st.markdown("---")
@@ -1148,10 +1086,10 @@ elif section == " Data Flow Diagram":
 # Section 6: Example Datasets
 # ======================
 elif section == " Example Datasets":
-    st.header(" Example Datasets & Templates")
+    st.header(" Example Datasets")
 
     st.markdown("""
-    Download these templates to get started quickly with your own data.
+    Download these examples to get started quickly with your own data.
     Each example demonstrates a different use case.
     """)
 
@@ -1265,14 +1203,14 @@ questions:
     st.success("""
     ###  Quick Start Guide
 
-    1. **Download** one of the template pairs above (CSV + YAML)
+    1. **Download** one of the example pairs above (CSV + YAML)
     2. **Modify** the CSV with your ground truth data (human Likert scale ratings only)
     3. **Update** the YAML with your question text and scale labels
     4. **Upload** both files via the "Run Experiment" page
     5. The system will generate LLM text responses and apply SSR to predict ratings
     6. **View** comparison results (LLM+SSR vs. Ground Truth) in the Results Dashboard
 
-    ** Tip:** Start with the "Simple Product Feedback" template if you're new to SSR.
+    ** Tip:** Start with the "Simple Product Feedback" example if you're new to SSR.
     """)
 
     st.info("""
