@@ -1,0 +1,203 @@
+survey:
+  name: "Lottery Platform Comparison Study"
+  description: "Multi-category evaluation comparing online lottery platforms vs traditional retail lottery"
+
+  # Global context (optional - can be overridden by category-specific context)
+  context: |
+    We are conducting research on different ways people purchase lottery tickets.
+    Please consider both options carefully when answering the questions.
+
+  # Define product categories
+  categories:
+    - id: "online_platform"
+      name: "Online Lottery Platform"
+      description: "Digital subscription service for lottery games"
+      context: |
+        Online Lottery Platform Features:
+        - Automated ticket purchasing with recurring subscriptions
+        - Mobile app and web access available 24/7
+        - Monthly subscription: $9.99/month for unlimited plays
+        - Instant win notifications via push notifications
+        - Multiple games: Powerball, Mega Millions, state lotteries
+        - Auto-number selection or manual pick
+        - Secure digital payment and prize redemption
+
+    - id: "traditional_retail"
+      name: "Traditional Retail Lottery"
+      description: "In-person lottery ticket purchase at retail locations"
+      context: |
+        Traditional Retail Lottery Features:
+        - Physical tickets purchased at convenience stores, gas stations
+        - Pay per ticket: $2-5 per ticket depending on game
+        - Manual checking of results (newspapers, website, or in-store scanner)
+        - In-person prize claims at lottery office
+        - Paper tickets to fill out or quick pick at counter
+        - Cash or card payment at register
+        - Available during store hours
+
+  # Sample size
+  sample_size: 100
+
+  # Demographics to track
+  demographics:
+    - age_group
+    - gender
+    - occupation
+    - persona_group
+
+  # Questions
+  questions:
+    # ===== ONLINE PLATFORM QUESTIONS =====
+    - id: "online_purchase_intent"
+      text: "How likely are you to subscribe to this online lottery service?"
+      type: "likert_5"
+      category: "online_platform"
+      scale:
+        1: "Very unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very likely"
+
+    - id: "online_value"
+      text: "How would you rate the value for money of this service?"
+      type: "likert_5"
+      category: "online_platform"
+      scale:
+        1: "Very poor value"
+        2: "Poor value"
+        3: "Fair value"
+        4: "Good value"
+        5: "Excellent value"
+
+    - id: "online_trust"
+      text: "How much would you trust this online platform with your payment information?"
+      type: "likert_5"
+      category: "online_platform"
+      scale:
+        1: "Not at all trustworthy"
+        2: "Slightly trustworthy"
+        3: "Moderately trustworthy"
+        4: "Very trustworthy"
+        5: "Extremely trustworthy"
+
+    - id: "online_convenience"
+      text: "How convenient do you find this method of playing the lottery?"
+      type: "likert_5"
+      category: "online_platform"
+      scale:
+        1: "Very inconvenient"
+        2: "Inconvenient"
+        3: "Neutral"
+        4: "Convenient"
+        5: "Very convenient"
+
+    # ===== TRADITIONAL RETAIL QUESTIONS =====
+    - id: "retail_purchase_intent"
+      text: "How likely are you to purchase lottery tickets using this traditional method?"
+      type: "likert_5"
+      category: "traditional_retail"
+      scale:
+        1: "Very unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very likely"
+
+    - id: "retail_value"
+      text: "How would you rate the value for money of buying tickets this way?"
+      type: "likert_5"
+      category: "traditional_retail"
+      scale:
+        1: "Very poor value"
+        2: "Poor value"
+        3: "Fair value"
+        4: "Good value"
+        5: "Excellent value"
+
+    - id: "retail_trust"
+      text: "How much do you trust the traditional retail lottery system?"
+      type: "likert_5"
+      category: "traditional_retail"
+      scale:
+        1: "Not at all trustworthy"
+        2: "Slightly trustworthy"
+        3: "Moderately trustworthy"
+        4: "Very trustworthy"
+        5: "Extremely trustworthy"
+
+    - id: "retail_convenience"
+      text: "How convenient do you find buying lottery tickets at retail locations?"
+      type: "likert_5"
+      category: "traditional_retail"
+      scale:
+        1: "Very inconvenient"
+        2: "Inconvenient"
+        3: "Neutral"
+        4: "Convenient"
+        5: "Very convenient"
+
+    # ===== COMPARATIVE PREFERENCE QUESTION =====
+    - id: "platform_preference"
+      text: "Overall, how much would you prefer {online_platform} over {traditional_retail}?"
+      type: "preference_scale"
+      category: "comparison"
+      categories_compared: ["online_platform", "traditional_retail"]
+      scale:
+        1: "Strongly prefer traditional retail"
+        2: "Moderately prefer traditional retail"
+        3: "Slightly prefer traditional retail"
+        4: "No preference"
+        5: "Slightly prefer online platform"
+        6: "Moderately prefer online platform"
+        7: "Strongly prefer online platform"
+
+  # Persona groups with demographics
+  persona_groups:
+    - name: "Tech-Savvy Young Professionals"
+      description: "Early adopters, comfortable with digital platforms, high income"
+      weight: 0.25
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "35-44"]
+        occupation: ["Professional", "Technical", "Manager"]
+      personas:
+        - "A 28-year-old software developer who plays lottery occasionally, very comfortable with mobile apps and digital payments"
+        - "A 32-year-old marketing manager, early tech adopter, values convenience and time-saving solutions"
+        - "A 35-year-old financial analyst, plays lottery weekly, prefers automated systems"
+
+    - name: "Traditional Players - Middle Age"
+      description: "Regular lottery players, moderate tech comfort, value routine"
+      weight: 0.35
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["45-54", "55-64"]
+        occupation: ["Service", "Sales", "Skilled Trade"]
+      personas:
+        - "A 48-year-old retail manager who buys lottery tickets weekly at the same store, enjoys the ritual"
+        - "A 52-year-old electrician, plays lottery on payday, prefers physical tickets"
+        - "A 56-year-old nurse, occasional player, comfortable with smartphones but prefers in-person purchases"
+
+    - name: "Budget-Conscious Skeptics"
+      description: "Price-sensitive, cautious about subscriptions, occasional players"
+      weight: 0.25
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["35-44", "45-54"]
+        occupation: ["Administrative", "Service", "Other"]
+      personas:
+        - "A 38-year-old administrative assistant, plays lottery rarely, very careful with spending"
+        - "A 42-year-old parent with limited disposable income, skeptical of monthly subscriptions"
+        - "A 46-year-old customer service representative, prefers pay-as-you-go options"
+
+    - name: "Retired Traditional"
+      description: "Fixed income, not tech-savvy, strong preference for familiar methods"
+      weight: 0.15
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["65+"]
+        occupation: ["Retired"]
+      personas:
+        - "A 68-year-old retiree who plays lottery weekly at local convenience store, not comfortable with digital platforms"
+        - "A 72-year-old former teacher, enjoys social interaction at store, skeptical of online services"
+        - "A 70-year-old retired factory worker, plays lottery as part of weekly routine, prefers cash transactions"

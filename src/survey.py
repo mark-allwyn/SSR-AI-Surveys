@@ -97,17 +97,40 @@ class PersonaGroup:
 
 
 @dataclass
+class Category:
+    """Represents a product/service category in multi-category surveys."""
+    id: str
+    name: str
+    description: str = ""
+    context: str = ""
+
+    def format_context(self) -> str:
+        """Format category context for LLM prompts."""
+        if self.description and self.context:
+            return f"{self.name}: {self.description}\n{self.context}"
+        elif self.context:
+            return f"{self.name}: {self.context}"
+        elif self.description:
+            return f"{self.name}: {self.description}"
+        return self.name
+
+
+@dataclass
 class Question:
     """Represents a survey question."""
     id: str
     text: str
-    type: str  # "likert_5", "likert_7", "yes_no", "multiple_choice"
+    type: str  # "likert_5", "likert_7", "yes_no", "multiple_choice", "preference_scale"
     scale: Optional[LikertScale] = None
     options: Optional[List[str]] = None  # For multiple choice
+    category: Optional[str] = None  # Category ID this question belongs to
+    categories_compared: Optional[List[str]] = None  # For preference_scale questions
 
     def get_reference_statements(self) -> Dict[int, str]:
         """Get reference statements for semantic similarity rating."""
         if self.type.startswith("likert") and self.scale:
+            return self.scale.labels
+        elif self.type == "preference_scale" and self.scale:
             return self.scale.labels
         elif self.type == "yes_no":
             return {1: "No", 2: "Yes"}
@@ -121,11 +144,30 @@ class Question:
         """Get number of response options."""
         if self.type.startswith("likert") and self.scale:
             return self.scale.num_points
+        elif self.type == "preference_scale" and self.scale:
+            return self.scale.num_points
         elif self.type == "yes_no":
             return 2
         elif self.type == "multiple_choice" and self.options:
             return len(self.options)
         return 0
+
+    def is_comparative(self) -> bool:
+        """Check if this is a comparative preference question."""
+        return self.type == "preference_scale" and self.categories_compared is not None
+
+    def format_question_text(self, categories: Dict[str, 'Category']) -> str:
+        """
+        Format question text with category names substituted.
+
+        For comparative questions, replaces {category_id} placeholders with actual category names.
+        """
+        text = self.text
+        if self.categories_compared:
+            for cat_id in self.categories_compared:
+                if cat_id in categories:
+                    text = text.replace(f"{{{cat_id}}}", categories[cat_id].name)
+        return text
 
 
 @dataclass
@@ -139,6 +181,38 @@ class Survey:
     personas: List[str] = field(default_factory=list)
     persona_groups: List[PersonaGroup] = field(default_factory=list)
     sample_size: int = 100
+    categories: Optional[List[Category]] = None  # Multi-category support
+
+    def has_categories(self) -> bool:
+        """Check if this is a multi-category survey."""
+        return self.categories is not None and len(self.categories) > 0
+
+    def get_category_by_id(self, category_id: str) -> Optional[Category]:
+        """Retrieve a category by its ID."""
+        if not self.categories:
+            return None
+        for cat in self.categories:
+            if cat.id == category_id:
+                return cat
+        return None
+
+    def get_categories_dict(self) -> Dict[str, Category]:
+        """Get categories as a dictionary keyed by ID."""
+        if not self.categories:
+            return {}
+        return {cat.id: cat for cat in self.categories}
+
+    def get_questions_by_category(self, category_id: str) -> List[Question]:
+        """Get all questions for a specific category."""
+        return [q for q in self.questions if q.category == category_id]
+
+    def get_comparative_questions(self) -> List[Question]:
+        """Get all comparative preference questions."""
+        return [q for q in self.questions if q.is_comparative()]
+
+    def get_non_comparative_questions(self) -> List[Question]:
+        """Get all non-comparative questions."""
+        return [q for q in self.questions if not q.is_comparative()]
 
     @classmethod
     def from_config(cls, config_path: str) -> 'Survey':
@@ -153,6 +227,19 @@ class Survey:
 
         survey_config = config['survey']
 
+        # Parse categories (multi-category support)
+        categories = None
+        if 'categories' in survey_config:
+            categories = []
+            for cat_config in survey_config['categories']:
+                category = Category(
+                    id=cat_config['id'],
+                    name=cat_config['name'],
+                    description=cat_config.get('description', ''),
+                    context=cat_config.get('context', '')
+                )
+                categories.append(category)
+
         # Parse questions
         questions = []
         for q_config in survey_config['questions']:
@@ -162,11 +249,13 @@ class Survey:
             q_text = q_config['text']
             q_scale = q_config.get('scale')
             q_options = q_config.get('options')
+            q_category = q_config.get('category')  # NEW: Category assignment
+            q_categories_compared = q_config.get('categories_compared')  # NEW: For preference questions
 
             # Create Question object based on type
-            if q_type.startswith("likert"):
+            if q_type.startswith("likert") or q_type == "preference_scale":
                 if not q_scale:
-                    raise ValueError(f"Question {q_id}: likert questions must have a scale")
+                    raise ValueError(f"Question {q_id}: {q_type} questions must have a scale")
                 scale = LikertScale(
                     scale_type=q_type,
                     labels=q_scale
@@ -175,13 +264,16 @@ class Survey:
                     id=q_id,
                     text=q_text,
                     type=q_type,
-                    scale=scale
+                    scale=scale,
+                    category=q_category,
+                    categories_compared=q_categories_compared
                 )
             elif q_type == "yes_no":
                 question = Question(
                     id=q_id,
                     text=q_text,
-                    type=q_type
+                    type=q_type,
+                    category=q_category
                 )
             elif q_type == "multiple_choice":
                 if not q_options:
@@ -190,7 +282,8 @@ class Survey:
                     id=q_id,
                     text=q_text,
                     type=q_type,
-                    options=q_options
+                    options=q_options,
+                    category=q_category
                 )
             else:
                 raise ValueError(f"Unknown question type: {q_type}")
@@ -218,7 +311,8 @@ class Survey:
             demographics=survey_config.get('demographics', []),
             personas=survey_config.get('personas', []),
             persona_groups=persona_groups,
-            sample_size=survey_config.get('sample_size', 100)
+            sample_size=survey_config.get('sample_size', 100),
+            categories=categories  # NEW: Multi-category support
         )
 
     def get_question_by_id(self, question_id: str) -> Optional[Question]:
