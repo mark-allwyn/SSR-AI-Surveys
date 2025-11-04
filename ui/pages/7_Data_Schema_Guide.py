@@ -702,15 +702,13 @@ elif section == " Output Data Formats":
     """)
 
     json_example = """{
-  "respondent_id": {
-    "question_id": {
-      "distribution": [0.05, 0.15, 0.25, 0.35, 0.20],
+  "question_id": {
+    "respondent_id": {
+      "probabilities": [0.05, 0.15, 0.25, 0.35, 0.20],
+      "ground_truth": 4,
       "mode": 4,
       "expected_value": 3.45,
       "entropy": 1.52,
-      "text_response": "I think this product is pretty good overall.",
-      "ground_truth_rating": 4,
-      "similarities": [0.72, 0.78, 0.85, 0.91, 0.82],
       "gender": "Male",
       "age_group": "25-34",
       "persona_group": "Tech-Savvy Young Professionals",
@@ -721,28 +719,37 @@ elif section == " Output Data Formats":
 
 // Example with real data (v2.0+ with demographics):
 {
-  "R001": {
-    "recommend": {
-      "distribution": [0.02, 0.08, 0.15, 0.35, 0.40],
+  "purchase_intent": {
+    "R001": {
+      "probabilities": [0.02, 0.08, 0.15, 0.35, 0.40],
+      "ground_truth": 5,
       "mode": 5,
       "expected_value": 4.03,
       "entropy": 1.31,
-      "text_response": "Absolutely love it! Would definitely recommend.",
-      "ground_truth_rating": 5,
-      "similarities": [0.65, 0.71, 0.78, 0.87, 0.93],
       "gender": "Male",
       "age_group": "25-34",
       "persona_group": "Tech-Savvy Young Professionals",
       "occupation": "Professional"
     },
-    "quality": {
-      "distribution": [0.05, 0.12, 0.28, 0.38, 0.17],
+    "R002": {
+      "probabilities": [0.05, 0.12, 0.28, 0.38, 0.17],
+      "ground_truth": 4,
       "mode": 4,
       "expected_value": 3.50,
       "entropy": 1.45,
-      "text_response": "Quality is good, no major issues.",
-      "ground_truth_rating": 4,
-      "similarities": [0.68, 0.74, 0.82, 0.88, 0.79],
+      "gender": "Female",
+      "age_group": "35-44",
+      "persona_group": "Budget-Conscious Families",
+      "occupation": "Service"
+    }
+  },
+  "quality": {
+    "R001": {
+      "probabilities": [0.03, 0.10, 0.20, 0.40, 0.27],
+      "ground_truth": 4,
+      "mode": 4,
+      "expected_value": 3.78,
+      "entropy": 1.38,
       "gender": "Male",
       "age_group": "25-34",
       "persona_group": "Tech-Savvy Young Professionals",
@@ -759,10 +766,16 @@ elif section == " Output Data Formats":
 
     json_fields_df = pd.DataFrame([
         {
-            "Field": "distribution",
+            "Field": "probabilities",
             "Type": "array[float]",
             "Description": "Probability distribution over scale points (sums to 1.0)",
             "Example": "[0.05, 0.15, 0.25, 0.35, 0.20]"
+        },
+        {
+            "Field": "ground_truth",
+            "Type": "int",
+            "Description": "Actual rating from ground truth data",
+            "Example": "4"
         },
         {
             "Field": "mode",
@@ -783,45 +796,27 @@ elif section == " Output Data Formats":
             "Example": "1.52"
         },
         {
-            "Field": "text_response",
-            "Type": "string",
-            "Description": "Original text response",
-            "Example": "I think this is pretty good"
-        },
-        {
-            "Field": "ground_truth_rating",
-            "Type": "int",
-            "Description": "Actual rating from ground truth data",
-            "Example": "4"
-        },
-        {
-            "Field": "similarities",
-            "Type": "array[float]",
-            "Description": "Raw cosine similarities before normalization",
-            "Example": "[0.72, 0.78, 0.85, 0.91, 0.82]"
-        },
-        {
             "Field": "gender",
             "Type": "string",
-            "Description": "Gender category (v2.0+ optional)",
+            "Description": "Gender category (v2.0+)",
             "Example": "Male"
         },
         {
             "Field": "age_group",
             "Type": "string",
-            "Description": "Age range category (v2.0+ optional)",
+            "Description": "Age range category (v2.0+)",
             "Example": "25-34"
         },
         {
             "Field": "persona_group",
             "Type": "string",
-            "Description": "Named persona segment (v2.0+ optional)",
+            "Description": "Named persona segment (v2.0+)",
             "Example": "Tech-Savvy Young Professionals"
         },
         {
             "Field": "occupation",
             "Type": "string",
-            "Description": "Occupation category (v2.0+ optional)",
+            "Description": "Occupation category (v2.0+)",
             "Example": "Professional"
         },
     ])

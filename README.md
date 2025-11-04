@@ -107,11 +107,13 @@ python ground_truth_pipeline.py
 # 3. View results in experiments/run_TIMESTAMP/
 ```
 
-This generates:
-- `ground_truth.csv` - Ground truth ratings for all respondents
+This generates in `experiments/run_TIMESTAMP/`:
+- `ground_truth.csv` - Ground truth ratings with demographics (v2.0+)
+- `llm_distributions.json` - SSR probability distributions with demographics (v2.0+)
+- `confusion_matrices.json` - Confusion matrices for error analysis
 - `report.png` - Visual comparison report
-- `report.txt` - Detailed metrics
-- `report.md` - Comprehensive markdown report
+- `report.txt` - Detailed metrics summary
+- `report.md` - Comprehensive markdown report with explanations
 
 ---
 
@@ -139,7 +141,9 @@ ssr_pipeline/
 │   └── markdown_report.py            # Markdown reports
 │
 ├── docs/                             # Documentation
-│   └── UI_REFACTORING_PLAN.md        # UI enhancement roadmap
+│   ├── database_schema.md            # Future PostgreSQL schema (planned)
+│   ├── UI_REFACTORING_PLAN.md        # UI enhancement roadmap
+│   └── generate_erd.py               # ERD generation script
 │
 ├── ui/                               # Streamlit web interface
 │   ├── 1_Home.py                     # Main dashboard
@@ -151,6 +155,7 @@ ssr_pipeline/
 │   └── run_TIMESTAMP/
 │       ├── ground_truth.csv          # With demographics columns (v2.0+)
 │       ├── llm_distributions.json    # With demographics fields (v2.0+)
+│       ├── confusion_matrices.json   # Confusion matrices for analysis
 │       ├── report.png
 │       ├── report.txt
 │       └── report.md
@@ -275,12 +280,12 @@ from ground_truth_pipeline import generate_ground_truth_ratings
 ground_truth_df = generate_ground_truth_ratings(survey, profiles, seed=100)
 ```
 
-**Output** (`ground_truth.csv`):
+**Output** (`ground_truth.csv` with demographics in v2.0+):
 ```
-respondent_id,question_id,ground_truth
-R001,q1_would_subscribe,1
-R001,q2_subscription_likelihood,4
-R001,q3_platform_trust,5
+respondent_id,question_id,ground_truth,gender,age_group,persona_group,occupation
+R001,q1_would_subscribe,1,Female,25-34,Frequent Players - Tech Savvy,Professional
+R001,q2_subscription_likelihood,4,Female,25-34,Frequent Players - Tech Savvy,Professional
+R001,q3_platform_trust,5,Female,25-34,Frequent Players - Tech Savvy,Professional
 ...
 ```
 
@@ -522,16 +527,34 @@ distributions = rater.rate_responses(responses, survey, show_progress=True)
    probabilities = scaled / sum(scaled)  # Normalize to sum to 1
    ```
 
-**Example Output:**
-```python
-RatingDistribution(
-    question_id="q2_subscription_likelihood",
-    distribution=[0.05, 0.10, 0.15, 0.35, 0.35],  # Probabilities for 1-5
-    mode=5,                    # Most likely rating
-    expected_value=3.85,       # Weighted average
-    entropy=1.42               # Uncertainty measure
-)
+**Example Output** (`llm_distributions.json` structure):
+```json
+{
+  "q2_subscription_likelihood": {
+    "R001": {
+      "probabilities": [0.05, 0.10, 0.15, 0.35, 0.35],
+      "ground_truth": 4,
+      "mode": 5,
+      "expected_value": 3.85,
+      "entropy": 1.42,
+      "gender": "Female",
+      "age_group": "25-34",
+      "persona_group": "Frequent Players - Tech Savvy",
+      "occupation": "Professional"
+    },
+    "R002": { ... }
+  },
+  "q3_platform_trust": { ... }
+}
 ```
+
+**Key Fields:**
+- `probabilities`: Probability distribution over scale points (sums to 1.0)
+- `ground_truth`: Actual rating from ground truth data
+- `mode`: Most likely rating (argmax of distribution)
+- `expected_value`: Weighted average (more robust than mode)
+- `entropy`: Shannon entropy (uncertainty measure, lower = more confident)
+- Demographics: `gender`, `age_group`, `persona_group`, `occupation` (v2.0+)
 
 ---
 

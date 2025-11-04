@@ -1,4 +1,8 @@
-# SSR Pipeline Database Schema
+# SSR Pipeline Database Schema (Future Implementation Plan)
+
+> **Note:** This document describes a **planned PostgreSQL database schema** for future implementation. The current SSR Pipeline (v2.0) uses a **file-based storage system** with CSV and JSON files. This schema will enable centralized storage, easier querying, and better scalability for production deployments.
+>
+> **Current Implementation:** Experiments are stored as folders with CSV/JSON files. See the Data Schema Guide in the UI for current file formats.
 
 ## Entity Relationship Diagram
 
