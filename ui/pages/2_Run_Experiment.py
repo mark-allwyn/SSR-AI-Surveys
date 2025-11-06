@@ -403,6 +403,13 @@ if ground_truth_option == "Upload Real Human Data":
     st.markdown("**Upload CSV File:**")
     st.markdown("**Required format:**")
     st.markdown("- Columns: `respondent_id`, `question_id`, `ground_truth`")
+
+    # Check if multi-category survey
+    has_categories_config = 'categories' in survey_config.get('survey', {})
+    if has_categories_config:
+        st.markdown("- **Multi-category survey:** Also include `category` column")
+        st.info(" This is a multi-category survey. Your CSV should include a `category` column to indicate which category each response belongs to.")
+
     st.markdown(f"- `question_id` **must exactly match** question IDs from survey config:")
 
     if survey_config and 'survey' in survey_config:

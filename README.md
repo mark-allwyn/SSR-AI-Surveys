@@ -9,7 +9,8 @@ S.A.G.E (Survey Analytics and Generation Engine) is a comprehensive platform for
 **Key Features:**
 - ✅ **Interactive Web UI**: User-friendly Streamlit interface for experiments, results, and live demos
 - ✅ **Paper-exact implementation**: Uses OpenAI text-embedding-3-small and the paper's normalization method
-- ✅ **Multiple question types**: Binary (yes/no), Likert-5, Likert-7, multiple choice
+- ✅ **Multiple question types**: Binary (yes/no), Likert-5, Likert-7, multiple choice, preference scales
+- ✅ **Multi-category surveys**: Compare 1-2 product categories with same questions + comparative preference questions
 - ✅ **Ground truth evaluation**: Comprehensive metrics including mode accuracy, MAE, RMSE, KL divergence
 - ✅ **Response style comparison**: Evaluate SSR on human-style vs LLM-style responses
 - ✅ **Automated reporting**: Generates PNG visualizations, TXT metrics, and comprehensive Markdown reports
@@ -18,6 +19,7 @@ S.A.G.E (Survey Analytics and Generation Engine) is a comprehensive platform for
 - ✅ **Survey Management**: Create and manage custom surveys via YAML configuration
 - ✅ **Demographics System (v2.0)**: Track gender, age_group, persona_group, and occupation throughout pipeline
 - ✅ **Persona Groups (v2.0)**: Weighted sampling with target demographic distributions
+- ✅ **Category Analysis**: Filter and compare performance across product categories
 
 ---
 
@@ -866,6 +868,98 @@ persona_groups:
 - Ground truth CSV (optional columns)
 - LLM distributions JSON (per response)
 - Experiment reports (segmentation ready)
+
+---
+
+## Multi-Category Surveys
+
+Compare multiple product categories with the same questions, plus comparative preference questions.
+
+### Example: Compare Online vs Traditional Lottery
+
+```yaml
+survey:
+  name: "Lottery Platform Comparison"
+
+  # Define categories
+  categories:
+    - id: "online_platform"
+      name: "Online Lottery Platform"
+      description: "Digital subscription service"
+      context: |
+        Features: mobile app, $9.99/month subscription,
+        automated purchasing, instant win notifications
+
+    - id: "traditional_retail"
+      name: "Traditional Retail Lottery"
+      description: "In-person ticket purchase"
+      context: |
+        Features: physical tickets at stores,
+        $2-5 per ticket, manual result checking
+
+  questions:
+    # Same questions for each category
+    - id: "online_purchase_intent"
+      text: "How likely are you to subscribe?"
+      type: "likert_5"
+      category: "online_platform"
+      scale:
+        1: "Very unlikely"
+        5: "Very likely"
+
+    - id: "retail_purchase_intent"
+      text: "How likely are you to purchase tickets?"
+      type: "likert_5"
+      category: "traditional_retail"
+      scale:
+        1: "Very unlikely"
+        5: "Very likely"
+
+    # Comparative preference question
+    - id: "platform_preference"
+      text: "How much do you prefer {online_platform} over {traditional_retail}?"
+      type: "preference_scale"
+      category: "comparison"
+      categories_compared: ["online_platform", "traditional_retail"]
+      scale:
+        1: "Strongly prefer traditional"
+        4: "No preference"
+        7: "Strongly prefer online"
+```
+
+### Multi-Category Features
+
+1. **Category-specific context**: Each category has its own detailed context shown to respondents
+2. **Automatic question routing**: Questions tagged with `category` show only that category's context
+3. **Comparative questions**: New `preference_scale` type compares categories directly
+4. **Category substitution**: Use `{category_id}` in question text, automatically replaced with category names
+5. **Category filtering**: Results Dashboard lets you filter by category
+6. **Category comparison**: Automatic analysis of which category is easier/harder to predict
+
+### Output Structure
+
+**Ground truth CSV includes category:**
+```csv
+respondent_id,question_id,ground_truth,category,gender,age_group,persona_group,occupation
+R001,online_purchase_intent,4,online_platform,Male,25-34,Tech Savvy,Professional
+R001,retail_purchase_intent,2,traditional_retail,Male,25-34,Tech Savvy,Professional
+R001,platform_preference,6,comparison,Male,25-34,Tech Savvy,Professional
+```
+
+**LLM distributions nested by category:**
+```json
+{
+  "online_platform": {
+    "online_purchase_intent": {
+      "R001": {"probabilities": [...], ...}
+    }
+  },
+  "traditional_retail": { ... },
+  "comparison": { ... }
+}
+```
+
+See `config/multi_category_lottery_comparison.yaml` for a complete working example.
 
 ---
 
