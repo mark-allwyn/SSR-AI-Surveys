@@ -195,6 +195,45 @@ if selected_survey:
             st.metric("Questions", n_questions)
             st.metric("Default Sample Size", sample_size)
 
+        # Multi-category display
+        categories = survey_data.get('categories', [])
+        if categories:
+            st.markdown("---")
+            st.subheader(" Product Categories")
+            st.markdown(f"This is a **multi-category comparison survey** with {len(categories)} categories:")
+
+            for category in categories:
+                with st.expander(f" {category.get('name')} ({category.get('id')})", expanded=False):
+                    st.markdown(f"**Description:** {category.get('description', 'N/A')}")
+                    if category.get('context'):
+                        st.markdown("**Context:**")
+                        st.info(category.get('context'))
+
+                    # Show questions for this category
+                    cat_questions = [q for q in survey_data.get('questions', []) if q.get('category') == category.get('id')]
+                    if cat_questions:
+                        st.markdown(f"**Questions ({len(cat_questions)}):**")
+                        for q in cat_questions:
+                            st.markdown(f"- {q.get('text')}")
+
+            # Show comparative questions if any
+            comp_questions = [q for q in survey_data.get('questions', []) if q.get('type') == 'preference_scale']
+            if comp_questions:
+                with st.expander(f" Comparative Questions ({len(comp_questions)})", expanded=False):
+                    st.markdown("These questions compare categories directly:")
+                    for q in comp_questions:
+                        # Format question text with category names
+                        q_text = q.get('text', '')
+                        if q.get('categories_compared'):
+                            for cat_id in q.get('categories_compared'):
+                                cat = next((c for c in categories if c.get('id') == cat_id), None)
+                                if cat:
+                                    q_text = q_text.replace(f"{{{cat_id}}}", cat.get('name'))
+                        st.markdown(f"- {q_text}")
+                        if q.get('scale'):
+                            scale_preview = ", ".join([f"{k}: {v}" for k, v in q['scale'].items()])
+                            st.caption(f"Scale: {scale_preview}")
+
         # Survey questions preview
         with st.expander(" View Survey Questions", expanded=False):
             questions = survey_data.get('questions', [])

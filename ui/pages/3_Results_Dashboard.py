@@ -142,6 +142,27 @@ selected_exp_label = st.selectbox(
 selected_exp_path = experiment_options[selected_exp_label]
 exp_info = get_experiment_info(selected_exp_path)
 
+# ======================
+# Multi-Category Filter
+# ======================
+# Check if this is a multi-category survey by loading ground truth
+gt_df = load_ground_truth(selected_exp_path)
+has_categories = 'category' in gt_df.columns if gt_df is not None else False
+
+selected_category = None
+if has_categories:
+    categories = gt_df['category'].unique().tolist()
+    category_options = ['All Categories'] + sorted(categories)
+
+    selected_category = st.selectbox(
+        " Filter by Category",
+        options=category_options,
+        help="Filter results to show specific product category or comparison questions"
+    )
+
+    if selected_category != 'All Categories':
+        st.info(f" Showing results for: **{selected_category}**")
+
 st.markdown("---")
 
 # ======================
@@ -154,10 +175,25 @@ if not metrics:
     error_message("Could not load metrics. Please ensure the experiment completed successfully.")
     st.stop()
 
-# Extract metrics
+# Extract metrics (filter by category if selected)
 overall_human = metrics.get('overall_human_accuracy', 0)
 overall_llm = metrics.get('overall_llm_accuracy', 0)
 question_metrics = {k: v for k, v in metrics.items() if k not in ['overall_human_accuracy', 'overall_llm_accuracy']}
+
+# Filter questions by category if multi-category survey and specific category selected
+if has_categories and selected_category and selected_category != 'All Categories':
+    # Filter ground truth data by category
+    gt_df_filtered = gt_df[gt_df['category'] == selected_category]
+    filtered_question_ids = gt_df_filtered['question_id'].unique().tolist()
+
+    # Filter question metrics to only include questions from selected category
+    question_metrics = {k: v for k, v in question_metrics.items() if k in filtered_question_ids}
+
+    # Recalculate overall metrics for this category
+    if question_metrics:
+        llm_accuracies = [question_metrics[q]['llm_accuracy'] for q in question_metrics.keys()]
+        overall_llm = np.mean(llm_accuracies) if llm_accuracies else 0
+
 question_ids = list(question_metrics.keys())
 
 # ======================
@@ -661,6 +697,98 @@ def highlight_winner(row):
 styled_df = summary_df.style.apply(highlight_winner, axis=1)
 
 st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+# ======================
+# Section G2: Category Comparison (Multi-Category Surveys Only)
+# ======================
+if has_categories and len(categories) > 1:
+    st.markdown("---")
+    st.header(" Category Comparison")
+
+    st.markdown("""
+    Compare performance across different product categories to identify which category
+    is easier/harder to predict, or analyze comparative preference questions.
+    """)
+
+    # Calculate metrics by category
+    category_metrics = {}
+    for category in categories:
+        cat_df = gt_df[gt_df['category'] == category]
+        cat_question_ids = cat_df['question_id'].unique().tolist()
+
+        cat_questions = {k: v for k, v in question_metrics.items() if k in cat_question_ids}
+
+        if cat_questions:
+            llm_accs = [cat_questions[q]['llm_accuracy'] for q in cat_questions.keys()]
+            llm_maes = [cat_questions[q]['llm_mae'] for q in cat_questions.keys()]
+
+            category_metrics[category] = {
+                'n_questions': len(cat_questions),
+                'accuracy': np.mean(llm_accs),
+                'mae': np.mean(llm_maes),
+                'questions': list(cat_questions.keys())
+            }
+
+    # Display category comparison
+    if category_metrics:
+        col1, col2 = st.columns([1, 2])
+
+        with col1:
+            st.subheader("Category Performance")
+
+            # Create comparison dataframe
+            comp_data = []
+            for cat, metrics in category_metrics.items():
+                comp_data.append({
+                    'Category': cat.replace('_', ' ').title(),
+                    'Questions': metrics['n_questions'],
+                    'Accuracy': f"{metrics['accuracy']:.1f}%",
+                    'MAE': f"{metrics['mae']:.3f}"
+                })
+
+            comp_df = pd.DataFrame(comp_data)
+            st.dataframe(comp_df, use_container_width=True, hide_index=True)
+
+        with col2:
+            st.subheader("Category Performance Comparison")
+
+            # Bar chart comparing categories
+            fig_cat = go.Figure()
+
+            categories_list = list(category_metrics.keys())
+            accuracies = [category_metrics[c]['accuracy'] for c in categories_list]
+
+            fig_cat.add_trace(go.Bar(
+                x=[c.replace('_', ' ').title() for c in categories_list],
+                y=accuracies,
+                marker_color=brand_colors['teal_blue'],
+                text=[f"{acc:.1f}%" for acc in accuracies],
+                textposition='auto',
+            ))
+
+            fig_cat.update_layout(
+                title="LLM+SSR Accuracy by Category",
+                xaxis_title="Category",
+                yaxis_title="Accuracy (%)",
+                yaxis=dict(range=[0, 100]),
+                height=400,
+                showlegend=False
+            )
+
+            st.plotly_chart(fig_cat, use_container_width=True)
+
+        # Show insights
+        best_category = max(category_metrics.items(), key=lambda x: x[1]['accuracy'])
+        worst_category = min(category_metrics.items(), key=lambda x: x[1]['accuracy'])
+
+        st.info(f"""
+        **Category Insights:**
+        - Best performing category: **{best_category[0].replace('_', ' ').title()}**
+          ({best_category[1]['accuracy']:.1f}% accuracy)
+        - Most challenging category: **{worst_category[0].replace('_', ' ').title()}**
+          ({worst_category[1]['accuracy']:.1f}% accuracy)
+        - Accuracy difference: {best_category[1]['accuracy'] - worst_category[1]['accuracy']:.1f} percentage points
+        """)
 
 # ======================
 # Section H: Download Reports
