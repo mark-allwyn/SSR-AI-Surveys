@@ -37,7 +37,7 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
 
     For description-based personas, generates realistic varied distributions.
 
-    Returns DataFrame with columns: respondent_id, question_id, ground_truth, gender, age_group, persona_group, occupation
+    Returns DataFrame with columns: respondent_id, question_id, ground_truth, category, gender, age_group, persona_group, occupation
     """
     np.random.seed(seed)
 
@@ -68,6 +68,18 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
             ref_statements = question.get_reference_statements()
             scale_points = sorted(ref_statements.keys())
             n_options = len(scale_points)
+
+            # Determine category for this question (multi-category support)
+            category = None
+            if survey.has_categories():
+                if question.is_comparative():
+                    category = "comparison"
+                elif question.category:
+                    category = question.category
+                else:
+                    category = "general"
+            else:
+                category = "general"
 
             # Generate ground truth based on tendency and question type
             if tendency == "positive":
@@ -108,6 +120,7 @@ def generate_ground_truth_ratings(survey: Survey, profiles: list, seed: int = 10
                 'respondent_id': respondent_id,
                 'question_id': question.id,
                 'ground_truth': ground_truth,
+                'category': category,  # Multi-category support
                 'gender': gender,
                 'age_group': age_group,
                 'persona_group': persona_group,
@@ -163,11 +176,20 @@ def generate_responses_from_ground_truth(
                 # Hedged LLM style
                 text_response = generate_llm_style_response(target_statement, ground_truth, question.num_options)
 
+            # Determine category (multi-category support)
+            category = None
+            if survey.has_categories():
+                if question.is_comparative():
+                    category = "comparison"
+                elif question.category:
+                    category = question.category
+
             response = Response(
                 respondent_id=respondent_id,
                 question_id=question.id,
                 text_response=text_response,
-                respondent_profile=profile.to_dict()
+                respondent_profile=profile.to_dict(),
+                category=category  # Multi-category support
             )
             responses.append(response)
 
@@ -393,46 +415,105 @@ def main(persona_config=None, ground_truth_path=None, survey_config_path='config
 
     # 7b. Save LLM probability distributions for advanced visualizations
     print("\nSaving LLM probability distributions...")
-    distributions_data = {}
 
-    for dist in llm_distributions:
-        question_id = dist.question_id
-        respondent_id = dist.respondent_id
+    # For multi-category surveys, nest by category; otherwise use flat structure
+    if survey.has_categories():
+        distributions_data = {}  # {category_id: {question_id: {respondent_id: {...}}}}
 
-        if question_id not in distributions_data:
-            distributions_data[question_id] = {}
+        for dist in llm_distributions:
+            question_id = dist.question_id
+            respondent_id = dist.respondent_id
 
-        # Get ground truth and demographics for this respondent/question
-        gt_row = ground_truth_df[
-            (ground_truth_df['respondent_id'] == respondent_id) &
-            (ground_truth_df['question_id'] == question_id)
-        ]
+            # Get question to determine category
+            question = survey.get_question_by_id(question_id)
+            if question is None:
+                continue
 
-        gt_value = None
-        gender = "Unknown"
-        age_group = "Unknown"
-        persona_group = "General"
-        occupation = "Unknown"
+            # Determine category
+            if question.is_comparative():
+                category_id = "comparison"
+            elif question.category:
+                category_id = question.category
+            else:
+                category_id = "general"
 
-        if len(gt_row) > 0:
-            gt_value = gt_row['ground_truth'].values[0]
-            # Extract demographics with backward compatibility
-            gender = gt_row['gender'].values[0] if 'gender' in gt_row.columns else "Unknown"
-            age_group = gt_row['age_group'].values[0] if 'age_group' in gt_row.columns else "Unknown"
-            persona_group = gt_row['persona_group'].values[0] if 'persona_group' in gt_row.columns else "General"
-            occupation = gt_row['occupation'].values[0] if 'occupation' in gt_row.columns else "Unknown"
+            # Initialize nested structure
+            if category_id not in distributions_data:
+                distributions_data[category_id] = {}
+            if question_id not in distributions_data[category_id]:
+                distributions_data[category_id][question_id] = {}
 
-        distributions_data[question_id][respondent_id] = {
-            'probabilities': dist.distribution.tolist(),
-            'ground_truth': int(gt_value) if gt_value is not None else None,
-            'mode': int(dist.mode),
-            'expected_value': float(dist.expected_value),
-            'entropy': float(dist.entropy),
-            'gender': gender,
-            'age_group': age_group,
-            'persona_group': persona_group,
-            'occupation': occupation
-        }
+            # Get ground truth and demographics for this respondent/question
+            gt_row = ground_truth_df[
+                (ground_truth_df['respondent_id'] == respondent_id) &
+                (ground_truth_df['question_id'] == question_id)
+            ]
+
+            gt_value = None
+            gender = "Unknown"
+            age_group = "Unknown"
+            persona_group = "General"
+            occupation = "Unknown"
+
+            if len(gt_row) > 0:
+                gt_value = gt_row['ground_truth'].values[0]
+                gender = gt_row['gender'].values[0] if 'gender' in gt_row.columns else "Unknown"
+                age_group = gt_row['age_group'].values[0] if 'age_group' in gt_row.columns else "Unknown"
+                persona_group = gt_row['persona_group'].values[0] if 'persona_group' in gt_row.columns else "General"
+                occupation = gt_row['occupation'].values[0] if 'occupation' in gt_row.columns else "Unknown"
+
+            distributions_data[category_id][question_id][respondent_id] = {
+                'probabilities': dist.distribution.tolist(),
+                'ground_truth': int(gt_value) if gt_value is not None else None,
+                'mode': int(dist.mode),
+                'expected_value': float(dist.expected_value),
+                'entropy': float(dist.entropy),
+                'gender': gender,
+                'age_group': age_group,
+                'persona_group': persona_group,
+                'occupation': occupation
+            }
+    else:
+        # Single-category: flat structure (backward compatible)
+        distributions_data = {}  # {question_id: {respondent_id: {...}}}
+
+        for dist in llm_distributions:
+            question_id = dist.question_id
+            respondent_id = dist.respondent_id
+
+            if question_id not in distributions_data:
+                distributions_data[question_id] = {}
+
+            # Get ground truth and demographics for this respondent/question
+            gt_row = ground_truth_df[
+                (ground_truth_df['respondent_id'] == respondent_id) &
+                (ground_truth_df['question_id'] == question_id)
+            ]
+
+            gt_value = None
+            gender = "Unknown"
+            age_group = "Unknown"
+            persona_group = "General"
+            occupation = "Unknown"
+
+            if len(gt_row) > 0:
+                gt_value = gt_row['ground_truth'].values[0]
+                gender = gt_row['gender'].values[0] if 'gender' in gt_row.columns else "Unknown"
+                age_group = gt_row['age_group'].values[0] if 'age_group' in gt_row.columns else "Unknown"
+                persona_group = gt_row['persona_group'].values[0] if 'persona_group' in gt_row.columns else "General"
+                occupation = gt_row['occupation'].values[0] if 'occupation' in gt_row.columns else "Unknown"
+
+            distributions_data[question_id][respondent_id] = {
+                'probabilities': dist.distribution.tolist(),
+                'ground_truth': int(gt_value) if gt_value is not None else None,
+                'mode': int(dist.mode),
+                'expected_value': float(dist.expected_value),
+                'entropy': float(dist.entropy),
+                'gender': gender,
+                'age_group': age_group,
+                'persona_group': persona_group,
+                'occupation': occupation
+            }
 
     dist_path = experiment_dir / 'llm_distributions.json'
     with open(dist_path, 'w') as f:
