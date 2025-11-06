@@ -1,0 +1,167 @@
+survey:
+  name: "Product Evaluation - Single Category Example"
+  description: "Standard product evaluation survey for a meal kit delivery service"
+
+  context: |
+    We are evaluating a new meal kit delivery service:
+
+    **FreshChef Meal Kits**
+
+    A convenient meal kit delivery service that brings chef-designed recipes and
+    fresh, pre-portioned ingredients directly to your door.
+
+    Key Features:
+    - 3-5 recipe options per week (vegetarian, meat, and family-friendly)
+    - Serves 2-4 people per kit
+    - Organic ingredients when possible, locally sourced
+    - 30-minute average cooking time with step-by-step instructions
+    - Flexible subscription: skip weeks anytime, no commitment
+    - Recyclable and compostable packaging
+
+    Pricing:
+    - 2-person plan: $60/week (3 meals)
+    - 4-person plan: $120/week (3 meals)
+    - Free delivery on orders over $50
+
+  questions:
+    # Purchase intent
+    - id: "purchase_intent"
+      text: "How likely would you be to subscribe to this meal kit service?"
+      type: "likert_5"
+      scale:
+        1: "Definitely would not subscribe"
+        2: "Probably would not subscribe"
+        3: "Might or might not subscribe"
+        4: "Probably would subscribe"
+        5: "Definitely would subscribe"
+
+    # Value perception
+    - id: "value_for_money"
+      text: "The pricing for this service represents good value for money"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    # Product appeal
+    - id: "likeability"
+      text: "Overall, how much do you like or dislike this meal kit concept?"
+      type: "likert_7"
+      scale:
+        1: "Dislike it a great deal"
+        2: "Dislike it"
+        3: "Dislike it a little"
+        4: "Neither like nor dislike it"
+        5: "Like it a little"
+        6: "Like it"
+        7: "Like it a great deal"
+
+    # Uniqueness
+    - id: "uniqueness"
+      text: "This meal kit service is unique and different from other meal delivery options"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    # Relevance
+    - id: "relevance"
+      text: "This meal kit service is relevant to people like me"
+      type: "likert_5"
+      scale:
+        1: "Strongly disagree"
+        2: "Disagree"
+        3: "Neither agree nor disagree"
+        4: "Agree"
+        5: "Strongly agree"
+
+    # Recommendation
+    - id: "recommendation"
+      text: "How likely would you be to recommend this meal kit service to a friend?"
+      type: "likert_5"
+      scale:
+        1: "Definitely would not recommend"
+        2: "Probably would not recommend"
+        3: "Might or might not recommend"
+        4: "Probably would recommend"
+        5: "Definitely would recommend"
+
+    # Current usage
+    - id: "current_meal_kit_user"
+      text: "Do you currently use any meal kit delivery service?"
+      type: "yes_no"
+
+    # Feature preference
+    - id: "most_important_feature"
+      text: "Which feature of this meal kit service is most important to you?"
+      type: "multiple_choice"
+      options:
+        - "Recipe variety and options"
+        - "Cooking time (30 minutes)"
+        - "Organic and local ingredients"
+        - "Flexible subscription"
+        - "Portion sizes"
+        - "Eco-friendly packaging"
+
+  demographics:
+    - age_group
+    - gender
+    - occupation
+    - persona_group
+
+  persona_groups:
+    - name: "Busy Professionals"
+      description: "Time-constrained professionals seeking convenient meal solutions"
+      weight: 0.3
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "35-44"]
+        occupation: ["Professional", "Manager", "Technical"]
+      personas:
+        - "A 29-year-old marketing manager working long hours. Values convenience and healthy eating but lacks time to shop and meal plan."
+        - "A 35-year-old software engineer with a busy schedule. Interested in cooking but wants minimal prep time."
+        - "A 32-year-old consultant who travels frequently. Looking for easy meal solutions for nights at home."
+
+    - name: "Health-Conscious Families"
+      description: "Families focused on healthy eating and quality ingredients"
+      weight: 0.35
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["35-44", "45-54"]
+        occupation: ["Professional", "Service", "Sales"]
+      personas:
+        - "A 38-year-old parent of two. Prioritizes organic ingredients and family-friendly meals."
+        - "A 42-year-old health-conscious parent. Wants to teach kids cooking while eating well."
+        - "A 45-year-old with dietary preferences. Values knowing exactly what goes into meals."
+
+    - name: "Budget-Conscious Skeptics"
+      description: "Price-sensitive consumers who prefer traditional grocery shopping"
+      weight: 0.2
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "45-54", "55-64"]
+        occupation: ["Service", "Sales", "Administrative"]
+      personas:
+        - "A 27-year-old on a tight budget. Finds meal kits expensive compared to grocery shopping."
+        - "A 48-year-old traditional shopper. Skeptical of subscription services and delivery models."
+        - "A 55-year-old who enjoys grocery shopping. Questions the value of pre-portioned ingredients."
+
+    - name: "Cooking Enthusiasts"
+      description: "People who enjoy cooking and trying new recipes"
+      weight: 0.15
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "35-44", "45-54"]
+        occupation: ["Professional", "Technical", "Creative"]
+      personas:
+        - "A 30-year-old foodie who loves trying new cuisines. Excited about chef-designed recipes."
+        - "A 40-year-old home cook looking for inspiration. Enjoys learning new techniques."
+        - "A 44-year-old who cooks as a hobby. Interested in quality ingredients and unique recipes."
+
+  sample_size: 100
