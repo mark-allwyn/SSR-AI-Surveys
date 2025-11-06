@@ -323,8 +323,40 @@ class Survey:
         return None
 
     def format_prompt(self, question: Question, respondent_profile: Optional[Dict] = None) -> str:
-        """Format a prompt for LLM response generation."""
-        prompt = f"{self.context}\n\n"
+        """
+        Format a prompt for LLM response generation with category-aware context.
+
+        For multi-category surveys:
+        - Includes category-specific context for regular questions
+        - Includes both category contexts for comparative questions
+        - Formats question text with category names substituted
+        """
+        context_parts = []
+
+        # Add global context if present (backwards compatible)
+        if self.context:
+            context_parts.append(self.context)
+
+        # Add category-specific context for multi-category surveys
+        if self.has_categories():
+            if question.is_comparative():
+                # Comparative question: include both categories being compared
+                context_parts.append("\n--- Comparison Context ---")
+                for cat_id in question.categories_compared:
+                    category = self.get_category_by_id(cat_id)
+                    if category:
+                        context_parts.append(f"\n{category.format_context()}")
+            elif question.category:
+                # Regular question with category assignment
+                category = self.get_category_by_id(question.category)
+                if category:
+                    context_parts.append(f"\n--- {category.name} ---")
+                    context_parts.append(category.context)
+
+        prompt = "\n".join(context_parts)
+
+        if prompt:
+            prompt += "\n\n"
 
         if respondent_profile:
             prompt += "Respondent Profile:\n"
@@ -332,7 +364,13 @@ class Survey:
                 prompt += f"- {key}: {value}\n"
             prompt += "\n"
 
-        prompt += f"Question: {question.text}\n\n"
+        # Format question text (substitutes category names in comparative questions)
+        question_text = question.text
+        if self.has_categories() and (question.is_comparative() or question.category):
+            categories_dict = self.get_categories_dict()
+            question_text = question.format_question_text(categories_dict)
+
+        prompt += f"Question: {question_text}\n\n"
         prompt += "Please provide your response in a few sentences explaining your thoughts and reasoning."
 
         return prompt

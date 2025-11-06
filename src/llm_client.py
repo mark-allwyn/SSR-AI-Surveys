@@ -48,6 +48,7 @@ class Response:
     text_response: str
     respondent_profile: Dict
     timestamp: Optional[str] = None
+    category: Optional[str] = None  # Multi-category support: tracks which category this response is for
 
 
 class LLMClient:
@@ -154,11 +155,20 @@ class LLMClient:
                     try:
                         text_response = self.generate_response(prompt, system_message)
 
+                        # Determine category for this response
+                        category = None
+                        if survey.has_categories():
+                            if question.is_comparative():
+                                category = "comparison"
+                            elif question.category:
+                                category = question.category
+
                         response = Response(
                             respondent_id=f"R{i+1:03d}",
                             question_id=question.id,
                             text_response=text_response,
-                            respondent_profile=profile.to_dict()
+                            respondent_profile=profile.to_dict(),
+                            category=category  # Multi-category support
                         )
                         responses.append(response)
 
