@@ -1,0 +1,11 @@
+respondent_id,question_id,ground_truth,category,gender,age_group,persona_group,occupation
+USER_20251106143303,sub_purchase_intent,1,subscription_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,sub_value,1,subscription_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,sub_satisfaction,1,subscription_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,sub_recommendation,1,subscription_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,ad_purchase_intent,1,ad_supported_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,ad_value,1,ad_supported_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,ad_satisfaction,1,ad_supported_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,ad_recommendation,1,ad_supported_service,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,service_preference,1,comparison,Male,18-24,Survey Respondent,Professional
+USER_20251106143303,willingness_to_pay,1,comparison,Male,18-24,Survey Respondent,Professional

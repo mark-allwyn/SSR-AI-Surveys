@@ -1,0 +1,9 @@
+respondent_id,question_id,ground_truth,category,gender,age_group,persona_group,occupation
+USER_20251106142332,purchase_intent,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,value_for_money,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,likeability,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,uniqueness,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,relevance,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,recommendation,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,current_meal_kit_user,1,general,Male,18-24,Survey Respondent,Professional
+USER_20251106142332,most_important_feature,Recipe variety and options,general,Male,18-24,Survey Respondent,Professional

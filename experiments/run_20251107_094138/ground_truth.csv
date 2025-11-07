@@ -1,0 +1,501 @@
+respondent_id,question_id,ground_truth,category,gender,age_group,persona_group,occupation
+R001,sub_purchase_intent,4,subscription_service,Male,25-34,Premium Content Seekers,Professional
+R001,sub_value,3,subscription_service,Male,25-34,Premium Content Seekers,Professional
+R001,sub_satisfaction,4,subscription_service,Male,25-34,Premium Content Seekers,Professional
+R001,sub_recommendation,5,subscription_service,Male,25-34,Premium Content Seekers,Professional
+R001,ad_purchase_intent,1,ad_supported_service,Male,25-34,Premium Content Seekers,Professional
+R001,ad_value,2,ad_supported_service,Male,25-34,Premium Content Seekers,Professional
+R001,ad_satisfaction,5,ad_supported_service,Male,25-34,Premium Content Seekers,Professional
+R001,ad_recommendation,5,ad_supported_service,Male,25-34,Premium Content Seekers,Professional
+R001,service_preference,3,comparison,Male,25-34,Premium Content Seekers,Professional
+R001,willingness_to_pay,6,comparison,Male,25-34,Premium Content Seekers,Professional
+R002,sub_purchase_intent,5,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R002,sub_value,3,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R002,sub_satisfaction,3,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R002,sub_recommendation,2,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R002,ad_purchase_intent,3,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R002,ad_value,5,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R002,ad_satisfaction,5,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R002,ad_recommendation,3,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R002,service_preference,7,comparison,Male,35-44,Premium Content Seekers,Technical
+R002,willingness_to_pay,4,comparison,Male,35-44,Premium Content Seekers,Technical
+R003,sub_purchase_intent,3,subscription_service,Female,25-34,Premium Content Seekers,Manager
+R003,sub_value,5,subscription_service,Female,25-34,Premium Content Seekers,Manager
+R003,sub_satisfaction,5,subscription_service,Female,25-34,Premium Content Seekers,Manager
+R003,sub_recommendation,2,subscription_service,Female,25-34,Premium Content Seekers,Manager
+R003,ad_purchase_intent,1,ad_supported_service,Female,25-34,Premium Content Seekers,Manager
+R003,ad_value,2,ad_supported_service,Female,25-34,Premium Content Seekers,Manager
+R003,ad_satisfaction,1,ad_supported_service,Female,25-34,Premium Content Seekers,Manager
+R003,ad_recommendation,2,ad_supported_service,Female,25-34,Premium Content Seekers,Manager
+R003,service_preference,6,comparison,Female,25-34,Premium Content Seekers,Manager
+R003,willingness_to_pay,1,comparison,Female,25-34,Premium Content Seekers,Manager
+R004,sub_purchase_intent,4,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R004,sub_value,4,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R004,sub_satisfaction,2,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R004,sub_recommendation,4,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R004,ad_purchase_intent,1,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R004,ad_value,5,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R004,ad_satisfaction,5,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R004,ad_recommendation,2,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R004,service_preference,7,comparison,Male,25-34,Premium Content Seekers,Technical
+R004,willingness_to_pay,6,comparison,Male,25-34,Premium Content Seekers,Technical
+R005,sub_purchase_intent,3,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R005,sub_value,2,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R005,sub_satisfaction,2,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R005,sub_recommendation,1,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R005,ad_purchase_intent,1,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R005,ad_value,2,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R005,ad_satisfaction,3,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R005,ad_recommendation,1,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R005,service_preference,2,comparison,Female,25-34,Premium Content Seekers,Technical
+R005,willingness_to_pay,5,comparison,Female,25-34,Premium Content Seekers,Technical
+R006,sub_purchase_intent,5,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R006,sub_value,5,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R006,sub_satisfaction,4,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R006,sub_recommendation,4,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R006,ad_purchase_intent,4,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R006,ad_value,3,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R006,ad_satisfaction,3,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R006,ad_recommendation,3,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R006,service_preference,2,comparison,Female,25-34,Premium Content Seekers,Professional
+R006,willingness_to_pay,6,comparison,Female,25-34,Premium Content Seekers,Professional
+R007,sub_purchase_intent,2,subscription_service,Male,35-44,Premium Content Seekers,Manager
+R007,sub_value,2,subscription_service,Male,35-44,Premium Content Seekers,Manager
+R007,sub_satisfaction,2,subscription_service,Male,35-44,Premium Content Seekers,Manager
+R007,sub_recommendation,1,subscription_service,Male,35-44,Premium Content Seekers,Manager
+R007,ad_purchase_intent,4,ad_supported_service,Male,35-44,Premium Content Seekers,Manager
+R007,ad_value,4,ad_supported_service,Male,35-44,Premium Content Seekers,Manager
+R007,ad_satisfaction,2,ad_supported_service,Male,35-44,Premium Content Seekers,Manager
+R007,ad_recommendation,2,ad_supported_service,Male,35-44,Premium Content Seekers,Manager
+R007,service_preference,2,comparison,Male,35-44,Premium Content Seekers,Manager
+R007,willingness_to_pay,1,comparison,Male,35-44,Premium Content Seekers,Manager
+R008,sub_purchase_intent,3,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R008,sub_value,3,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R008,sub_satisfaction,3,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R008,sub_recommendation,5,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R008,ad_purchase_intent,5,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R008,ad_value,4,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R008,ad_satisfaction,5,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R008,ad_recommendation,3,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R008,service_preference,3,comparison,Male,25-34,Premium Content Seekers,Technical
+R008,willingness_to_pay,5,comparison,Male,25-34,Premium Content Seekers,Technical
+R009,sub_purchase_intent,4,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R009,sub_value,2,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R009,sub_satisfaction,4,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R009,sub_recommendation,5,subscription_service,Female,25-34,Premium Content Seekers,Technical
+R009,ad_purchase_intent,4,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R009,ad_value,3,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R009,ad_satisfaction,5,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R009,ad_recommendation,5,ad_supported_service,Female,25-34,Premium Content Seekers,Technical
+R009,service_preference,5,comparison,Female,25-34,Premium Content Seekers,Technical
+R009,willingness_to_pay,6,comparison,Female,25-34,Premium Content Seekers,Technical
+R010,sub_purchase_intent,3,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R010,sub_value,2,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R010,sub_satisfaction,1,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R010,sub_recommendation,2,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R010,ad_purchase_intent,3,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R010,ad_value,4,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R010,ad_satisfaction,2,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R010,ad_recommendation,4,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R010,service_preference,2,comparison,Female,35-44,Premium Content Seekers,Manager
+R010,willingness_to_pay,5,comparison,Female,35-44,Premium Content Seekers,Manager
+R011,sub_purchase_intent,3,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R011,sub_value,3,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R011,sub_satisfaction,2,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R011,sub_recommendation,1,subscription_service,Male,35-44,Premium Content Seekers,Technical
+R011,ad_purchase_intent,3,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R011,ad_value,4,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R011,ad_satisfaction,2,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R011,ad_recommendation,5,ad_supported_service,Male,35-44,Premium Content Seekers,Technical
+R011,service_preference,6,comparison,Male,35-44,Premium Content Seekers,Technical
+R011,willingness_to_pay,1,comparison,Male,35-44,Premium Content Seekers,Technical
+R012,sub_purchase_intent,1,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R012,sub_value,1,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R012,sub_satisfaction,4,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R012,sub_recommendation,5,subscription_service,Male,25-34,Premium Content Seekers,Technical
+R012,ad_purchase_intent,1,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R012,ad_value,2,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R012,ad_satisfaction,2,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R012,ad_recommendation,1,ad_supported_service,Male,25-34,Premium Content Seekers,Technical
+R012,service_preference,2,comparison,Male,25-34,Premium Content Seekers,Technical
+R012,willingness_to_pay,3,comparison,Male,25-34,Premium Content Seekers,Technical
+R013,sub_purchase_intent,3,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R013,sub_value,4,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R013,sub_satisfaction,3,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R013,sub_recommendation,1,subscription_service,Female,25-34,Premium Content Seekers,Professional
+R013,ad_purchase_intent,2,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R013,ad_value,3,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R013,ad_satisfaction,3,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R013,ad_recommendation,2,ad_supported_service,Female,25-34,Premium Content Seekers,Professional
+R013,service_preference,4,comparison,Female,25-34,Premium Content Seekers,Professional
+R013,willingness_to_pay,4,comparison,Female,25-34,Premium Content Seekers,Professional
+R014,sub_purchase_intent,1,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R014,sub_value,1,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R014,sub_satisfaction,4,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R014,sub_recommendation,1,subscription_service,Female,35-44,Premium Content Seekers,Manager
+R014,ad_purchase_intent,1,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R014,ad_value,1,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R014,ad_satisfaction,2,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R014,ad_recommendation,5,ad_supported_service,Female,35-44,Premium Content Seekers,Manager
+R014,service_preference,7,comparison,Female,35-44,Premium Content Seekers,Manager
+R014,willingness_to_pay,7,comparison,Female,35-44,Premium Content Seekers,Manager
+R015,sub_purchase_intent,2,subscription_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,sub_value,5,subscription_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,sub_satisfaction,4,subscription_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,sub_recommendation,3,subscription_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,ad_purchase_intent,5,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,ad_value,3,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,ad_satisfaction,5,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,ad_recommendation,4,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,service_preference,4,comparison,Female,25-34,Budget-Conscious Streamers,Administrative
+R015,willingness_to_pay,5,comparison,Female,25-34,Budget-Conscious Streamers,Administrative
+R016,sub_purchase_intent,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,sub_value,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,sub_satisfaction,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,sub_recommendation,5,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,ad_purchase_intent,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,ad_value,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,ad_satisfaction,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,ad_recommendation,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R016,service_preference,5,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R016,willingness_to_pay,5,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R017,sub_purchase_intent,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,sub_value,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,sub_satisfaction,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,sub_recommendation,5,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,ad_purchase_intent,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,ad_value,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,ad_satisfaction,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,ad_recommendation,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R017,service_preference,6,comparison,Female,18-24,Budget-Conscious Streamers,Service
+R017,willingness_to_pay,6,comparison,Female,18-24,Budget-Conscious Streamers,Service
+R018,sub_purchase_intent,1,subscription_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,sub_value,1,subscription_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,sub_satisfaction,2,subscription_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,sub_recommendation,1,subscription_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,ad_purchase_intent,5,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,ad_value,3,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,ad_satisfaction,2,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,ad_recommendation,1,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Service
+R018,service_preference,1,comparison,Male,18-24,Budget-Conscious Streamers,Service
+R018,willingness_to_pay,6,comparison,Male,18-24,Budget-Conscious Streamers,Service
+R019,sub_purchase_intent,5,subscription_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,sub_value,5,subscription_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,sub_satisfaction,4,subscription_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,sub_recommendation,3,subscription_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,ad_purchase_intent,3,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,ad_value,5,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,ad_satisfaction,4,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,ad_recommendation,5,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,service_preference,7,comparison,Female,45-54,Budget-Conscious Streamers,Administrative
+R019,willingness_to_pay,4,comparison,Female,45-54,Budget-Conscious Streamers,Administrative
+R020,sub_purchase_intent,1,subscription_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,sub_value,3,subscription_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,sub_satisfaction,5,subscription_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,sub_recommendation,5,subscription_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,ad_purchase_intent,2,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,ad_value,2,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,ad_satisfaction,3,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,ad_recommendation,4,ad_supported_service,Male,18-24,Budget-Conscious Streamers,Student
+R020,service_preference,1,comparison,Male,18-24,Budget-Conscious Streamers,Student
+R020,willingness_to_pay,2,comparison,Male,18-24,Budget-Conscious Streamers,Student
+R021,sub_purchase_intent,2,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,sub_value,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,sub_satisfaction,2,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,sub_recommendation,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,ad_purchase_intent,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,ad_value,1,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,ad_satisfaction,1,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,ad_recommendation,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R021,service_preference,1,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R021,willingness_to_pay,2,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R022,sub_purchase_intent,5,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,sub_value,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,sub_satisfaction,1,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,sub_recommendation,2,subscription_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,ad_purchase_intent,2,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,ad_value,2,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,ad_satisfaction,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,ad_recommendation,2,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Service
+R022,service_preference,2,comparison,Female,18-24,Budget-Conscious Streamers,Service
+R022,willingness_to_pay,2,comparison,Female,18-24,Budget-Conscious Streamers,Service
+R023,sub_purchase_intent,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,sub_value,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,sub_satisfaction,2,subscription_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,sub_recommendation,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,ad_purchase_intent,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,ad_value,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,ad_satisfaction,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,ad_recommendation,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,service_preference,5,comparison,Female,18-24,Budget-Conscious Streamers,Administrative
+R023,willingness_to_pay,7,comparison,Female,18-24,Budget-Conscious Streamers,Administrative
+R024,sub_purchase_intent,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,sub_value,2,subscription_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,sub_satisfaction,5,subscription_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,sub_recommendation,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,ad_purchase_intent,3,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,ad_value,1,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,ad_satisfaction,1,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,ad_recommendation,1,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,service_preference,1,comparison,Male,25-34,Budget-Conscious Streamers,Administrative
+R024,willingness_to_pay,1,comparison,Male,25-34,Budget-Conscious Streamers,Administrative
+R025,sub_purchase_intent,3,subscription_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,sub_value,4,subscription_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,sub_satisfaction,4,subscription_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,sub_recommendation,5,subscription_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,ad_purchase_intent,3,ad_supported_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,ad_value,3,ad_supported_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,ad_satisfaction,5,ad_supported_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,ad_recommendation,5,ad_supported_service,Male,45-54,Budget-Conscious Streamers,Student
+R025,service_preference,6,comparison,Male,45-54,Budget-Conscious Streamers,Student
+R025,willingness_to_pay,6,comparison,Male,45-54,Budget-Conscious Streamers,Student
+R026,sub_purchase_intent,4,subscription_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,sub_value,4,subscription_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,sub_satisfaction,5,subscription_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,sub_recommendation,5,subscription_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,ad_purchase_intent,5,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,ad_value,3,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,ad_satisfaction,5,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,ad_recommendation,4,ad_supported_service,Female,25-34,Budget-Conscious Streamers,Service
+R026,service_preference,6,comparison,Female,25-34,Budget-Conscious Streamers,Service
+R026,willingness_to_pay,5,comparison,Female,25-34,Budget-Conscious Streamers,Service
+R027,sub_purchase_intent,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,sub_value,3,subscription_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,sub_satisfaction,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,sub_recommendation,4,subscription_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,ad_purchase_intent,3,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,ad_value,2,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,ad_satisfaction,2,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,ad_recommendation,2,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Service
+R027,service_preference,1,comparison,Male,25-34,Budget-Conscious Streamers,Service
+R027,willingness_to_pay,4,comparison,Male,25-34,Budget-Conscious Streamers,Service
+R028,sub_purchase_intent,5,subscription_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,sub_value,5,subscription_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,sub_satisfaction,3,subscription_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,sub_recommendation,5,subscription_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,ad_purchase_intent,5,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,ad_value,2,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,ad_satisfaction,3,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,ad_recommendation,4,ad_supported_service,Female,45-54,Budget-Conscious Streamers,Student
+R028,service_preference,3,comparison,Female,45-54,Budget-Conscious Streamers,Student
+R028,willingness_to_pay,6,comparison,Female,45-54,Budget-Conscious Streamers,Student
+R029,sub_purchase_intent,5,subscription_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,sub_value,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,sub_satisfaction,3,subscription_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,sub_recommendation,1,subscription_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,ad_purchase_intent,1,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,ad_value,4,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,ad_satisfaction,2,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,ad_recommendation,2,ad_supported_service,Male,25-34,Budget-Conscious Streamers,Student
+R029,service_preference,5,comparison,Male,25-34,Budget-Conscious Streamers,Student
+R029,willingness_to_pay,1,comparison,Male,25-34,Budget-Conscious Streamers,Student
+R030,sub_purchase_intent,1,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,sub_value,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,sub_satisfaction,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,sub_recommendation,4,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,ad_purchase_intent,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,ad_value,5,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,ad_satisfaction,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,ad_recommendation,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R030,service_preference,5,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R030,willingness_to_pay,2,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R031,sub_purchase_intent,1,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,sub_value,5,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,sub_satisfaction,3,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,sub_recommendation,5,subscription_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,ad_purchase_intent,4,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,ad_value,2,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,ad_satisfaction,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,ad_recommendation,3,ad_supported_service,Female,18-24,Budget-Conscious Streamers,Student
+R031,service_preference,7,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R031,willingness_to_pay,1,comparison,Female,18-24,Budget-Conscious Streamers,Student
+R032,sub_purchase_intent,1,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R032,sub_value,3,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R032,sub_satisfaction,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R032,sub_recommendation,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R032,ad_purchase_intent,3,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R032,ad_value,2,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R032,ad_satisfaction,5,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R032,ad_recommendation,3,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R032,service_preference,3,comparison,Female,35-44,Balanced Value Seekers,Service
+R032,willingness_to_pay,1,comparison,Female,35-44,Balanced Value Seekers,Service
+R033,sub_purchase_intent,2,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R033,sub_value,2,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R033,sub_satisfaction,5,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R033,sub_recommendation,5,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R033,ad_purchase_intent,3,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R033,ad_value,4,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R033,ad_satisfaction,2,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R033,ad_recommendation,5,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R033,service_preference,3,comparison,Male,35-44,Balanced Value Seekers,Sales
+R033,willingness_to_pay,4,comparison,Male,35-44,Balanced Value Seekers,Sales
+R034,sub_purchase_intent,3,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R034,sub_value,4,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R034,sub_satisfaction,5,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R034,sub_recommendation,2,subscription_service,Male,35-44,Balanced Value Seekers,Sales
+R034,ad_purchase_intent,1,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R034,ad_value,4,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R034,ad_satisfaction,3,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R034,ad_recommendation,4,ad_supported_service,Male,35-44,Balanced Value Seekers,Sales
+R034,service_preference,7,comparison,Male,35-44,Balanced Value Seekers,Sales
+R034,willingness_to_pay,4,comparison,Male,35-44,Balanced Value Seekers,Sales
+R035,sub_purchase_intent,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R035,sub_value,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R035,sub_satisfaction,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R035,sub_recommendation,4,subscription_service,Female,35-44,Balanced Value Seekers,Service
+R035,ad_purchase_intent,3,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R035,ad_value,4,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R035,ad_satisfaction,5,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R035,ad_recommendation,5,ad_supported_service,Female,35-44,Balanced Value Seekers,Service
+R035,service_preference,5,comparison,Female,35-44,Balanced Value Seekers,Service
+R035,willingness_to_pay,7,comparison,Female,35-44,Balanced Value Seekers,Service
+R036,sub_purchase_intent,4,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R036,sub_value,3,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R036,sub_satisfaction,2,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R036,sub_recommendation,1,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R036,ad_purchase_intent,2,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R036,ad_value,3,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R036,ad_satisfaction,5,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R036,ad_recommendation,3,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R036,service_preference,7,comparison,Male,45-54,Balanced Value Seekers,Service
+R036,willingness_to_pay,6,comparison,Male,45-54,Balanced Value Seekers,Service
+R037,sub_purchase_intent,2,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R037,sub_value,5,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R037,sub_satisfaction,5,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R037,sub_recommendation,5,subscription_service,Male,45-54,Balanced Value Seekers,Service
+R037,ad_purchase_intent,5,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R037,ad_value,5,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R037,ad_satisfaction,4,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R037,ad_recommendation,4,ad_supported_service,Male,45-54,Balanced Value Seekers,Service
+R037,service_preference,7,comparison,Male,45-54,Balanced Value Seekers,Service
+R037,willingness_to_pay,2,comparison,Male,45-54,Balanced Value Seekers,Service
+R038,sub_purchase_intent,5,subscription_service,Female,45-54,Balanced Value Seekers,Professional
+R038,sub_value,2,subscription_service,Female,45-54,Balanced Value Seekers,Professional
+R038,sub_satisfaction,3,subscription_service,Female,45-54,Balanced Value Seekers,Professional
+R038,sub_recommendation,3,subscription_service,Female,45-54,Balanced Value Seekers,Professional
+R038,ad_purchase_intent,3,ad_supported_service,Female,45-54,Balanced Value Seekers,Professional
+R038,ad_value,4,ad_supported_service,Female,45-54,Balanced Value Seekers,Professional
+R038,ad_satisfaction,1,ad_supported_service,Female,45-54,Balanced Value Seekers,Professional
+R038,ad_recommendation,2,ad_supported_service,Female,45-54,Balanced Value Seekers,Professional
+R038,service_preference,2,comparison,Female,45-54,Balanced Value Seekers,Professional
+R038,willingness_to_pay,1,comparison,Female,45-54,Balanced Value Seekers,Professional
+R039,sub_purchase_intent,5,subscription_service,Male,45-54,Balanced Value Seekers,Professional
+R039,sub_value,2,subscription_service,Male,45-54,Balanced Value Seekers,Professional
+R039,sub_satisfaction,1,subscription_service,Male,45-54,Balanced Value Seekers,Professional
+R039,sub_recommendation,2,subscription_service,Male,45-54,Balanced Value Seekers,Professional
+R039,ad_purchase_intent,2,ad_supported_service,Male,45-54,Balanced Value Seekers,Professional
+R039,ad_value,4,ad_supported_service,Male,45-54,Balanced Value Seekers,Professional
+R039,ad_satisfaction,2,ad_supported_service,Male,45-54,Balanced Value Seekers,Professional
+R039,ad_recommendation,4,ad_supported_service,Male,45-54,Balanced Value Seekers,Professional
+R039,service_preference,1,comparison,Male,45-54,Balanced Value Seekers,Professional
+R039,willingness_to_pay,5,comparison,Male,45-54,Balanced Value Seekers,Professional
+R040,sub_purchase_intent,1,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R040,sub_value,3,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R040,sub_satisfaction,3,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R040,sub_recommendation,2,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R040,ad_purchase_intent,3,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R040,ad_value,1,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R040,ad_satisfaction,3,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R040,ad_recommendation,1,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R040,service_preference,4,comparison,Male,35-44,Balanced Value Seekers,Professional
+R040,willingness_to_pay,4,comparison,Male,35-44,Balanced Value Seekers,Professional
+R041,sub_purchase_intent,2,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R041,sub_value,5,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R041,sub_satisfaction,4,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R041,sub_recommendation,5,subscription_service,Male,35-44,Balanced Value Seekers,Professional
+R041,ad_purchase_intent,4,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R041,ad_value,5,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R041,ad_satisfaction,3,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R041,ad_recommendation,4,ad_supported_service,Male,35-44,Balanced Value Seekers,Professional
+R041,service_preference,6,comparison,Male,35-44,Balanced Value Seekers,Professional
+R041,willingness_to_pay,7,comparison,Male,35-44,Balanced Value Seekers,Professional
+R042,sub_purchase_intent,5,subscription_service,Male,35-44,Balanced Value Seekers,Service
+R042,sub_value,4,subscription_service,Male,35-44,Balanced Value Seekers,Service
+R042,sub_satisfaction,4,subscription_service,Male,35-44,Balanced Value Seekers,Service
+R042,sub_recommendation,5,subscription_service,Male,35-44,Balanced Value Seekers,Service
+R042,ad_purchase_intent,5,ad_supported_service,Male,35-44,Balanced Value Seekers,Service
+R042,ad_value,5,ad_supported_service,Male,35-44,Balanced Value Seekers,Service
+R042,ad_satisfaction,5,ad_supported_service,Male,35-44,Balanced Value Seekers,Service
+R042,ad_recommendation,1,ad_supported_service,Male,35-44,Balanced Value Seekers,Service
+R042,service_preference,7,comparison,Male,35-44,Balanced Value Seekers,Service
+R042,willingness_to_pay,6,comparison,Male,35-44,Balanced Value Seekers,Service
+R043,sub_purchase_intent,5,subscription_service,Female,35-44,Balanced Value Seekers,Professional
+R043,sub_value,4,subscription_service,Female,35-44,Balanced Value Seekers,Professional
+R043,sub_satisfaction,4,subscription_service,Female,35-44,Balanced Value Seekers,Professional
+R043,sub_recommendation,5,subscription_service,Female,35-44,Balanced Value Seekers,Professional
+R043,ad_purchase_intent,4,ad_supported_service,Female,35-44,Balanced Value Seekers,Professional
+R043,ad_value,3,ad_supported_service,Female,35-44,Balanced Value Seekers,Professional
+R043,ad_satisfaction,5,ad_supported_service,Female,35-44,Balanced Value Seekers,Professional
+R043,ad_recommendation,1,ad_supported_service,Female,35-44,Balanced Value Seekers,Professional
+R043,service_preference,5,comparison,Female,35-44,Balanced Value Seekers,Professional
+R043,willingness_to_pay,7,comparison,Female,35-44,Balanced Value Seekers,Professional
+R044,sub_purchase_intent,2,subscription_service,Male,55-64,Casual Viewers,Service
+R044,sub_value,1,subscription_service,Male,55-64,Casual Viewers,Service
+R044,sub_satisfaction,1,subscription_service,Male,55-64,Casual Viewers,Service
+R044,sub_recommendation,5,subscription_service,Male,55-64,Casual Viewers,Service
+R044,ad_purchase_intent,1,ad_supported_service,Male,55-64,Casual Viewers,Service
+R044,ad_value,3,ad_supported_service,Male,55-64,Casual Viewers,Service
+R044,ad_satisfaction,1,ad_supported_service,Male,55-64,Casual Viewers,Service
+R044,ad_recommendation,1,ad_supported_service,Male,55-64,Casual Viewers,Service
+R044,service_preference,3,comparison,Male,55-64,Casual Viewers,Service
+R044,willingness_to_pay,1,comparison,Male,55-64,Casual Viewers,Service
+R045,sub_purchase_intent,4,subscription_service,Female,65+,Casual Viewers,Sales
+R045,sub_value,4,subscription_service,Female,65+,Casual Viewers,Sales
+R045,sub_satisfaction,5,subscription_service,Female,65+,Casual Viewers,Sales
+R045,sub_recommendation,4,subscription_service,Female,65+,Casual Viewers,Sales
+R045,ad_purchase_intent,4,ad_supported_service,Female,65+,Casual Viewers,Sales
+R045,ad_value,4,ad_supported_service,Female,65+,Casual Viewers,Sales
+R045,ad_satisfaction,5,ad_supported_service,Female,65+,Casual Viewers,Sales
+R045,ad_recommendation,5,ad_supported_service,Female,65+,Casual Viewers,Sales
+R045,service_preference,3,comparison,Female,65+,Casual Viewers,Sales
+R045,willingness_to_pay,7,comparison,Female,65+,Casual Viewers,Sales
+R046,sub_purchase_intent,2,subscription_service,Male,55-64,Casual Viewers,Retired
+R046,sub_value,5,subscription_service,Male,55-64,Casual Viewers,Retired
+R046,sub_satisfaction,2,subscription_service,Male,55-64,Casual Viewers,Retired
+R046,sub_recommendation,2,subscription_service,Male,55-64,Casual Viewers,Retired
+R046,ad_purchase_intent,5,ad_supported_service,Male,55-64,Casual Viewers,Retired
+R046,ad_value,5,ad_supported_service,Male,55-64,Casual Viewers,Retired
+R046,ad_satisfaction,5,ad_supported_service,Male,55-64,Casual Viewers,Retired
+R046,ad_recommendation,5,ad_supported_service,Male,55-64,Casual Viewers,Retired
+R046,service_preference,3,comparison,Male,55-64,Casual Viewers,Retired
+R046,willingness_to_pay,4,comparison,Male,55-64,Casual Viewers,Retired
+R047,sub_purchase_intent,3,subscription_service,Female,45-54,Casual Viewers,Service
+R047,sub_value,2,subscription_service,Female,45-54,Casual Viewers,Service
+R047,sub_satisfaction,5,subscription_service,Female,45-54,Casual Viewers,Service
+R047,sub_recommendation,4,subscription_service,Female,45-54,Casual Viewers,Service
+R047,ad_purchase_intent,4,ad_supported_service,Female,45-54,Casual Viewers,Service
+R047,ad_value,3,ad_supported_service,Female,45-54,Casual Viewers,Service
+R047,ad_satisfaction,4,ad_supported_service,Female,45-54,Casual Viewers,Service
+R047,ad_recommendation,2,ad_supported_service,Female,45-54,Casual Viewers,Service
+R047,service_preference,4,comparison,Female,45-54,Casual Viewers,Service
+R047,willingness_to_pay,7,comparison,Female,45-54,Casual Viewers,Service
+R048,sub_purchase_intent,3,subscription_service,Male,65+,Casual Viewers,Service
+R048,sub_value,2,subscription_service,Male,65+,Casual Viewers,Service
+R048,sub_satisfaction,4,subscription_service,Male,65+,Casual Viewers,Service
+R048,sub_recommendation,5,subscription_service,Male,65+,Casual Viewers,Service
+R048,ad_purchase_intent,4,ad_supported_service,Male,65+,Casual Viewers,Service
+R048,ad_value,5,ad_supported_service,Male,65+,Casual Viewers,Service
+R048,ad_satisfaction,5,ad_supported_service,Male,65+,Casual Viewers,Service
+R048,ad_recommendation,1,ad_supported_service,Male,65+,Casual Viewers,Service
+R048,service_preference,3,comparison,Male,65+,Casual Viewers,Service
+R048,willingness_to_pay,6,comparison,Male,65+,Casual Viewers,Service
+R049,sub_purchase_intent,4,subscription_service,Female,45-54,Casual Viewers,Service
+R049,sub_value,2,subscription_service,Female,45-54,Casual Viewers,Service
+R049,sub_satisfaction,1,subscription_service,Female,45-54,Casual Viewers,Service
+R049,sub_recommendation,1,subscription_service,Female,45-54,Casual Viewers,Service
+R049,ad_purchase_intent,1,ad_supported_service,Female,45-54,Casual Viewers,Service
+R049,ad_value,1,ad_supported_service,Female,45-54,Casual Viewers,Service
+R049,ad_satisfaction,4,ad_supported_service,Female,45-54,Casual Viewers,Service
+R049,ad_recommendation,4,ad_supported_service,Female,45-54,Casual Viewers,Service
+R049,service_preference,1,comparison,Female,45-54,Casual Viewers,Service
+R049,willingness_to_pay,5,comparison,Female,45-54,Casual Viewers,Service
+R050,sub_purchase_intent,3,subscription_service,Male,45-54,Casual Viewers,Service
+R050,sub_value,3,subscription_service,Male,45-54,Casual Viewers,Service
+R050,sub_satisfaction,4,subscription_service,Male,45-54,Casual Viewers,Service
+R050,sub_recommendation,1,subscription_service,Male,45-54,Casual Viewers,Service
+R050,ad_purchase_intent,2,ad_supported_service,Male,45-54,Casual Viewers,Service
+R050,ad_value,1,ad_supported_service,Male,45-54,Casual Viewers,Service
+R050,ad_satisfaction,3,ad_supported_service,Male,45-54,Casual Viewers,Service
+R050,ad_recommendation,1,ad_supported_service,Male,45-54,Casual Viewers,Service
+R050,service_preference,3,comparison,Male,45-54,Casual Viewers,Service
+R050,willingness_to_pay,2,comparison,Male,45-54,Casual Viewers,Service

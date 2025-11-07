@@ -237,9 +237,31 @@ if selected_survey:
         # Survey questions preview
         with st.expander(" View Survey Questions", expanded=False):
             questions = survey_data.get('questions', [])
+            categories = survey_data.get('categories', [])
 
             for i, q in enumerate(questions, 1):
                 st.markdown(f"**{i}. {q.get('id')}** - {q.get('type')}")
+
+                # Show category/product information
+                if categories:
+                    q_category = q.get('category')
+                    categories_compared = q.get('categories_compared', [])
+
+                    if categories_compared:
+                        # Comparative question - show both categories
+                        category_names = []
+                        for cat_id in categories_compared:
+                            cat = next((c for c in categories if c.get('id') == cat_id), None)
+                            if cat:
+                                category_names.append(cat.get('name'))
+                        if category_names:
+                            st.caption(f"Comparing: {' vs '.join(category_names)}")
+                    elif q_category:
+                        # Single category question
+                        cat = next((c for c in categories if c.get('id') == q_category), None)
+                        if cat:
+                            st.caption(f"Category: {cat.get('name')}")
+
                 st.markdown(f"*{q.get('text')}*")
 
                 # Show scale/options

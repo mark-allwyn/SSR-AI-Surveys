@@ -160,9 +160,19 @@ st.markdown("---")
 # Main Action Cards
 st.markdown("### Quick Actions")
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
+    st.markdown("""
+    <div class="action-card">
+        <div class="action-title">Survey Preview</div>
+        <div class="action-desc">Take surveys and collect real user responses</div>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("Take Survey", key="survey_preview", use_container_width=True, type="primary"):
+        st.switch_page("pages/2_Survey_Preview.py")
+
+with col2:
     st.markdown("""
     <div class="action-card">
         <div class="action-title">Run Experiment</div>
@@ -170,9 +180,9 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
     if st.button("Start Experiment", key="run_exp", use_container_width=True, type="primary"):
-        st.switch_page("pages/2_Run_Experiment.py")
+        st.switch_page("pages/3_Run_Experiment.py")
 
-with col2:
+with col3:
     st.markdown("""
     <div class="action-card">
         <div class="action-title">View Results</div>
@@ -180,9 +190,9 @@ with col2:
     </div>
     """, unsafe_allow_html=True)
     if st.button("Open Results", key="view_results", use_container_width=True, type="primary"):
-        st.switch_page("pages/3_Results_Dashboard.py")
+        st.switch_page("pages/4_Results_Dashboard.py")
 
-with col3:
+with col4:
     st.markdown("""
     <div class="action-card">
         <div class="action-title">Live Demo</div>
@@ -190,7 +200,7 @@ with col3:
     </div>
     """, unsafe_allow_html=True)
     if st.button("Try Demo", key="live_demo", use_container_width=True, type="primary"):
-        st.switch_page("pages/5_Live_Demo.py")
+        st.switch_page("pages/6_Live_Demo.py")
 
 st.markdown("---")
 
@@ -265,7 +275,7 @@ if experiments_dir.exists():
         # Quick view button for latest
         if st.button("View Latest Results", type="primary"):
             st.session_state.selected_experiment = str(experiment_folders[0])
-            st.switch_page("pages/3_Results_Dashboard.py")
+            st.switch_page("pages/4_Results_Dashboard.py")
     else:
         st.info("No experiments yet! Click 'Start Experiment' above to run your first analysis.")
 else:
@@ -278,15 +288,15 @@ with st.expander("Advanced Options"):
 
     with col1:
         if st.button("Settings", use_container_width=True):
-            st.switch_page("pages/6_Settings.py")
+            st.switch_page("pages/7_Settings.py")
 
     with col2:
         if st.button("Data Schema Guide", use_container_width=True):
-            st.switch_page("pages/7_Data_Schema_Guide.py")
+            st.switch_page("pages/8_Data_Schema_Guide.py")
 
     with col3:
         if st.button("Compare Experiments", use_container_width=True):
-            st.switch_page("pages/4_Compare_Experiments.py")
+            st.switch_page("pages/5_Compare_Experiments.py")
 
 # Footer with what is SSR
 st.markdown("---")

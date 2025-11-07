@@ -3,13 +3,13 @@
 
 ---
 
-**Report Generated:** 2025-11-04 15:35:08
+**Report Generated:** 2025-11-07 09:41:53
 
-**Survey:** Online Lottery Gaming Platform Evaluation
+**Survey:** Product Comparison - Multi-Category Example
 
-**Description:** Kantar-style concept evaluation for online lottery gaming products
+**Description:** Compare streaming services: subscription-based vs ad-supported platforms
 
-**Total Questions:** 14
+**Total Questions:** 10
 
 **Sample Size per Question:** 50
 
@@ -20,12 +20,12 @@
 ### Key Results
 
 - **Human Response Accuracy:** 100.0%
-- **LLM Response Accuracy:** 93.3%
-- **Accuracy Gap:** 6.7% (Human superior)
+- **LLM Response Accuracy:** 90.8%
+- **Accuracy Gap:** 9.2% (Human superior)
 
 ### What This Means
 
-Human-style responses show **moderately better** alignment with ground truth (6.7% advantage). The SSR method performs well on both response styles but has a slight preference for direct language.
+Human-style responses show **moderately better** alignment with ground truth (9.2% advantage). The SSR method performs well on both response styles but has a slight preference for direct language.
 
 ---
 
@@ -60,38 +60,38 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Better | Interpretation |
 |--------|-------|-----|--------|----------------|
-| **Mode Accuracy** | 100.0% | 93.3% | Human | % of predictions exactly matching ground truth |
-| **Top-2 Accuracy** | 100.0% | 99.6% | Human | % where true answer is in top 2 predictions |
-| **Mean Absolute Error** | 0.000 | 0.696 | Human | Average distance from true rating (lower is better) |
-| **Prob at Truth** | 1.000 | 0.509 | Human | Avg probability assigned to true answer (higher = more confident) |
+| **Mode Accuracy** | 100.0% | 90.8% | Human | % of predictions exactly matching ground truth |
+| **Top-2 Accuracy** | 100.0% | 99.2% | Human | % where true answer is in top 2 predictions |
+| **Mean Absolute Error** | 0.000 | 0.767 | Human | Average distance from true rating (lower is better) |
+| **Prob at Truth** | 1.000 | 0.443 | Human | Avg probability assigned to true answer (higher = more confident) |
 
 ### What These Metrics Mean
 
 **Mode Accuracy** measures how often SSR's top prediction exactly matches the ground truth. This is the strictest metric—you either get it right or wrong.
 
-- **Result:** Human responses achieve 100.0% vs LLM's 93.3%
-- **Implication:** Direct language is 6.7% more likely to be correctly classified
+- **Result:** Human responses achieve 100.0% vs LLM's 90.8%
+- **Implication:** Direct language is 9.2% more likely to be correctly classified
 
 **Top-2 Accuracy** is more forgiving—it counts predictions as correct if the true answer is in the top 2 most likely ratings. This reflects SSR's probabilistic nature.
 
-- **Result:** Human 100.0% vs LLM 99.6%
+- **Result:** Human 100.0% vs LLM 99.2%
 - **Implication:** Both methods rarely miss completely—SSR captures the right range
 
 **Mean Absolute Error (MAE)** measures average distance from the true rating. For a 5-point scale, an MAE of 0.5 means predictions are off by half a point on average.
 
-- **Result:** Human MAE = 0.000, LLM MAE = 0.696
+- **Result:** Human MAE = 0.000, LLM MAE = 0.767
 - **Implication:** Human responses are highly accurate (within ~0.3 points)
 
 **Probability at Truth** shows how confident SSR is when it assigns probability to the correct answer. Higher values mean more confident, accurate predictions.
 
-- **Result:** Human 1.000 vs LLM 0.509
+- **Result:** Human 1.000 vs LLM 0.443
 ---
 
 ## Question-by-Question Analysis
 
-### Q1 Purchase Intent
+### Sub Purchase Intent
 
-**Question:** How likely would you be to subscribe to this online lottery platform?
+**Question:** How likely would you be to subscribe to this premium service?
 
 **Type:** Likert 5
 
@@ -102,8 +102,8 @@ To evaluate SSR performance, we:
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 100.0% | +0.0% |
-| MAE | 0.000 | 0.582 | -0.582 |
-| Prob at Truth | 1.000 | 0.478 | +0.522 |
+| MAE | 0.000 | 0.529 | -0.529 |
+| Prob at Truth | 1.000 | 0.506 | +0.494 |
 
 #### Interpretation
 
@@ -117,9 +117,9 @@ To evaluate SSR performance, we:
 
 ---
 
-### Q2 Uniqueness
+### Sub Value
 
-**Question:** This online lottery platform is unique and different from other ways to play the lottery
+**Question:** The $14.99/month pricing represents good value for money
 
 **Type:** Likert 5
 
@@ -130,8 +130,8 @@ To evaluate SSR performance, we:
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 94.0% | +6.0% |
-| MAE | 0.000 | 0.772 | -0.772 |
-| Prob at Truth | 1.000 | 0.501 | +0.499 |
+| MAE | 0.000 | 0.600 | -0.600 |
+| Prob at Truth | 1.000 | 0.502 | +0.498 |
 
 #### Interpretation
 
@@ -145,9 +145,9 @@ To evaluate SSR performance, we:
 
 ---
 
-### Q3 Value For Money
+### Sub Satisfaction
 
-**Question:** The subscription pricing for this service represents good value for money
+**Question:** I would be satisfied with the features offered by this service
 
 **Type:** Likert 5
 
@@ -157,65 +157,69 @@ To evaluate SSR performance, we:
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 96.0% | +4.0% |
-| MAE | 0.000 | 0.723 | -0.723 |
-| Prob at Truth | 1.000 | 0.525 | +0.475 |
+| Mode Accuracy | 100.0% | 86.0% | +14.0% |
+| MAE | 0.000 | 0.597 | -0.597 |
+| Prob at Truth | 1.000 | 0.474 | +0.526 |
 
 #### Interpretation
 
 **5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
 
+The 14.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 48 / 50 responses
+- **LLM correct predictions:** 43 / 50 responses
 
 
 ---
 
-### Q4 Likeability
+### Sub Recommendation
 
-**Question:** Overall, how much do you like or dislike this online lottery platform concept?
+**Question:** How likely would you be to recommend this service to others?
 
-**Type:** Likert 7
+**Type:** Likert 5
 
-**Scale:** 7-point (Dislike it a great deal to Like it a great deal)
+**Scale:** 5-point (Definitely would not recommend to Definitely would recommend)
+
+#### Performance
+
+| Metric | Human | LLM | Difference |
+|--------|-------|-----|------------|
+| Mode Accuracy | 100.0% | 80.0% | +20.0% |
+| MAE | 0.000 | 0.679 | -0.679 |
+| Prob at Truth | 1.000 | 0.437 | +0.563 |
+
+#### Interpretation
+
+**5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
+
+The 20.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+
+#### Prediction Patterns
+
+- **Human correct predictions:** 50 / 50 responses
+- **LLM correct predictions:** 40 / 50 responses
+
+
+---
+
+### Ad Purchase Intent
+
+**Question:** How likely would you be to use this free ad-supported service?
+
+**Type:** Likert 5
+
+**Scale:** 5-point (Definitely would not use to Definitely would use)
 
 #### Performance
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 94.0% | +6.0% |
-| MAE | 0.000 | 0.973 | -0.973 |
-| Prob at Truth | 1.000 | 0.359 | +0.641 |
-
-#### Interpretation
-
-**7-point Likert scales** are more challenging because SSR must differentiate between 7 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
-
-#### Prediction Patterns
-
-- **Human correct predictions:** 49 / 49 responses
-- **LLM correct predictions:** 47 / 50 responses
-
-
----
-
-### Q5 Relevance
-
-**Question:** This online lottery platform is relevant to people like me
-
-**Type:** Likert 5
-
-**Scale:** 5-point (Strongly disagree to Strongly agree)
-
-#### Performance
-
-| Metric | Human | LLM | Difference |
-|--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 96.0% | +4.0% |
-| MAE | 0.000 | 0.787 | -0.787 |
-| Prob at Truth | 1.000 | 0.521 | +0.479 |
+| MAE | 0.000 | 0.729 | -0.729 |
+| Prob at Truth | 1.000 | 0.463 | +0.537 |
 
 #### Interpretation
 
@@ -224,14 +228,14 @@ To evaluate SSR performance, we:
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 48 / 50 responses
+- **LLM correct predictions:** 47 / 50 responses
 
 
 ---
 
-### Q6 Excitement
+### Ad Value
 
-**Question:** This online lottery platform concept is exciting and interesting
+**Question:** This free service with ads represents good value
 
 **Type:** Likert 5
 
@@ -242,8 +246,8 @@ To evaluate SSR performance, we:
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
 | Mode Accuracy | 100.0% | 92.0% | +8.0% |
-| MAE | 0.000 | 0.790 | -0.790 |
-| Prob at Truth | 1.000 | 0.498 | +0.502 |
+| MAE | 0.000 | 0.671 | -0.671 |
+| Prob at Truth | 1.000 | 0.493 | +0.507 |
 
 #### Interpretation
 
@@ -257,67 +261,9 @@ To evaluate SSR performance, we:
 
 ---
 
-### Q7 Believability
+### Ad Satisfaction
 
-**Question:** The claims made about this online lottery platform are believable
-
-**Type:** Likert 5
-
-**Scale:** 5-point (Strongly disagree to Strongly agree)
-
-#### Performance
-
-| Metric | Human | LLM | Difference |
-|--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 88.0% | +12.0% |
-| MAE | 0.000 | 0.692 | -0.692 |
-| Prob at Truth | 1.000 | 0.474 | +0.526 |
-
-#### Interpretation
-
-**5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
-
-The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
-
-#### Prediction Patterns
-
-- **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 44 / 50 responses
-
-
----
-
-### Q8 Understanding
-
-**Question:** How well do you feel you understand what this online lottery platform is offering?
-
-**Type:** Likert 7
-
-**Scale:** 7-point (Do not understand at all to Understand completely)
-
-#### Performance
-
-| Metric | Human | LLM | Difference |
-|--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 98.0% | +2.0% |
-| MAE | 0.000 | 0.948 | -0.948 |
-| Prob at Truth | 1.000 | 0.342 | +0.658 |
-
-#### Interpretation
-
-**7-point Likert scales** are more challenging because SSR must differentiate between 7 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
-
-#### Prediction Patterns
-
-- **Human correct predictions:** 49 / 49 responses
-- **LLM correct predictions:** 49 / 50 responses
-
-
----
-
-### Q9 Trust
-
-**Question:** I would trust this platform with my payment information and lottery tickets
+**Question:** I would be satisfied with this ad-supported viewing experience
 
 **Type:** Likert 5
 
@@ -327,9 +273,9 @@ The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 96.0% | +4.0% |
-| MAE | 0.000 | 0.906 | -0.906 |
-| Prob at Truth | 1.000 | 0.498 | +0.502 |
+| Mode Accuracy | 100.0% | 92.0% | +8.0% |
+| MAE | 0.000 | 0.805 | -0.805 |
+| Prob at Truth | 1.000 | 0.509 | +0.491 |
 
 #### Interpretation
 
@@ -338,14 +284,14 @@ The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 48 / 50 responses
+- **LLM correct predictions:** 46 / 50 responses
 
 
 ---
 
-### Q10 Recommendation
+### Ad Recommendation
 
-**Question:** How likely would you be to recommend this online lottery platform to a friend or family member?
+**Question:** How likely would you be to recommend this free service to others?
 
 **Type:** Likert 5
 
@@ -355,132 +301,68 @@ The 12.0% gap suggests LLM hedging creates semantic overlap between adjacent sca
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 90.0% | +10.0% |
-| MAE | 0.000 | 0.498 | -0.498 |
-| Prob at Truth | 1.000 | 0.457 | +0.543 |
+| Mode Accuracy | 100.0% | 84.0% | +16.0% |
+| MAE | 0.000 | 0.553 | -0.553 |
+| Prob at Truth | 1.000 | 0.451 | +0.549 |
 
 #### Interpretation
 
 **5-point Likert scales** are more challenging because SSR must differentiate between 5 similar options. Human responses still achieve strong accuracy (100.0%), indicating clear semantic distinctions.
 
+The 16.0% gap suggests LLM hedging creates semantic overlap between adjacent scale points.
+
 #### Prediction Patterns
 
 - **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 45 / 50 responses
+- **LLM correct predictions:** 42 / 50 responses
 
 
 ---
 
-### Q11 Feature Importance
+### Service Preference
 
-**Question:** Which feature of this online lottery platform is most important to you in making a subscription decision?
+**Question:** Overall, which service model do you prefer: {subscription_service} or {ad_supported_service}?
 
-**Type:** Multiple Choice
+**Type:** Preference Scale
 
-**Scale:** 7 options
-
-#### Performance
+**Scale:** #### Performance
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 100.0% | +0.0% |
-| MAE | 0.000 | 0.910 | -0.910 |
-| Prob at Truth | 1.000 | 0.621 | +0.379 |
+| Mode Accuracy | 100.0% | 92.0% | +8.0% |
+| MAE | 0.000 | 1.016 | -1.016 |
+| Prob at Truth | 1.000 | 0.294 | +0.706 |
 
 #### Interpretation
-
-**Multiple choice questions** depend heavily on how distinct the options are semantically. Both response styles achieve excellent accuracy (100.0%), suggesting the options are semantically well-separated.
 
 #### Prediction Patterns
 
 - **Human correct predictions:** 49 / 49 responses
-- **LLM correct predictions:** 50 / 50 responses
+- **LLM correct predictions:** 46 / 50 responses
 
 
 ---
 
-### Q12 Current Lottery Play
+### Willingness To Pay
 
-**Question:** Do you currently play the lottery?
+**Question:** Given the choice between {subscription_service} and {ad_supported_service}, how willing are you to pay for an ad-free experience?
 
-**Type:** Yes No
+**Type:** Preference Scale
 
-**Scale:** Binary (No / Yes)
-
-#### Performance
+**Scale:** #### Performance
 
 | Metric | Human | LLM | Difference |
 |--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 86.0% | +14.0% |
-| MAE | 0.000 | 0.140 | -0.140 |
-| Prob at Truth | 1.000 | 0.860 | +0.140 |
+| Mode Accuracy | 100.0% | 94.0% | +6.0% |
+| MAE | 0.000 | 1.495 | -1.495 |
+| Prob at Truth | 1.000 | 0.299 | +0.701 |
 
 #### Interpretation
 
-**Binary questions** are typically easier to classify because there are only two options. Human responses achieve near-perfect accuracy (100.0%), suggesting direct yes/no statements align perfectly with semantic similarity.
-
-LLM responses show 14.0% lower accuracy, likely due to hedging language that makes binary classification ambiguous.
-
 #### Prediction Patterns
 
-- **Human correct predictions:** 50 / 50 responses
-- **LLM correct predictions:** 43 / 50 responses
-
-
----
-
-### Q13 Price Preference
-
-**Question:** Which subscription tier would you be most likely to choose?
-
-**Type:** Multiple Choice
-
-**Scale:** 4 options
-
-#### Performance
-
-| Metric | Human | LLM | Difference |
-|--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 100.0% | +0.0% |
-| MAE | 0.000 | 0.398 | -0.398 |
-| Prob at Truth | 1.000 | 0.601 | +0.399 |
-
-#### Interpretation
-
-**Multiple choice questions** depend heavily on how distinct the options are semantically. Both response styles achieve excellent accuracy (100.0%), suggesting the options are semantically well-separated.
-
-#### Prediction Patterns
-
-- **Human correct predictions:** 48 / 48 responses
-- **LLM correct predictions:** 50 / 50 responses
-
-
----
-
-### Q14 Usage Frequency
-
-**Question:** If you subscribed, how often would you expect to use this platform?
-
-**Type:** Multiple Choice
-
-**Scale:** 6 options
-
-#### Performance
-
-| Metric | Human | LLM | Difference |
-|--------|-------|-----|------------|
-| Mode Accuracy | 100.0% | 76.0% | +24.0% |
-| MAE | 0.000 | 0.631 | -0.631 |
-| Prob at Truth | 1.000 | 0.398 | +0.602 |
-
-#### Interpretation
-
-**Multiple choice questions** depend heavily on how distinct the options are semantically. Both response styles achieve excellent accuracy (100.0%), suggesting the options are semantically well-separated.
-
-#### Prediction Patterns
-
-- **Human correct predictions:** 48 / 48 responses
-- **LLM correct predictions:** 38 / 50 responses
+- **Human correct predictions:** 49 / 49 responses
+- **LLM correct predictions:** 47 / 50 responses
 
 
 ---
@@ -489,15 +371,11 @@ LLM responses show 14.0% lower accuracy, likely due to hedging language that mak
 
 ### 1. Response Style Significantly Impacts SSR Accuracy
 
-Direct, opinionated responses (human-style) outperform hedged, nuanced responses (LLM-style) by **6.7%** on average. This suggests:
+Direct, opinionated responses (human-style) outperform hedged, nuanced responses (LLM-style) by **9.2%** on average. This suggests:
 
 - SSR relies on clear semantic alignment between response and scale labels
 - Hedging language ("I might", "perhaps", "considering") dilutes semantic signal
 - Confident statements map more precisely to scale extremes
-
-### 2. Question Type Matters
-
-**Yes/No questions** achieve the highest accuracy (100.0% for human responses). Binary choices provide clear semantic boundaries that SSR handles well.
 
 **Likert scales** show more variation (100.0% accuracy). The challenge increases with more scale points due to semantic overlap between adjacent options.
 

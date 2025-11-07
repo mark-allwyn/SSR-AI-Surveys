@@ -244,7 +244,7 @@ def load_survey_config(config_path: str = "config/mixed_survey_config.yaml") -> 
     return {}
 
 
-def get_available_surveys() -> List[str]:
+def get_available_surveys() -> List[Path]:
     """Get list of available survey config files."""
     # Try current directory first, then parent directory
     config_dir = Path("config")
@@ -254,7 +254,7 @@ def get_available_surveys() -> List[str]:
         return []
 
     survey_files = list(config_dir.glob("*.yaml")) + list(config_dir.glob("*.yml"))
-    return [str(f) for f in survey_files]
+    return survey_files
 
 
 def delete_experiment(experiment_path: Path) -> bool:
