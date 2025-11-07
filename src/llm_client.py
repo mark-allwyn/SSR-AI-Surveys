@@ -5,6 +5,8 @@ import os
 from dataclasses import dataclass
 from tqdm import tqdm
 import time
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 try:
     from openai import OpenAI
@@ -181,6 +183,100 @@ class LLMClient:
                     pbar.update(1)
 
         return responses
+
+    def generate_responses_concurrent(
+        self,
+        survey: Survey,
+        respondent_profiles: List[RespondentProfile],
+        system_message: Optional[str] = None,
+        max_concurrent: int = 10
+    ) -> List[Response]:
+        """
+        Generate responses for all questions and respondents using concurrent API calls.
+        This is significantly faster than sequential generation.
+
+        Args:
+            survey: Survey object
+            respondent_profiles: List of respondent profiles
+            system_message: Optional system message for LLM
+            max_concurrent: Maximum number of concurrent API calls (default: 10)
+
+        Returns:
+            List of Response objects
+        """
+        if system_message is None:
+            system_message = (
+                "You are participating in a survey. Answer each question thoughtfully "
+                "based on the provided respondent profile. Provide a natural, detailed "
+                "response that explains your perspective and reasoning."
+            )
+
+        responses = []
+        total = len(respondent_profiles) * len(survey.questions)
+
+        # Create all tasks upfront
+        tasks = []
+        for i, profile in enumerate(respondent_profiles):
+            for question in survey.questions:
+                tasks.append({
+                    'profile': profile,
+                    'profile_idx': i,
+                    'question': question,
+                    'system_message': system_message
+                })
+
+        # Process tasks concurrently with a thread pool
+        with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
+            with tqdm(total=total, desc="Generating responses") as pbar:
+                futures = []
+                for task in tasks:
+                    future = executor.submit(self._generate_single_response, survey, task)
+                    futures.append(future)
+
+                # Collect results as they complete
+                for future in futures:
+                    try:
+                        response = future.result()
+                        if response:
+                            responses.append(response)
+                    except Exception as e:
+                        print(f"\nError generating response: {e}")
+                    pbar.update(1)
+
+        return responses
+
+    def _generate_single_response(self, survey: Survey, task: Dict) -> Optional[Response]:
+        """Helper method to generate a single response (used by concurrent generation)."""
+        profile = task['profile']
+        profile_idx = task['profile_idx']
+        question = task['question']
+        system_message = task['system_message']
+
+        prompt = survey.format_prompt(question, profile.to_dict())
+
+        try:
+            text_response = self.generate_response(prompt, system_message)
+
+            # Determine category for this response
+            category = None
+            if survey.has_categories():
+                if question.is_comparative():
+                    category = "comparison"
+                elif question.category:
+                    category = question.category
+
+            response = Response(
+                respondent_id=f"R{profile_idx+1:03d}",
+                question_id=question.id,
+                text_response=text_response,
+                respondent_profile=profile.to_dict(),
+                category=category
+            )
+            return response
+
+        except Exception as e:
+            print(f"\nError generating response for {profile.respondent_id} on {question.id}: {e}")
+            return None
 
 
 def generate_diverse_profiles(
