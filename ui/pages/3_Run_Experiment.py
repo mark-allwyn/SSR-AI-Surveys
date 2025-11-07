@@ -710,7 +710,7 @@ if run_button:
 
                         with col1:
                             # Use page_link for navigation
-                            st.page_link("pages/3_Results_Dashboard.py", label="View Results")
+                            st.page_link("pages/4_Results_Dashboard.py", label="View Results")
 
                         with col2:
                             if st.button("Run Another", use_container_width=True, key="run_another_btn"):
