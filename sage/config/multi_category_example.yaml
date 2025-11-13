@@ -1,0 +1,187 @@
+survey:
+  name: "Product Comparison - Multi-Category Example"
+  description: "Compare streaming services: subscription-based vs ad-supported platforms"
+  context: "We are conducting research to understand preferences between different streaming service models.
+Please evaluate both options carefully when answering the questions.
+"
+  sample_size: 100
+  demographics:
+    - age_group
+    - gender
+    - occupation
+    - persona_group
+  categories:
+    - id: subscription_service
+      name: "Premium Subscription Service"
+      description: "Ad-free streaming with premium features"
+      context: "Premium Subscription Streaming Service:
+- $14.99/month subscription fee
+- Completely ad-free viewing experience
+- 4K Ultra HD quality available
+- Download content for offline viewing
+- Up to 4 simultaneous streams
+- Access to exclusive original content
+- New releases available immediately
+- Cancel anytime, no contracts
+"
+    - id: ad_supported_service
+      name: "Ad-Supported Free Service"
+      description: "Free streaming with periodic advertisements"
+      context: "Ad-Supported Free Streaming Service:
+- Completely free, no subscription required
+- Ad breaks during content (4-6 minutes per hour)
+- HD quality (1080p maximum)
+- No offline downloads
+- 1 stream at a time
+- Access to same content library (delayed releases)
+- New releases available after 30-day window
+- Always free, no credit card needed
+"
+  questions:
+    - id: sub_purchase_intent
+      text: "How likely would you be to subscribe to this premium service?"
+      type: likert_5
+      category: subscription_service
+      scale:
+        1: "Very Unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very Likely"
+    - id: sub_value
+      text: "The $14.99/month pricing represents good value for money"
+      type: likert_5
+      category: subscription_service
+      scale:
+        1: "Strongly Disagree"
+        2: "Disagree"
+        3: "Neutral"
+        4: "Agree"
+        5: "Strongly Agree"
+    - id: sub_satisfaction
+      text: "I would be satisfied with the features offered by this service"
+      type: likert_5
+      category: subscription_service
+      scale:
+        1: "Strongly Disagree"
+        2: "Disagree"
+        3: "Neutral"
+        4: "Agree"
+        5: "Strongly Agree"
+    - id: sub_recommendation
+      text: "How likely would you be to recommend this service to others?"
+      type: likert_5
+      category: subscription_service
+      scale:
+        1: "Very Unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very Likely"
+    - id: ad_purchase_intent
+      text: "How likely would you be to use this free ad-supported service?"
+      type: likert_5
+      category: ad_supported_service
+      scale:
+        1: "Very Unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very Likely"
+    - id: ad_value
+      text: "This free service with ads represents good value"
+      type: likert_5
+      category: ad_supported_service
+      scale:
+        1: "Strongly Disagree"
+        2: "Disagree"
+        3: "Neutral"
+        4: "Agree"
+        5: "Strongly Agree"
+    - id: ad_satisfaction
+      text: "I would be satisfied with this ad-supported viewing experience"
+      type: likert_5
+      category: ad_supported_service
+      scale:
+        1: "Strongly Disagree"
+        2: "Disagree"
+        3: "Neutral"
+        4: "Agree"
+        5: "Strongly Agree"
+    - id: ad_recommendation
+      text: "How likely would you be to recommend this free service to others?"
+      type: likert_5
+      category: ad_supported_service
+      scale:
+        1: "Very Unlikely"
+        2: "Unlikely"
+        3: "Neutral"
+        4: "Likely"
+        5: "Very Likely"
+    - id: service_preference
+      text: "Overall, which service model do you prefer: {subscription_service} or {ad_supported_service}?"
+      type: preference_scale
+      category: comparison
+      categories_compared: [subscription_service, ad_supported_service]
+      scale:
+        1: "Strongly prefer {subscription_service}"
+        2: "Prefer {subscription_service}"
+        3: "No preference"
+        4: "Prefer {ad_supported_service}"
+        5: "Strongly prefer {ad_supported_service}"
+    - id: willingness_to_pay
+      text: "Given the choice between {subscription_service} and {ad_supported_service}, how willing are you to pay for an ad-free experience?"
+      type: preference_scale
+      category: comparison
+      categories_compared: [subscription_service, ad_supported_service]
+      scale:
+        1: "Not at all willing"
+        2: "Somewhat unwilling"
+        3: "Neutral"
+        4: "Somewhat willing"
+        5: "Very willing"
+  persona_groups:
+    - name: "Premium Content Seekers"
+      description: "High-income consumers who value quality and convenience"
+      weight: 0.25
+      personas:
+        - "A 30-year-old tech professional with high disposable income. Values time over money, hates ads."
+        - "A 35-year-old manager who watches content daily. Willing to pay for premium features and 4K quality."
+        - "A 28-year-old early adopter. Subscribes to multiple services, prefers ad-free experiences."
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["25-34", "35-44"]
+        occupation: ["Professional", "Manager", "Technical"]
+    - name: "Budget-Conscious Streamers"
+      description: "Price-sensitive viewers comfortable with ads"
+      weight: 0.35
+      personas:
+        - "A 22-year-old student on a tight budget. Prefers free services, tolerates ads to save money."
+        - "A 32-year-old with multiple subscriptions already. Looking to reduce monthly expenses."
+        - "A 48-year-old cost-conscious viewer. Watches casually, doesn't mind occasional ads."
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["18-24", "25-34", "45-54"]
+        occupation: ["Service", "Sales", "Administrative", "Student"]
+    - name: "Balanced Value Seekers"
+      description: "Consumers who weigh cost vs. benefit carefully"
+      weight: 0.25
+      personas:
+        - "A 38-year-old parent managing household budget. Considers value proposition carefully."
+        - "A 42-year-old who analyzes subscription costs. Would pay for ad-free if value is clear."
+        - "A 46-year-old moderate viewer. Willing to try free version first before committing."
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["35-44", "45-54"]
+        occupation: ["Professional", "Service", "Sales"]
+    - name: "Casual Viewers"
+      description: "Infrequent viewers with minimal streaming needs"
+      weight: 0.15
+      personas:
+        - "A 55-year-old who watches occasionally. Doesn't see need for premium features."
+        - "A 62-year-old casual viewer. Prefers traditional TV, uses streaming minimally."
+        - "A 68-year-old retiree on fixed income. Strongly prefers free options with ads."
+      target_demographics:
+        gender: ["Male", "Female"]
+        age_group: ["45-54", "55-64", "65+"]
+        occupation: ["Retired", "Service", "Sales"]
